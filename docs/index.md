@@ -51,6 +51,6 @@ You can contribute to the project with bug fixes, **new templates**, new feature
 
 I plan to add a "Showcase" section in the future. **If you use MIIS** to create the documentation for your project, a document-based site, etc... please **tweet it to me** with the URL. 
 
-And spread the word. Thanks! :simple_smile:
+And spread the word. Thanks! :smile:
 
 You can open any issues you may face, using the ["Issues" section](https://github.com/jmalarcon/MIIS/issues) for the project on GitHub.
