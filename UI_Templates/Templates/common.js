@@ -11,12 +11,13 @@ $(function(){
         var link = $(this).attr('href');
         return !(link.toLowerCase().indexOf('http://') == 0 || link.toLowerCase().indexOf('https://') == 0);
     });
-    var currDoc = window.location.pathname.substr(1);
+    var currPath = window.location.pathname;
+    var currDoc = window.location.pathname.substr(currPath.lastIndexOf("/")+1);
     var currLink = navLinks.filter(function(){
         //Checks if the link points to the document, starting with "/", "./" or without the root slash.
         var hRefRE = new RegExp('^\.{0,1}\/{0,1}' + currDoc + '$', 'ig'); 
         var href = $(this).attr('href');
-        return hRefRE.test(href);
+        return hRefRE.test(href) || href==currPath;
     });
     currLink.addClass('current-doc');
     
