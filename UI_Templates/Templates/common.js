@@ -17,12 +17,16 @@ $(function(){
         //Checks if the link points to the document, starting with "/", "./" or without the root slash.
         var hRefRE = new RegExp('^\.{0,1}\/{0,1}' + currDoc + '$', 'ig'); 
         var href = $(this).attr('href');
+        if (href == '') return false;   //Empty links that normally are only placeholders to contain other sub-lists
         return hRefRE.test(href) || href==currPath;
     });
     currLink.addClass('current-doc');
     
     //Make side lists collapsible and open automatically the one pointing to the current document
-    $('.miis-toc > ul > li > a').parent().find('ul > li').hide();
+    $('.miis-toc > ul > li > a').filter(function(){
+            return ($(this).attr('href') != '');
+        }).parent().find('ul > li').hide();
+    
     currLink.parentsUntil('.miis-toc > ul').last().find('li').show()
 
     /*
@@ -31,16 +35,23 @@ $(function(){
     If you want the link to have the next/prev elements titles assigned, then it must have an element with class="title"
     */
     var posCurrDoc = navLinks.index(currLink);
-    if (posCurrDoc > 0) {
-        $('#prev-button').attr('href', navLinks.eq(posCurrDoc-1).attr('href')).show();
-        $('#prev-button .title').text(navLinks.eq(posCurrDoc-1).text());
+    if (posCurrDoc >= 0) {
+        if (posCurrDoc > 0) {
+            $('#prev-button').attr('href', navLinks.eq(posCurrDoc-1).attr('href')).show();
+            $('#prev-button .title').text(navLinks.eq(posCurrDoc-1).text());
+        }
+        else
+            $('#prev-button').hide();
+
+        if (posCurrDoc < navLinks.length-1) {
+            $('#next-button').attr('href', navLinks.eq(posCurrDoc+1).attr('href')).show();
+            $('#next-button .title').text(navLinks.eq(posCurrDoc+1).text());
+        }
+        else
+            $('#next-button').hide();
     }
-    else
+    else{
         $('#prev-button').hide();
-    if (posCurrDoc < navLinks.length-1) {
-        $('#next-button').attr('href', navLinks.eq(posCurrDoc+1).attr('href')).show();
-        $('#next-button .title').text(navLinks.eq(posCurrDoc+1).text());
-    }
-    else
         $('#next-button').hide();
+    }
 });
