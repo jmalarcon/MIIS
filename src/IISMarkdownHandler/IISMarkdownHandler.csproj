@@ -52,7 +52,6 @@
     <Content Include="CSS\GitHub.css" />
     <Content Include="CSS\markdown5.css" />
     <Content Include="CSS\screen.css" />
-    <Content Include="index.md" />
     <Content Include="Templates\Barebones\main.html" />
     <Content Include="Templates\readthedocs\base.html" />
     <Content Include="Templates\readthedocs\css\highlight.css" />
@@ -66,14 +65,13 @@
     <Content Include="Test\DaringFireball.md" />
     <Content Include="Test\Folder1\sample.md" />
     <Content Include="Test\MasteringMarkdown.md" />
-    <Content Include="toc.md" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helper.cs" />
-    <Compile Include="MardownFile.cs" />
+    <Compile Include="MarkdownFile.cs" />
     <Compile Include="IISMarkdownHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HTMLRenderer.cs" />

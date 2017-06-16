@@ -32,7 +32,7 @@ namespace IISMarkdownHandler
                 string filePath = ctx.Server.MapPath(ctx.Request.FilePath);
                 MarkdownFile mdFile = new MarkdownFile(filePath);
 
-                //If the feature is enabled and teh user request the original file, send the original file
+                //If the feature is enabled and the user requests the original file, send the original file
                 if (!string.IsNullOrEmpty(ctx.Request.QueryString["download"]))
                 {
                     if (WebConfigurationManager.AppSettings["allowDownloading"] == "1")
