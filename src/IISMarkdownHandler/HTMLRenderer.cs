@@ -101,7 +101,7 @@ namespace IISMarkdownHandler
                         {
                             fldVal = fldVal.Trim();
                             //If it ends in .md, we must inject the contents as the real value
-                            if (fldVal.EndsWith(".md"))
+                            if (fldVal.EndsWith(".md") || fldVal.EndsWith(MarkdownFile.HTML_EXT))
                             {
                                 try
                                 {

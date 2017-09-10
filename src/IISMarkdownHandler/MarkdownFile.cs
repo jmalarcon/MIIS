@@ -16,7 +16,7 @@ namespace IISMarkdownHandler
     public class MarkdownFile
     {
 
-        private const string HTML_EXT = ".mdh";
+        public const string HTML_EXT = ".mdh";
 
         #region Constructor
         //Reads and process the file. 
