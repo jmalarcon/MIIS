@@ -40,8 +40,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Markdig, Version=0.10.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Markdig.0.10.4\lib\net35\Markdig.dll</HintPath>
+    <Reference Include="Markdig, Version=0.13.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Markdig.0.13.3\lib\net35\Markdig.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -77,7 +77,6 @@
     <Compile Include="HTMLRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
     <Content Include="Test\Folder1\Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -85,6 +84,7 @@
     <Content Include="Templates\readthedocs\fonts\fontawesome-webfont.ttf" />
     <Content Include="Templates\readthedocs\fonts\fontawesome-webfont.woff" />
     <Content Include="Templates\readthedocs\license\highlight.js\LICENSE" />
+    <Content Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -24,7 +24,7 @@ namespace IISMarkdownHandler
 <link rel=""stylesheet"" href=""{cssfile}"">
 </head>
 <body>
-    {content}
+{content}
 </body>
 </html>";
 

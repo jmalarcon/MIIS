@@ -29,7 +29,7 @@ namespace IISMarkdownHandler
         }
 
         /// <summary>
-        /// Reads a file from cache if available. If not reads it from disk.
+        /// Reads a file from cache if available. If not, reads it from disk.
         /// If read from disk it adds the results to the cache with a dependency on the file 
         /// so that, if the file changes, the cache is immediately invalidated and the new changes read from disk.
         /// </summary>
