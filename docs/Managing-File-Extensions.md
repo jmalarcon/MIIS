@@ -24,20 +24,23 @@ Just open the `web.config` file and locate the `system.webServer/handlers` secti
 
 You can add or remove extensions as needed.
 
+## The `.mdh` special extension
+By default (if not changed in the previous section of the `web.config` file) MIIS supports a special file type for pure HTML contents. Anything inside a `.mdh` file will be used with the current template un-transformed. This is very useful to be used in special pages that need a very specific HTML structure,such as the main front-page of a site or any other complex page. With this kind of files you'll use HTML instead of Markdown to gain control over the final HTML and can keep the indentation of the code (in Markdown indented HTML code would be interpreted as a code fragment).
+
 ## Default Documents
 
 Notice the `defaultDocument` setting in this section. It defines the name of the default files to be served from your site. So, in the default configuration as seen above, it will serve the `index.md` file without explicitly requesting it in any folder:
 
 ```
-http://www.midomain.com/
-http://www.midomain.com/SubFolder/
+http://www.mydomain.com/
+http://www.mydomain.com/SubFolder/
 ```
 
 are equivalent to:
 
 ```
-http://www.midomain.com/index.md
-http://www.midomain.com/SubFolder/index.md
+http://www.mydomain.com/index.md
+http://www.mydomain.com/SubFolder/index.md
 ```
 
 You can change this name or add more default names to be used in the same order as they appear in this setting.
