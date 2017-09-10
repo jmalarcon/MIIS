@@ -85,6 +85,15 @@ namespace IISMarkdownHandler
                     case "datemodified": //Markdown file date modified
                         fldVal = md.DateLastModified.ToString();
                         break;
+                    case "isauthenticated":    //Is current user authenticated?
+                        fldVal = ctx.User.Identity.IsAuthenticated.ToString();
+                        break;
+                    case "authtype":    //Authentication type
+                        fldVal = ctx.User.Identity.AuthenticationType;
+                        break;
+                    case "username":    //Current authenticated user's name
+                        fldVal = ctx.User.Identity.Name;
+                        break;
                     default:
                         //Try to read from web.config
                         fldVal = WebConfigurationManager.AppSettings[name];
