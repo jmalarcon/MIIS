@@ -100,7 +100,7 @@ namespace IISMarkdownHandler
                         if (!String.IsNullOrEmpty(fldVal))  //If a value is found for the parameter
                         {
                             fldVal = fldVal.Trim();
-                            //If it ends in .md, we must inject the contents as the real value
+                            //If it ends in .md or .mdh (the extension for HTML-only content files), we must inject the contents as the real value
                             if (fldVal.EndsWith(".md") || fldVal.EndsWith(MarkdownFile.HTML_EXT))
                             {
                                 try

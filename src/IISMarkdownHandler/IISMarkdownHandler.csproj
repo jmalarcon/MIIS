@@ -49,22 +49,6 @@
     <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CSS\GitHub.css" />
-    <Content Include="CSS\markdown5.css" />
-    <Content Include="CSS\screen.css" />
-    <Content Include="Templates\Barebones\main.html" />
-    <Content Include="Templates\readthedocs\base.html" />
-    <Content Include="Templates\readthedocs\css\highlight.css" />
-    <Content Include="Templates\readthedocs\css\theme.css" />
-    <Content Include="Templates\readthedocs\css\theme_extra.css" />
-    <Content Include="Templates\readthedocs\fonts\fontawesome-webfont.svg" />
-    <Content Include="Templates\readthedocs\js\highlight.pack.js" />
-    <Content Include="Templates\readthedocs\js\jquery-2.1.1.min.js" />
-    <Content Include="Templates\readthedocs\js\modernizr-2.8.3.min.js" />
-    <Content Include="Templates\readthedocs\js\theme.js" />
-    <Content Include="Test\DaringFireball.md" />
-    <Content Include="Test\Folder1\sample.md" />
-    <Content Include="Test\MasteringMarkdown.md" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -77,13 +61,6 @@
     <Compile Include="HTMLRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Test\Folder1\Web.config">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Templates\readthedocs\fonts\fontawesome-webfont.eot" />
-    <Content Include="Templates\readthedocs\fonts\fontawesome-webfont.ttf" />
-    <Content Include="Templates\readthedocs\fonts\fontawesome-webfont.woff" />
-    <Content Include="Templates\readthedocs\license\highlight.js\LICENSE" />
     <Content Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
