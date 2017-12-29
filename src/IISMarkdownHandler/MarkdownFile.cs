@@ -57,7 +57,7 @@ namespace IISMarkdownHandler
             else
             { 
                 //Try to get the title of the file from the contents (find the first H1 if there's any)
-                //TODO: Quick and dirty with RegExp and only with "#". Improve using the Markdown parser
+                //TODO: Quick and dirty with RegExp and only with "#".
                 Regex re = new Regex(@"^\s*?#\s(.*)$", RegexOptions.Multiline);
                 if (re.IsMatch(this.Content))
                     this.Title = re.Matches(this.Content)[0].Groups[1].Captures[0].Value;
