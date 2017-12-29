@@ -9,7 +9,7 @@ namespace IISMarkdownHandler
     public static class Helper
     {
         //The regular expression to find fields in templates
-        internal static Regex REGEXFIELDS = new Regex(@"\{[a-z]+?\}");
+        internal static Regex REGEXFIELDS = new Regex(@"\{[0-9A-Za-z_]+?\}");
 
 
         /// <summary>
