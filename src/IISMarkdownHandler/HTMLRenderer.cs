@@ -45,7 +45,7 @@ namespace IISMarkdownHandler
         /// <returns>The final HTML to return to the client</returns>
         public string RenderMarkdown(MarkdownFile md)
         {
-            string templateFile = WebConfigurationManager.AppSettings["Markdown-Template"];
+            string templateFile = Helper.GetParamValue("Markdown-Template");
             string template = DEFAULT_TEMPLATE; //The default template for the final HTML
             if( !String.IsNullOrEmpty(templateFile) )
             {
@@ -96,7 +96,7 @@ namespace IISMarkdownHandler
                         break;
                     default:
                         //Try to read from web.config
-                        fldVal = WebConfigurationManager.AppSettings[name];
+                        fldVal = Helper.GetParamValue(name);
                         if (!String.IsNullOrEmpty(fldVal))  //If a value is found for the parameter
                         {
                             fldVal = fldVal.Trim();

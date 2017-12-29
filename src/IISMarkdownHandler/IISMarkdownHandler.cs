@@ -35,7 +35,7 @@ namespace IISMarkdownHandler
                 //If the feature is enabled and the user requests the original file, send the original file
                 if (!string.IsNullOrEmpty(ctx.Request.QueryString["download"]))
                 {
-                    if (WebConfigurationManager.AppSettings["allowDownloading"] == "1")
+                    if (Helper.GetParamValue("allowDownloading") == "1")
                     {
                         ctx.Response.ContentType = "text/markdown; charset=UTF-8";
                         ctx.Response.AppendHeader("content-disposition", "attachment; filename=" + mdFile.FileName);

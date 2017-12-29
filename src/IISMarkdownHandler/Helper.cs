@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.Caching;
 using System.Text.RegularExpressions;
 
@@ -11,6 +12,26 @@ namespace IISMarkdownHandler
         //The regular expression to find fields in templates
         internal static Regex REGEXFIELDS = new Regex(@"\{[0-9A-Za-z_]+?\}");
 
+        //Returns a param from web.config or a default value for it
+        //The defaultValue can be skipped and it will be returned an empty string if it's needed
+        internal static string GetParamValue(string paramName, string defaultvalue = "")
+        {
+            string v = WebConfigurationManager.AppSettings[paramName];
+            return String.IsNullOrEmpty(v) ? defaultvalue : v.Trim();
+        }
+
+        //Tries to convert any object to the specified type
+        internal static T DoConvert<T>(object v)
+        {
+            try
+            {
+                return (T)Convert.ChangeType(v, typeof(T));
+            }
+            catch
+            {
+                return (T)Activator.CreateInstance(typeof(T));
+            }
+        }
 
         /// <summary>
         /// Tries to read the requested file from disk and returns the contents
