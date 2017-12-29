@@ -85,11 +85,12 @@ namespace IISMarkdownHandler
         /// <returns></returns>
         private string MarkdownToHtml()
         {
+            string html;
             //Check if its a pure HTML file (.mdh extension)
             if (this.FileExt == HTML_EXT)  //It's HTML
             {
                 //No transformation required --> It's an HTML file processed by the handler to mix with the current template
-                return this.Content;
+                html = this.Content;
             }
             else  //Is markdown
             {
@@ -102,8 +103,11 @@ namespace IISMarkdownHandler
                 }
                 var pipeline = mdPipe.Build();
                 //Convert markdown to HTML
-                return Markdig.Markdown.ToHtml(this.Content, pipeline); //Converto to HTML
+                html = Markdig.Markdown.ToHtml(this.Content, pipeline); //Converto to HTML
             }
+
+            //Transform virtual paths before returning
+            return Helper.TransformVirtualPaths(html);
         }
         #endregion
     }

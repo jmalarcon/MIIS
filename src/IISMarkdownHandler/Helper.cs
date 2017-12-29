@@ -72,6 +72,19 @@ namespace IISMarkdownHandler
         }
 
         /// <summary>
+        /// Searchs for virtual paths ("~/") and transform them to absolute paths (relative to the root of the server)
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        internal static string TransformVirtualPaths(string content)
+        {
+            string absoluteBase = VirtualPathUtility.ToAbsolute("~/");
+            content = content.Replace("~/", absoluteBase);
+            //Markdig codifies the "~" as "%7E" , so we need to process it this way too
+            return content.Replace("%7E/", absoluteBase);
+        }
+
+        /// <summary>
         /// Reads a template from cache if available. If not, reads it frm disk.
         /// Substitutes the template fields such as {basefolder}, before caching the result
         /// </summary>
@@ -104,7 +117,7 @@ namespace IISMarkdownHandler
                                 throw new Exception("Invalid template: The {content} placeholder can be only used once in a template!");
                             ContentPresent = true;
                             continue;   //This is a check only, no transformation of {content} needed at this point
-                        case "basefolder":  //base folder of current web app in IIS
+                        case "basefolder":  //base folder of current web app in IIS - This is no longer needed since 1.2, because you can simply use ~/ for the same effect
                             if (basefolder == "")
                                 basefolder = VirtualPathUtility.ToAbsolute("~/");   //Just once per template
                             fldVal = VirtualPathUtility.RemoveTrailingSlash(basefolder);    //No trailing slash
@@ -115,13 +128,18 @@ namespace IISMarkdownHandler
                             fldVal = VirtualPathUtility.RemoveTrailingSlash(templatebasefolder);    //No trailing slash
                             break;
                         default:
-                            continue;   //Any  field not in the previous cases gets ignored (they must be processed with a Markdown file
+                            continue;   //Any  field not in the previous cases gets ignored (they must be processed within a Markdown file)
                     }
                     templateContents = templateContents.Replace(field.Value, fldVal);
                 }
+
+                //Transform virtual paths into absolute to the root paths (This is done only once per file if cached)
+                templateContents = Helper.TransformVirtualPaths(templateContents);
+
                 //The {content} placeholder must be present or no Markdown contents can be shown
                 if (!ContentPresent)
                     throw new Exception("Invalid template: The {content} placeholder must be present!");
+
                 HttpRuntime.Cache.Insert(templatePath, templateContents, new CacheDependency(templatePath)); //Add result to cache with dependency on the file
                 return templateContents; //Return content
             }

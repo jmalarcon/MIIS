@@ -96,7 +96,7 @@ namespace IISMarkdownHandler
                         break;
                     default:
                         //Try to read from web.config
-                        fldVal = Helper.GetParamValue(name);
+                        fldVal = Helper.GetParamValue(name).Trim();
                         if (!String.IsNullOrEmpty(fldVal))  //If a value is found for the parameter
                         {
                             fldVal = fldVal.Trim();
@@ -121,19 +121,21 @@ namespace IISMarkdownHandler
                                     fldVal = String.Format("Error loading {0}: {1}", fldVal, ex.Message);
                                 }
                             }
-                            else if (fldVal.StartsWith("~/"))    //If its a path to a file relative to the root (for example a path to a CSS or JS file)
+                            else if (fldVal.StartsWith("~/"))    //If its a virtual path to a static file (for example a path to a CSS or JS file)
                             {
-                                //Convert relative path to relative URL from the root (changes the "~" for the root path 
-                                //of the application. Needed if the current handler is running as a virtual app in IIS )
-                                fldVal = ctx.Request.ApplicationPath + fldVal.Substring(2);
+                                //Convert relative path to relative URL from the root (changes the "~/" for the root path 
+                                //of the application. Needed if the current handler is running as a virtual app in IIS)
+                                fldVal = VirtualPathUtility.ToAbsolute(fldVal);
+                                //There's no need to transform any other virtual path because this is done (and cached) on every file the first time is retrieved and transformed
                             }
-                            //If it was a non-file parameter, simply use the retrieved value from config (nohing to be done)
                         }
+                        //If it was a non-file parameter, simply use the retrieved value from config (nohing to be done)
                         break;
                 }
                 template = template.Replace(field.Value, fldVal);
             }
 
+            //Return the transformed file
             return template;
         }
 
