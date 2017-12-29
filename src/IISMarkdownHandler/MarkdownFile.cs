@@ -52,7 +52,7 @@ namespace IISMarkdownHandler
             if (this.FileExt == HTML_EXT)  //If it's just HTML
             {
                 //Use the file name, with no extension, as the title
-                Path.GetFileNameWithoutExtension(this.FileName);
+                this.Title = Path.GetFileNameWithoutExtension(this.FileName);
             }
             else
             { 
