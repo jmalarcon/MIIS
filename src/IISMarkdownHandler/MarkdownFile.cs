@@ -32,7 +32,7 @@ namespace IISMarkdownHandler
             this.DateLastModified = fi.LastWriteTime;
 
             //Read the file contents from disk or cache depending on parameter
-            if (Helper.GetParamValue("UseMDCaching") == "1")
+            if (Helper.GetParamValue("UseMDCaching", "1") == "1")
             {
                 this.Content = Helper.readTextFromFileWithCaching(mdFilePath);   //Use cache
                 this.HTML = HttpRuntime.Cache[mdFilePath + "_HTML"] as string;   //Try to read HTML result from cache
@@ -96,7 +96,7 @@ namespace IISMarkdownHandler
                 //Configure markdown conversion
                 MarkdownPipelineBuilder mdPipe = new MarkdownPipelineBuilder().UseAdvancedExtensions();
                 //Check if we must generate emojis
-                if (Helper.GetParamValue("UseEmoji") != "0")
+                if (Helper.GetParamValue("UseEmoji", "1") != "0")
                 {
                     mdPipe = mdPipe.UseEmojiAndSmiley();
                 }
