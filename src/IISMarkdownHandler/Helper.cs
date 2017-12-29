@@ -99,7 +99,7 @@ namespace IISMarkdownHandler
                     string fldVal = "";
                     switch (name)
                     {
-                        case "content": //Main HTML content transformed from Markdown
+                        case "content": //Main HTML content transformed from Markdown, just checks if it's present because is mandatory. The processing is done later on each file
                             if (ContentPresent) //Only one {content} placeholder can be present
                                 throw new Exception("Invalid template: The {content} placeholder can be only used once in a template!");
                             ContentPresent = true;
@@ -107,12 +107,12 @@ namespace IISMarkdownHandler
                         case "basefolder":  //base folder of current web app in IIS
                             if (basefolder == "")
                                 basefolder = VirtualPathUtility.ToAbsolute("~/");   //Just once per template
-                            fldVal = basefolder;
+                            fldVal = VirtualPathUtility.RemoveTrailingSlash(basefolder);    //No trailing slash
                             break;
                         case "templatebasefolder":  //Base folder of the current template
                             if (templatebasefolder == "")
                                 templatebasefolder = VirtualPathUtility.GetDirectory(VirtualPathUtility.ToAbsolute(templateVirtualPath)); //Just once per template
-                            fldVal = templatebasefolder;
+                            fldVal = VirtualPathUtility.RemoveTrailingSlash(templatebasefolder);    //No trailing slash
                             break;
                         default:
                             continue;   //Any  field not in the previous cases gets ignored (they must be processed with a Markdown file
