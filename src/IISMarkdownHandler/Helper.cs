@@ -5,7 +5,7 @@ using System.Web.Configuration;
 using System.Web.Caching;
 using System.Text.RegularExpressions;
 
-namespace IISMarkdownHandler
+namespace MIISHandler
 {
     public static class Helper
     {

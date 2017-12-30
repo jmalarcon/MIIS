@@ -5,13 +5,14 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Configuration;
 
-namespace IISMarkdownHandler
+namespace MIISHandler
 {
-    public class IISMarkdownHandler : IHttpHandler
+    public class MIISHandler : IHttpHandler
     {
         /// <summary>
-        /// This handler will yake care of all requests to Markdown file requests
+        /// This handler will take care of all requests to Markdown file requests
         /// to process the Markdown and return HTML.
+        /// It also supports an especial file extension for HTML content (.mdh) to create complex layouts in specific pages
         /// </summary>
 
         #region IHttpHandler Members

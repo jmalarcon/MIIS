@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using Markdig;
 
 
-namespace IISMarkdownHandler
+namespace MIISHandler
 {
 
     /// <summary>

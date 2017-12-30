@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Configuration;
 
-namespace IISMarkdownHandler
+namespace MIISHandler
 {
     /// <summary>
     /// Renders the final HTML from Markdown using the spcified template or CSS file
