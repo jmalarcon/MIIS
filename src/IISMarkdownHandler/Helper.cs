@@ -12,7 +12,7 @@ namespace MIISHandler
         //The regular expression to find fields in templates
         internal static string FIELD_PREFIX = "{{";
         internal static string FIELD_SUFIX = "}}";
-        internal static Regex REGEXFIELDS = new Regex(Regex.Escape(FIELD_PREFIX) + @"\s*?[0-9A-Z_]+?\s*?" + Regex.Escape(FIELD_SUFIX), RegexOptions.IgnoreCase);
+        internal static Regex REGEXFIELDS_PATTERN = new Regex(Regex.Escape(FIELD_PREFIX) + @"\s*?[0-9A-Z_]+?\s*?" + Regex.Escape(FIELD_SUFIX), RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Returns a param from web.config or a default value for it
@@ -43,12 +43,11 @@ namespace MIISHandler
         }
 
         //Extension Method for strings that does a Case-Insensitive Replace()
-        //Taken from https://stackoverflow.com/a/24580455/4141866
-        //Takes into account strings with $x that would be mistaken for RegExp substituions
-        internal static string CaseInsensitiveReplace(this string str, string findMe, string newValue)
+        //Takes into account replacement strings with $x that would be mistaken for RegExp substituions
+        internal static string ReplacePlaceHolder(string originalContent, string placeholderName, string newValue)
         {
-            return Regex.Replace(str,
-                Regex.Escape(findMe),
+            return Regex.Replace(originalContent,
+                Regex.Escape(FIELD_PREFIX) + "\\s*?" + placeholderName + "\\s*?" + Regex.Escape(FIELD_SUFIX),
                 Regex.Replace(newValue, "\\$[0-9]+", @"$$$0"),
                 RegexOptions.IgnoreCase);
         }
@@ -136,7 +135,7 @@ namespace MIISHandler
                 //////////////////////////////
                 bool ContentPresent = false;
                 string basefolder = "", templatebasefolder = "";
-                foreach (Match field in Helper.REGEXFIELDS.Matches(templateContents))
+                foreach (Match field in Helper.REGEXFIELDS_PATTERN.Matches(templateContents))
                 {
                     //Get the field name (without prefix or suffix and in lowercase)
                     string name = GetFieldName(field.Value);

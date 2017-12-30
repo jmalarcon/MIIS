@@ -52,6 +52,10 @@ namespace MIISHandler
                 template = Helper.readTemplate(templateFile, ctx);    //Read, transform and cache template
             }
 
+            //First process the "content" field with the main HTML content transformed from Markdown
+            //This allows to use other fields inside the content itself, not only in the templates
+            template = Helper.ReplacePlaceHolder(template, "content", md.HTML);
+
             //////////////////////////////
             /*
              * Now process the fields in the template or file.
@@ -62,17 +66,14 @@ namespace MIISHandler
             */
             //////////////////////////////
 
-            foreach (Match field in Helper.REGEXFIELDS.Matches(template))
+            foreach (Match field in Helper.REGEXFIELDS_PATTERN.Matches(template))
             {
                 //Get the field name (without braces and in lowercase)
                 string name = Helper.GetFieldName(field.Value);
                 string fldVal = "";
                 switch(name)
                 {
-                    //First well-known fields
-                    case "content": //Main HTML content transformed from Markdown
-                        fldVal = md.HTML;
-                        break;
+                    //First the well-known fields
                     case "title":   //Markdown file title
                         fldVal = md.Title;
                         break;
