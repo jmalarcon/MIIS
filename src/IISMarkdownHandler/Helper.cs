@@ -12,7 +12,7 @@ namespace MIISHandler
         //The regular expression to find fields in templates
         internal static string FIELD_PREFIX = "{{";
         internal static string FIELD_SUFIX = "}}";
-        internal static Regex REGEXFIELDS_PATTERN = new Regex(Regex.Escape(FIELD_PREFIX) + @"\s*?[0-9A-Z_]+?\s*?" + Regex.Escape(FIELD_SUFIX), RegexOptions.IgnoreCase);
+        internal static Regex REGEXFIELDS_PATTERN = new Regex(Regex.Escape(FIELD_PREFIX) + @"\s*?[0-9A-Z\*\-_]+?\s*?" + Regex.Escape(FIELD_SUFIX), RegexOptions.IgnoreCase);
 
         /// <summary>
         /// Returns a param from web.config or a default value for it
@@ -47,7 +47,7 @@ namespace MIISHandler
         internal static string ReplacePlaceHolder(string originalContent, string placeholderName, string newValue)
         {
             return Regex.Replace(originalContent,
-                Regex.Escape(FIELD_PREFIX) + "\\s*?" + placeholderName + "\\s*?" + Regex.Escape(FIELD_SUFIX),
+                Regex.Escape(FIELD_PREFIX) + "\\s*?" + Regex.Escape(placeholderName) + "\\s*?" + Regex.Escape(FIELD_SUFIX),
                 Regex.Replace(newValue, "\\$[0-9]+", @"$$$0"),
                 RegexOptions.IgnoreCase);
         }

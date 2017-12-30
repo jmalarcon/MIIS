@@ -96,6 +96,34 @@ namespace MIISHandler
                         fldVal = ctx.User.Identity.Name;
                         break;
                     default:
+
+                        //If the field name starts with "*" then it's a placeholder for a file complementary to the current one (a "fragment": header, sidebar...) One, per main file.
+                        if (name.StartsWith("*"))
+                        {
+                            string fragmentFileName = Path.GetFileNameWithoutExtension(md.FileName) + name.Substring(1);  //Removing the "*" at the beggining
+                            //Test if a file the same file extension exists
+                            if (File.Exists(ctx.Server.MapPath(fragmentFileName + md.FileExt)))
+                                fragmentFileName += md.FileExt;
+                            else if (File.Exists(ctx.Server.MapPath(fragmentFileName + ".md"))) //Try with .md extension
+                                fragmentFileName += ".md";
+                            else
+                                fragmentFileName += ".mdh"; //Try with .mdh
+
+                            //Try to read the file with fragment
+                            try
+                            {
+                                MarkdownFile mdFld = new MarkdownFile(ctx.Server.MapPath(fragmentFileName));
+                                fldVal = mdFld.HTML;
+                            }
+                            catch
+                            {
+                                //If something is wrong (normally the file does not exist) simply return an empty string
+                                //We don't want to force this kind of files to always exist
+                                fldVal = "";
+                            }
+                            break;
+                        }
+
                         //Any other field... Try to read from web.config
                         fldVal = Helper.GetParamValue(name).Trim();
                         if (!String.IsNullOrEmpty(fldVal))  //If a value is found for the parameter
@@ -133,6 +161,7 @@ namespace MIISHandler
                         //If it was a non-file parameter, simply use the retrieved value from config (nohing to be done)
                         break;
                 }
+                //Replace the placeholder with the value
                 template = template.Replace(field.Value, fldVal);
             }
 
