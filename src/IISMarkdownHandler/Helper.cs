@@ -10,17 +10,26 @@ namespace MIISHandler
     public static class Helper
     {
         //The regular expression to find fields in templates
-        internal static Regex REGEXFIELDS = new Regex(@"\{[0-9A-Za-z_]+?\}");
+        internal static string FIELD_PREFIX = "{{";
+        internal static string FIELD_SUFIX = "}}";
+        internal static Regex REGEXFIELDS = new Regex(Regex.Escape(FIELD_PREFIX) + @"\s*?[0-9A-Z_]+?\s*?" + Regex.Escape(FIELD_SUFIX), RegexOptions.IgnoreCase);
 
-        //Returns a param from web.config or a default value for it
-        //The defaultValue can be skipped and it will be returned an empty string if it's needed
+        /// <summary>
+        /// Returns a param from web.config or a default value for it
+        /// The defaultValue can be skipped and it will be returned an empty string if it's needed
+        /// </summary>
+        /// <param name="paramName">The name of the param to search in the configuration file</param>
+        /// <param name="defaultvalue">The default value to return if the param is not found. It's optional. If missing it will return an empty string</param>
+        /// <returns></returns>
         internal static string GetParamValue(string paramName, string defaultvalue = "")
         {
             string v = WebConfigurationManager.AppSettings[paramName];
             return String.IsNullOrEmpty(v) ? defaultvalue : v.Trim();
         }
 
-        //Tries to convert any object to the specified type
+        /// <summary>
+        /// Tries to convert any object to the specified type
+        /// </summary>
         internal static T DoConvert<T>(object v)
         {
             try
@@ -31,6 +40,17 @@ namespace MIISHandler
             {
                 return (T)Activator.CreateInstance(typeof(T));
             }
+        }
+
+        //Extension Method for strings that does a Case-Insensitive Replace()
+        //Taken from https://stackoverflow.com/a/24580455/4141866
+        //Takes into account strings with $x that would be mistaken for RegExp substituions
+        internal static string CaseInsensitiveReplace(this string str, string findMe, string newValue)
+        {
+            return Regex.Replace(str,
+                Regex.Escape(findMe),
+                Regex.Replace(newValue, "\\$[0-9]+", @"$$$0"),
+                RegexOptions.IgnoreCase);
         }
 
         /// <summary>
@@ -85,6 +105,17 @@ namespace MIISHandler
         }
 
         /// <summary>
+        /// Given a placeholder found in a content it extracts it's name without prefix and suffix and in lowercase.
+        /// It takes for granted that it's a correct placeholder and won't check it (it's only used internally after a match)
+        /// </summary>
+        /// <param name="placeholder">The placeholder that was found</param>
+        /// <returns>The name of the placeholder in lowercase</returns>
+        internal static string GetFieldName(string placeholder)
+        {
+            return placeholder.Substring(FIELD_PREFIX.Length, placeholder.Length - (FIELD_PREFIX.Length + FIELD_SUFIX.Length)).Trim().ToLower();
+        }
+
+        /// <summary>
         /// Reads a template from cache if available. If not, reads it frm disk.
         /// Substitutes the template fields such as {basefolder}, before caching the result
         /// </summary>
@@ -107,17 +138,17 @@ namespace MIISHandler
                 string basefolder = "", templatebasefolder = "";
                 foreach (Match field in Helper.REGEXFIELDS.Matches(templateContents))
                 {
-                    //Get the field name (without braces and in lowercase)
-                    string name = field.Value.Substring(1, field.Value.Length - 2).Trim().ToLower();
+                    //Get the field name (without prefix or suffix and in lowercase)
+                    string name = GetFieldName(field.Value);
                     string fldVal = "";
                     switch (name)
                     {
                         case "content": //Main HTML content transformed from Markdown, just checks if it's present because is mandatory. The processing is done later on each file
-                            if (ContentPresent) //Only one {content} placeholder can be present
-                                throw new Exception("Invalid template: The {content} placeholder can be only used once in a template!");
+                            if (ContentPresent) //Only one {content} placeholder can be present 
+                                throw new Exception("Invalid template: The " + FIELD_PREFIX + "content" + FIELD_SUFIX + " placeholder can be only used once in a template!");
                             ContentPresent = true;
                             continue;   //This is a check only, no transformation of {content} needed at this point
-                        case "basefolder":  //base folder of current web app in IIS - This is no longer needed since 1.2, because you can simply use ~/ for the same effect
+                        case "basefolder":  //base folder of current web app in IIS - This is no longer needed, because you can simply use ~/ for the same effect
                             if (basefolder == "")
                                 basefolder = VirtualPathUtility.ToAbsolute("~/");   //Just once per template
                             fldVal = VirtualPathUtility.RemoveTrailingSlash(basefolder);    //No trailing slash
@@ -138,7 +169,7 @@ namespace MIISHandler
 
                 //The {content} placeholder must be present or no Markdown contents can be shown
                 if (!ContentPresent)
-                    throw new Exception("Invalid template: The {content} placeholder must be present!");
+                    throw new Exception("Invalid template: The " + FIELD_PREFIX + "content" + FIELD_SUFIX + " placeholder must be present!"); 
 
                 HttpRuntime.Cache.Insert(templatePath, templateContents, new CacheDependency(templatePath)); //Add result to cache with dependency on the file
                 return templateContents; //Return content

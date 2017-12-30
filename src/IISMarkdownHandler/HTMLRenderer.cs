@@ -20,11 +20,11 @@ namespace MIISHandler
 @"<!doctype html>
 <html>
 <head>
-<title>{title}</title>
-<link rel=""stylesheet"" href=""{cssfile}"">
+<title>{{title}}</title>
+<link rel=""stylesheet"" href=""{{cssfile}}"">
 </head>
 <body>
-{content}
+{{content}}
 </body>
 </html>";
 
@@ -54,18 +54,18 @@ namespace MIISHandler
 
             //////////////////////////////
             /*
-             * Process the fields in the template.
+             * Now process the fields in the template or file.
              * There are two types of fields:
-             * - Value fields: {name} -> Get a value from the properties of the Markdown file or from web.config
-             * - File processing fields: {file.md} -> The file is read and it's contents, transformed to HTML, replace the field. 
-             *   Useful for menus, and other independet parts in custom templates.
+             * - Value fields: {name} -> Get a value from the properties of the file or from web.config
+             * - File processing fields: {file.md(h)} or {*-file.md(h)} -> The file is read and it's contents, transformed to HTML, replace the field. 
+             *   Useful for menus, and other independet parts in custom templates and parts of the same page.
             */
             //////////////////////////////
 
             foreach (Match field in Helper.REGEXFIELDS.Matches(template))
             {
                 //Get the field name (without braces and in lowercase)
-                string name = field.Value.Substring(1, field.Value.Length-2).Trim().ToLower();
+                string name = Helper.GetFieldName(field.Value);
                 string fldVal = "";
                 switch(name)
                 {
@@ -95,7 +95,7 @@ namespace MIISHandler
                         fldVal = ctx.User.Identity.Name;
                         break;
                     default:
-                        //Try to read from web.config
+                        //Any other field... Try to read from web.config
                         fldVal = Helper.GetParamValue(name).Trim();
                         if (!String.IsNullOrEmpty(fldVal))  //If a value is found for the parameter
                         {
