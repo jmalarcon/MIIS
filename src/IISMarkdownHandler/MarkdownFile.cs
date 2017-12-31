@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Web;
-using System.Web.Configuration;
 using System.Web.Caching;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -26,6 +25,7 @@ namespace MIISHandler
         {
             //Get markdown file information
             FileInfo fi = new FileInfo(mdFilePath);
+            this.FilePath = mdFilePath;
             this.FileName = fi.Name;
             this.FileExt = fi.Extension.ToLower();
             this.DateCreated = fi.CreationTime;
@@ -68,6 +68,7 @@ namespace MIISHandler
         #endregion
 
         #region Properties
+        public string FilePath { get; private set; } //The full path to the file
         public string FileName { get; private set; } //The file name
         public string FileExt { get; set; } //The file extrension (with dot)
         public string Content { get; private set; } //The file contents
