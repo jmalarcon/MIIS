@@ -10,10 +10,8 @@ namespace MIISHandler
     /// <summary>
     /// Renders the final HTML from Markdown using the spcified template or CSS file
     /// </summary>
-    public class HTMLRenderer
+    public static class HTMLRenderer
     {
-        //Current request context
-        private HttpContext ctx = null;
         //This is simply a plain HTML5 file to show the contents inside if there's no template specified, 
         //to ensure at least a valid HTML5 page returned and not just a bunch of HTML tags
         private const string DEFAULT_TEMPLATE =
@@ -28,14 +26,6 @@ namespace MIISHandler
 </body>
 </html>";
 
-        #region Constructor
-        public HTMLRenderer(HttpContext currentContext)
-        {
-            //Needed to find the template files relative paths
-            ctx = currentContext;
-        }
-        #endregion
-
         #region Methods
         /// <summary>
         /// Renders the HTML from the markdown using the templates and parameters specified in web.config
@@ -43,8 +33,9 @@ namespace MIISHandler
         /// </summary>
         /// <param name="md">The markdown file information</param>
         /// <returns>The final HTML to return to the client</returns>
-        public string RenderMarkdown(MarkdownFile md)
+        public static string RenderMarkdown(MarkdownFile md)
         {
+            HttpContext ctx = HttpContext.Current;
             string templateFile = Helper.GetParamValue("Markdown-Template");
             string template = DEFAULT_TEMPLATE; //The default template for the final HTML
             if( !String.IsNullOrEmpty(templateFile) )
@@ -54,7 +45,7 @@ namespace MIISHandler
 
             //First process the "content" field with the main HTML content transformed from Markdown
             //This allows to use other fields inside the content itself, not only in the templates
-            template = Helper.ReplacePlaceHolder(template, "content", md.HTML);
+            template = Helper.ReplacePlaceHolder(template, "content", md.RawHTML);
 
             //////////////////////////////
             /*
@@ -100,11 +91,11 @@ namespace MIISHandler
                         //If the field name starts with "*" then it's a placeholder for a file complementary to the current one (a "fragment": header, sidebar...) One, per main file.
                         if (name.StartsWith("*"))
                         {
-                            string fragmentFileName = Path.GetFileNameWithoutExtension(md.FileName) + name.Substring(1);  //Removing the "*" at the beggining
+                            string fragmentFileName = ctx.Server.MapPath(Path.GetFileNameWithoutExtension(md.FileName) + name.Substring(1));  //Removing the "*" at the beggining
                             //Test if a file the same file extension exists
-                            if (File.Exists(ctx.Server.MapPath(fragmentFileName + md.FileExt)))
+                            if (File.Exists(fragmentFileName + md.FileExt))
                                 fragmentFileName += md.FileExt;
-                            else if (File.Exists(ctx.Server.MapPath(fragmentFileName + ".md"))) //Try with .md extension
+                            else if (File.Exists(fragmentFileName + ".md")) //Try with .md extension
                                 fragmentFileName += ".md";
                             else
                                 fragmentFileName += ".mdh"; //Try with .mdh
@@ -112,8 +103,8 @@ namespace MIISHandler
                             //Try to read the file with fragment
                             try
                             {
-                                MarkdownFile mdFld = new MarkdownFile(ctx.Server.MapPath(fragmentFileName));
-                                fldVal = mdFld.HTML;
+                                MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
+                                fldVal = mdFld.RawHTML;
                             }
                             catch
                             {
@@ -135,7 +126,7 @@ namespace MIISHandler
                                 try
                                 {
                                     MarkdownFile mdFld = new MarkdownFile(ctx.Server.MapPath(fldVal));
-                                    fldVal = mdFld.HTML;
+                                    fldVal = mdFld.RawHTML;
                                 }
                                 catch (SecurityException)
                                 {

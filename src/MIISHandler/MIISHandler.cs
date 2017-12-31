@@ -49,13 +49,9 @@ namespace MIISHandler
                 }
                 else
                 {
-                    //Render the file
-                    HTMLRenderer renderer = new HTMLRenderer(ctx);
-                    string html = renderer.RenderMarkdown(mdFile);
-
-                    //Render the final HTML
+                    //Send the rendered HTML for the file
                     ctx.Response.ContentType = "text/html";
-                    ctx.Response.Write(html);
+                    ctx.Response.Write(mdFile.HTML);
                 }
             }
             catch (SecurityException)
