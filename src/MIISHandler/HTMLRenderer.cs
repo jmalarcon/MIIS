@@ -103,6 +103,7 @@ namespace MIISHandler
                             //Try to read the file with fragment
                             try
                             {
+                                md.Dependencies.Add(fragmentFileName);
                                 MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
                                 fldVal = mdFld.RawHTML;
                             }

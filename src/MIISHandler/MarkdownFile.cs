@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web;
 using System.Web.Caching;
 using System.IO;
@@ -99,8 +100,11 @@ namespace MIISHandler
                         _html = HttpRuntime.Cache[this.FilePath + "_HTML"] as string;
                         if (string.IsNullOrEmpty(_html)) //If it's not in the cache, transform it
                         {
+                            //Initialize the file dependencies
+                            this.Dependencies = new List<string>();
+                            this.Dependencies.Add(this.FilePath);   //Add current file as cache dependency (the render process will add the fragments if needed)
                             _html = HTMLRenderer.RenderMarkdown(this);
-                            HttpRuntime.Cache.Insert(this.FilePath + "_HTML", _html, new CacheDependency(this.FilePath)); //Add result to cache with dependency on the file
+                            HttpRuntime.Cache.Insert(this.FilePath + "_HTML", _html, new CacheDependency(this.Dependencies.ToArray())); //Add result to cache with dependency on the file
                         }
                     }
                     else
@@ -173,6 +177,9 @@ namespace MIISHandler
                 return fi.LastWriteTime;
             }
         }
+
+        //The file paths of files the current file depends on, including itself (current file + fragments)
+        internal List<string> Dependencies { get; set; }
         #endregion
     }
 }
