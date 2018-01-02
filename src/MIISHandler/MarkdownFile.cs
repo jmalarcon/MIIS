@@ -22,6 +22,10 @@ namespace MIISHandler
         string _content;
         string _rawHtml;
         string _html;
+        string _title;
+        string _filename;
+        DateTime _dateCreated;
+        DateTime _dateLastModified;
         #endregion
 
         #region Constructor
@@ -122,11 +126,13 @@ namespace MIISHandler
         {
             get
             {
-                string title;
+                if (!string.IsNullOrEmpty(_title))
+                    return _title;
+
                 if (this.FileExt == HTML_EXT)  //If it's just HTML
                 {
                     //Use the file name, with no extension, as the title
-                    title = Path.GetFileNameWithoutExtension(this.FileName);
+                    _title = Path.GetFileNameWithoutExtension(this.FileName);
                 }
                 else
                 {
@@ -134,12 +140,12 @@ namespace MIISHandler
                     //TODO: Quick and dirty with RegExp and only with "#".
                     Regex re = new Regex(@"^\s*?#\s(.*)$", RegexOptions.Multiline);
                     if (re.IsMatch(this.Content))
-                        title = re.Matches(this.Content)[0].Groups[1].Captures[0].Value;
+                        _title = re.Matches(this.Content)[0].Groups[1].Captures[0].Value;
                     else
-                        title = Path.GetFileNameWithoutExtension(this.FileName);
+                        _title = Path.GetFileNameWithoutExtension(this.FileName);
                 }
 
-                return title;
+                return _title;
             }
         }
 
@@ -148,8 +154,12 @@ namespace MIISHandler
         //The file name
         public string FileName {
             get {
+                if (!string.IsNullOrEmpty(_filename))
+                    return _filename;
+
                 FileInfo fi = new FileInfo(this.FilePath);
-                return fi.Name;
+                _filename = fi.Name;
+                return _filename;
             }
         }
         
@@ -164,8 +174,12 @@ namespace MIISHandler
         //Date when the file was created
         public DateTime DateCreated {
             get {
+                if (_dateCreated != default(DateTime))
+                    return _dateCreated;
+
                 FileInfo fi = new FileInfo(this.FilePath);
-                return fi.CreationTime;
+                _dateCreated = fi.CreationTime;
+                return _dateCreated;
             }
         }
 
@@ -173,8 +187,12 @@ namespace MIISHandler
         public DateTime DateLastModified {
             get
             {
+                if (_dateLastModified != default(DateTime))
+                    return _dateLastModified;
+
                 FileInfo fi = new FileInfo(this.FilePath);
-                return fi.LastWriteTime;
+                _dateLastModified = fi.LastWriteTime;
+                return _dateLastModified;
             }
         }
 
