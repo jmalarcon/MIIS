@@ -5,7 +5,7 @@ using System.Web.Caching;
 using System.IO;
 using System.Text.RegularExpressions;
 using Markdig;
-
+using MIISHandler.YAML;
 
 namespace MIISHandler
 {
@@ -17,15 +17,17 @@ namespace MIISHandler
     {
 
         public const string HTML_EXT = ".mdh";
+        private Regex FRONT_MATTER_RE = new Regex(@"^---(.*?)---", RegexOptions.Singleline);
 
         #region private fields
-        string _content;
-        string _rawHtml;
-        string _html;
-        string _title;
-        string _filename;
-        DateTime _dateCreated;
-        DateTime _dateLastModified;
+        private string _content;
+        private string _rawHtml;
+        private string _html;
+        private string _title;
+        private string _filename;
+        private DateTime _dateCreated;
+        private DateTime _dateLastModified;
+        SimpleYAMLParser _FrontMatter;
         #endregion
 
         #region Constructor
@@ -48,7 +50,10 @@ namespace MIISHandler
             get
             {
                 if (string.IsNullOrEmpty(_content))
+                {
                     _content = Helper.readTextFromFile(this.FilePath);
+                    ProcessFrontMatter();
+                }
 
                 return _content;
             }
@@ -67,7 +72,7 @@ namespace MIISHandler
                         //No transformation required --> It's an HTML file processed by the handler to mix with the current template
                         _rawHtml = this.Content;
                     }
-                    else  //Is markdown
+                    else  //Is markdown: transform into HTML
                     {
                         //Configure markdown conversion
                         MarkdownPipelineBuilder mdPipe = new MarkdownPipelineBuilder().UseAdvancedExtensions();
@@ -129,23 +134,43 @@ namespace MIISHandler
                 if (!string.IsNullOrEmpty(_title))
                     return _title;
 
-                if (this.FileExt == HTML_EXT)  //If it's just HTML
+                //If there's a title specified in the Front Matter, this is the one that prevails
+                _title = this.FrontMatter["title"];
+
+                if (string.IsNullOrEmpty(_title))   //If there's no title in the Front Matter
                 {
-                    //Use the file name, with no extension, as the title
-                    _title = Path.GetFileNameWithoutExtension(this.FileName);
-                }
-                else
-                {
-                    //Try to get the title of the file from the contents (find the first H1 if there's any)
-                    //TODO: Quick and dirty with RegExp and only with "#".
-                    Regex re = new Regex(@"^\s*?#\s(.*)$", RegexOptions.Multiline);
-                    if (re.IsMatch(this.Content))
-                        _title = re.Matches(this.Content)[0].Groups[1].Captures[0].Value;
-                    else
+                    if (this.FileExt == HTML_EXT)  //If it's just HTML
+                    {
+                        //Use the file name, with no extension, as the default title
                         _title = Path.GetFileNameWithoutExtension(this.FileName);
+                    }
+                    else
+                    {
+                        //Try to get the default title from the file the contents (find the first H1 if there's any)
+                        //Quick and dirty with RegExp and only with "#".
+                        Regex re = new Regex(@"^\s*?#\s(.*)$", RegexOptions.Multiline);
+                        if (re.IsMatch(this.Content))
+                            _title = re.Matches(this.Content)[0].Groups[1].Captures[0].Value;
+                        else
+                            _title = Path.GetFileNameWithoutExtension(this.FileName);
+                    }
                 }
 
                 return _title;
+            }
+        }
+
+        //The object encapsulating access to Front Matter properties
+        public SimpleYAMLParser FrontMatter
+        {
+            get
+            {
+                if (_FrontMatter == null)
+                {
+                    ProcessFrontMatter();
+                }
+
+                return _FrontMatter;
             }
         }
 
@@ -198,6 +223,28 @@ namespace MIISHandler
 
         //The file paths of files the current file depends on, including itself (current file + fragments)
         internal List<string> Dependencies { get; set; }
+        #endregion
+
+        #region Aux methods
+        private void ProcessFrontMatter()
+        {
+            if (_FrontMatter != null)
+                    return;
+
+            //Extract and remove YAML Front Matter
+            Match fm = FRONT_MATTER_RE.Match(this.Content);
+            if (fm.Length > 0) //If there's front matter available
+            {
+                //Save front matter text
+                _FrontMatter = new SimpleYAMLParser(fm.Groups[0].Value);
+                //Remove Front Matter from the original contents
+                _content = this.Content.Substring(fm.Length+1); //+1 to remove the new line character after the front matter
+            }
+            else
+            {
+                _FrontMatter = new SimpleYAMLParser(string.Empty);
+            }
+        }
         #endregion
     }
 }

@@ -87,74 +87,12 @@ namespace MIISHandler
                         fldVal = ctx.User.Identity.Name;
                         break;
                     default:
-
-                        //If the field name starts with "*" then it's a placeholder for a file complementary to the current one (a "fragment": header, sidebar...) One, per main file.
-                        if (name.StartsWith("*"))
-                        {
-                            string fragmentFileName = ctx.Server.MapPath(Path.GetFileNameWithoutExtension(md.FileName) + name.Substring(1));  //Removing the "*" at the beggining
-                            //Test if a file the same file extension exists
-                            if (File.Exists(fragmentFileName + md.FileExt))
-                                fragmentFileName += md.FileExt;
-                            else if (File.Exists(fragmentFileName + ".md")) //Try with .md extension
-                                fragmentFileName += ".md";
-                            else
-                                fragmentFileName += ".mdh"; //Try with .mdh
-
-                            //Try to read the file with fragment
-                            try
-                            {
-                                md.Dependencies.Add(fragmentFileName);
-                                MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
-                                fldVal = mdFld.RawHTML;
-                            }
-                            catch
-                            {
-                                //If something is wrong (normally the file does not exist) simply return an empty string
-                                //We don't want to force this kind of files to always exist
-                                fldVal = "";
-                            }
-                            break;
-                        }
-
-                        //Any other field... Try to read from web.config
-                        fldVal = Helper.GetParamValue(name).Trim();
-                        if (!String.IsNullOrEmpty(fldVal))  //If a value is found for the parameter
-                        {
-                            fldVal = fldVal.Trim();
-                            //If it ends in .md or .mdh (the extension for HTML-only content files), we must inject the contents as the real value
-                            if (fldVal.EndsWith(".md") || fldVal.EndsWith(MarkdownFile.HTML_EXT))
-                            {
-                                try
-                                {
-                                    MarkdownFile mdFld = new MarkdownFile(ctx.Server.MapPath(fldVal));
-                                    fldVal = mdFld.RawHTML;
-                                }
-                                catch (SecurityException)
-                                {
-                                    fldVal = String.Format("Can't access file for {0}", name);
-                                }
-                                catch (FileNotFoundException)
-                                {
-                                    fldVal = String.Format("File not found for {0}", name);
-                                }
-                                catch (Exception ex)
-                                {
-                                    fldVal = String.Format("Error loading {0}: {1}", fldVal, ex.Message);
-                                }
-                            }
-                            else if (fldVal.StartsWith("~/"))    //If its a virtual path to a static file (for example a path to a CSS or JS file)
-                            {
-                                //Convert relative path to relative URL from the root (changes the "~/" for the root path 
-                                //of the application. Needed if the current handler is running as a virtual app in IIS)
-                                fldVal = VirtualPathUtility.ToAbsolute(fldVal);
-                                //There's no need to transform any other virtual path because this is done (and cached) on every file the first time is retrieved and transformed
-                            }
-                        }
-                        //If it was a non-file parameter, simply use the retrieved value from config (nohing to be done)
+                        fldVal = ProcessCustomField(name, md);
                         break;
                 }
-                //Replace the placeholder with the value
+                //Replace the raw placeholder (as is matched by the regular expression, not the lowercase version) with the value
                 template = template.Replace(field.Value, fldVal);
+                //template = Helper.ReplacePlaceHolder(template, name, fldVal);
             }
 
             //Return the transformed file
@@ -163,5 +101,87 @@ namespace MIISHandler
 
         #endregion
 
+        #region Aux methods
+        //Takes care of custom fields such as Front Matter Properties and custom default values in web.config
+        private static string ProcessCustomField(string name, MarkdownFile md)
+        {
+            string fldVal = string.Empty;   //Default empty value
+            HttpContext ctx = HttpContext.Current;
+
+            ///// FRAGMENTS
+
+            //If the field name starts with "*" then it's a placeholder for a file complementary to the current one (a "fragment": header, sidebar...) One, per main file.
+            if (name.StartsWith("*"))
+            {
+                string fragmentFileName = ctx.Server.MapPath(Path.GetFileNameWithoutExtension(md.FileName) + name.Substring(1));  //Removing the "*" at the beggining
+                                                                                                                                  //Test if a file the same file extension exists
+                if (File.Exists(fragmentFileName + md.FileExt))
+                    fragmentFileName += md.FileExt;
+                else if (File.Exists(fragmentFileName + ".md")) //Try with .md extension
+                    fragmentFileName += ".md";
+                else
+                    fragmentFileName += ".mdh"; //Try with .mdh
+
+                //Try to read the file with fragment
+                try
+                {
+                    md.Dependencies.Add(fragmentFileName);
+                    MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
+                    fldVal = mdFld.RawHTML;
+                }
+                catch
+                {
+                    //If something is wrong (normally the file does not exist) simply return an empty string
+                    //We don't want to force this kind of files to always exist
+                    fldVal = "";
+                }
+                return fldVal;
+            }
+
+            //////CUSTOM FIELD NAMES
+
+            //Any other field...
+            //Try to get value from Front Matter...
+            fldVal = md.FrontMatter[name];
+            //If it's not in the FM, then try to get it from web.config for default values
+            if (string.IsNullOrEmpty(fldVal))
+                fldVal = Helper.GetParamValue(name).Trim();
+
+
+            if (!String.IsNullOrEmpty(fldVal))  //If a value is found for the parameter
+            {
+                //If it ends in .md or .mdh (the extension for HTML-only content files), we must inject the contents as the real value
+                if (fldVal.EndsWith(".md") || fldVal.EndsWith(MarkdownFile.HTML_EXT))
+                {
+                    try
+                    {
+                        MarkdownFile mdFld = new MarkdownFile(ctx.Server.MapPath(fldVal));
+                        fldVal = mdFld.RawHTML;
+                    }
+                    catch (SecurityException)
+                    {
+                        fldVal = String.Format("Can't access file for {0}", name);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        fldVal = String.Format("File not found for {0}", name);
+                    }
+                    catch (Exception ex)
+                    {
+                        fldVal = String.Format("Error loading {0}: {1}", fldVal, ex.Message);   //This should only happen while testing, never in production, so I send the exception's message
+                    }
+                }
+                else if (fldVal.StartsWith("~/"))    //If its a virtual path to a static file (for example a path to a CSS or JS file)
+                {
+                    //Convert relative path to relative URL from the root (changes the "~/" for the root path 
+                    //of the application. Needed if the current handler is running as a virtual app in IIS)
+                    fldVal = VirtualPathUtility.ToAbsolute(fldVal);
+                    //There's no need to transform any other virtual path because this is done (and cached) on every file the first time is retrieved and transformed
+                }
+            }
+
+            return fldVal;
+        }
+        #endregion
     }
 }
