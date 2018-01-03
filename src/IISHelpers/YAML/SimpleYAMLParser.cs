@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-namespace MIISHandler.YAML
+namespace IISHelpers.YAML
 {
     /// <summary>
-    /// Fast & Dirty class to read *basic* YAML with regular expressions.
+    /// Quick & Dirty class to read *basic* YAML with regular expressions.
     /// It only allows for simple properties in the form:
     /// 
     /// propertyName: property value

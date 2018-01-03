@@ -4,6 +4,7 @@ using System.Security;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Caching;
+using IISHelpers;
 
 namespace MIISHandler
 {
@@ -36,16 +37,16 @@ namespace MIISHandler
         public static string RenderMarkdown(MarkdownFile md)
         {
             HttpContext ctx = HttpContext.Current;
-            string templateFile = Helper.GetParamValue("Markdown-Template");
+            string templateFile = WebHelper.GetParamValue("Markdown-Template");
             string template = DEFAULT_TEMPLATE; //The default template for the final HTML
             if( !String.IsNullOrEmpty(templateFile) )
             {
-                template = Helper.readTemplate(templateFile, ctx);    //Read, transform and cache template
+                template = ReadTemplate(templateFile, ctx);    //Read, transform and cache template
             }
 
             //First process the "content" field with the main HTML content transformed from Markdown
             //This allows to use other fields inside the content itself, not only in the templates
-            template = Helper.ReplacePlaceHolder(template, "content", md.RawHTML);
+            template = TemplatingHelper.ReplacePlaceHolder(template, "content", md.RawHTML);
 
             //////////////////////////////
             /*
@@ -57,10 +58,10 @@ namespace MIISHandler
             */
             //////////////////////////////
 
-            foreach (Match field in Helper.REGEXFIELDS_PATTERN.Matches(template))
+            foreach (Match field in TemplatingHelper.REGEXFIELDS_PATTERN.Matches(template))
             {
                 //Get the field name (without braces and in lowercase)
-                string name = Helper.GetFieldName(field.Value);
+                string name = TemplatingHelper.GetFieldName(field.Value);
                 string fldVal = "";
                 switch(name)
                 {
@@ -102,6 +103,69 @@ namespace MIISHandler
         #endregion
 
         #region Aux methods
+        /// <summary>
+        /// Reads a template from cache if available. If not, reads it frm disk.
+        /// Substitutes the template fields such as {basefolder}, before caching the result
+        /// </summary>
+        /// <param name="filePath">Path to the template</param>
+        /// <param name="ctx">The current request context (needed in in order to transform virtual paths)</param>
+        /// <returns>The text contents of the template</returns>
+        /// <exception cref="System.Security.SecurityException">Thrown if the app has no read access to the requested file</exception>
+        /// <exception cref="System.IO.FileNotFoundException">Thrown when the requested file does not exist</exception>
+        private static string ReadTemplate(string templateVirtualPath, HttpContext ctx)
+        {
+            string templatePath = ctx.Server.MapPath(templateVirtualPath);
+            string cachedContent = HttpRuntime.Cache[templatePath] as string;
+            if (string.IsNullOrEmpty(cachedContent))
+            {
+                var templateContents = IOHelper.ReadTextFromFile(templatePath);  //Read template contents from disk
+                //////////////////////////////
+                //Replace template fields
+                //////////////////////////////
+                bool ContentPresent = false;
+                string basefolder = "", templatebasefolder = "";
+                foreach (Match field in TemplatingHelper.REGEXFIELDS_PATTERN.Matches(templateContents))
+                {
+                    //Get the field name (without prefix or suffix and in lowercase)
+                    string name = TemplatingHelper.GetFieldName(field.Value);
+                    string fldVal = "";
+                    switch (name)
+                    {
+                        case "content": //Main HTML content transformed from Markdown, just checks if it's present because is mandatory. The processing is done later on each file
+                            if (ContentPresent) //Only one {content} placeholder can be present 
+                                throw new Exception("Invalid template: The " + TemplatingHelper.FIELD_PREFIX + "content" + TemplatingHelper.FIELD_SUFIX + " placeholder can be only used once in a template!");
+                            ContentPresent = true;
+                            continue;   //This is a check only, no transformation of {content} needed at this point
+                        case "basefolder":  //base folder of current web app in IIS - This is no longer needed, because you can simply use ~/ for the same effect
+                            if (basefolder == "")
+                                basefolder = VirtualPathUtility.ToAbsolute("~/");   //Just once per template
+                            fldVal = VirtualPathUtility.RemoveTrailingSlash(basefolder);    //No trailing slash
+                            break;
+                        case "templatebasefolder":  //Base folder of the current template
+                            if (templatebasefolder == "")
+                                templatebasefolder = VirtualPathUtility.GetDirectory(VirtualPathUtility.ToAbsolute(templateVirtualPath)); //Just once per template
+                            fldVal = VirtualPathUtility.RemoveTrailingSlash(templatebasefolder);    //No trailing slash
+                            break;
+                        default:
+                            continue;   //Any  field not in the previous cases gets ignored (they must be processed within a Markdown file)
+                    }
+                    templateContents = templateContents.Replace(field.Value, fldVal);
+                }
+
+                //Transform virtual paths into absolute to the root paths (This is done only once per file if cached)
+                templateContents = WebHelper.TransformVirtualPaths(templateContents);
+
+                //The {content} placeholder must be present or no Markdown contents can be shown
+                if (!ContentPresent)
+                    throw new Exception("Invalid template: The " + TemplatingHelper.FIELD_PREFIX + "content" + TemplatingHelper.FIELD_SUFIX + " placeholder must be present!");
+
+                HttpRuntime.Cache.Insert(templatePath, templateContents, new CacheDependency(templatePath)); //Add result to cache with dependency on the file
+                return templateContents; //Return content
+            }
+            else
+                return cachedContent;   //Return directly from cache
+        }
+
         //Takes care of custom fields such as Front Matter Properties and custom default values in web.config
         private static string ProcessCustomField(string name, MarkdownFile md)
         {
@@ -145,7 +209,7 @@ namespace MIISHandler
             fldVal = md.FrontMatter[name];
             //If it's not in the FM, then try to get it from web.config for default values
             if (string.IsNullOrEmpty(fldVal))
-                fldVal = Helper.GetParamValue(name).Trim();
+                fldVal = WebHelper.GetParamValue(name).Trim();
 
 
             if (!String.IsNullOrEmpty(fldVal))  //If a value is found for the parameter

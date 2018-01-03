@@ -1,9 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Security;
-using System.Text.RegularExpressions;
 using System.Web;
-using System.Web.Configuration;
+using IISHelpers;
 
 namespace MIISHandler
 {
@@ -36,7 +35,7 @@ namespace MIISHandler
                 //If the feature is enabled and the user requests the original file, send the original file
                 if (!string.IsNullOrEmpty(ctx.Request.QueryString["download"]))
                 {
-                    if (Helper.GetParamValue("allowDownloading") == "1")
+                    if (WebHelper.GetParamValue("allowDownloading") == "1")
                     {
                         ctx.Response.ContentType = "text/markdown; charset=UTF-8";
                         ctx.Response.AppendHeader("content-disposition", "attachment; filename=" + mdFile.FileName);

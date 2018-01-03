@@ -5,7 +5,8 @@ using System.Web.Caching;
 using System.IO;
 using System.Text.RegularExpressions;
 using Markdig;
-using MIISHandler.YAML;
+using IISHelpers;
+using IISHelpers.YAML;
 
 namespace MIISHandler
 {
@@ -51,7 +52,7 @@ namespace MIISHandler
             {
                 if (string.IsNullOrEmpty(_content))
                 {
-                    _content = Helper.readTextFromFile(this.FilePath);
+                    _content = IOHelper.ReadTextFromFile(this.FilePath);
                     ProcessFrontMatter();
                 }
 
@@ -77,7 +78,7 @@ namespace MIISHandler
                         //Configure markdown conversion
                         MarkdownPipelineBuilder mdPipe = new MarkdownPipelineBuilder().UseAdvancedExtensions();
                         //Check if we must generate emojis
-                        if (Helper.GetParamValue("UseEmoji", "1") != "0")
+                        if (WebHelper.GetParamValue("UseEmoji", "1") != "0")
                         {
                             mdPipe = mdPipe.UseEmojiAndSmiley();
                         }
@@ -87,7 +88,7 @@ namespace MIISHandler
                     }
 
                     //Transform virtual paths before returning
-                    _rawHtml = Helper.TransformVirtualPaths(_rawHtml);
+                    _rawHtml = WebHelper.TransformVirtualPaths(_rawHtml);
                 }
 
                 return _rawHtml;
@@ -102,7 +103,7 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_html))
                 {
                     //Read the file contents from disk or cache depending on parameter
-                    if (Helper.GetParamValue("UseMDCaching", "1") == "1")
+                    if (WebHelper.GetParamValue("UseMDCaching", "1") == "1")
                     {
                         //The common case: cache enabled. 
                         //Try to read from cache
