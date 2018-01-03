@@ -17,7 +17,7 @@ namespace MIISHandler
     public class MarkdownFile
     {
 
-        public const string HTML_EXT = ".mdh";
+        public const string HTML_EXT = ".mdh";  //File extension for HTML contents
         private Regex FRONT_MATTER_RE = new Regex(@"^---(.*?)---", RegexOptions.Singleline);
 
         #region private fields
@@ -78,7 +78,7 @@ namespace MIISHandler
                         //Configure markdown conversion
                         MarkdownPipelineBuilder mdPipe = new MarkdownPipelineBuilder().UseAdvancedExtensions();
                         //Check if we must generate emojis
-                        if (WebHelper.GetParamValue("UseEmoji", "1") != "0")
+                        if (Common.GetFieldValue("UseEmoji", this, "1") != "0")
                         {
                             mdPipe = mdPipe.UseEmojiAndSmiley();
                         }
@@ -103,7 +103,7 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_html))
                 {
                     //Read the file contents from disk or cache depending on parameter
-                    if (WebHelper.GetParamValue("UseMDCaching", "1") == "1")
+                    if (Common.GetFieldValue("UseMDCaching", this, "1") == "1")
                     {
                         //The common case: cache enabled. 
                         //Try to read from cache
@@ -232,6 +232,9 @@ namespace MIISHandler
             if (_FrontMatter != null)
                     return;
 
+            //Default value
+            _FrontMatter = new SimpleYAMLParser(string.Empty);
+
             //Extract and remove YAML Front Matter
             Match fm = FRONT_MATTER_RE.Match(this.Content);
             if (fm.Length > 0) //If there's front matter available
@@ -239,11 +242,7 @@ namespace MIISHandler
                 //Save front matter text
                 _FrontMatter = new SimpleYAMLParser(fm.Groups[0].Value);
                 //Remove Front Matter from the original contents
-                _content = this.Content.Substring(fm.Length+1); //+1 to remove the new line character after the front matter
-            }
-            else
-            {
-                _FrontMatter = new SimpleYAMLParser(string.Empty);
+                _content = _content.Substring(fm.Length + Environment.NewLine.Length); //To remove the new line character after the front matter
             }
         }
         #endregion

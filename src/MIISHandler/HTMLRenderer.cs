@@ -37,8 +37,8 @@ namespace MIISHandler
         public static string RenderMarkdown(MarkdownFile md)
         {
             HttpContext ctx = HttpContext.Current;
-            string templateFile = WebHelper.GetParamValue("Markdown-Template");
             string template = DEFAULT_TEMPLATE; //The default template for the final HTML
+            string templateFile = GetCurrentTemplateFile(md);
             if( !String.IsNullOrEmpty(templateFile) )
             {
                 template = ReadTemplate(templateFile, ctx);    //Read, transform and cache template
@@ -93,7 +93,6 @@ namespace MIISHandler
                 }
                 //Replace the raw placeholder (as is matched by the regular expression, not the lowercase version) with the value
                 template = template.Replace(field.Value, fldVal);
-                //template = Helper.ReplacePlaceHolder(template, name, fldVal);
             }
 
             //Return the transformed file
@@ -103,6 +102,28 @@ namespace MIISHandler
         #endregion
 
         #region Aux methods
+        /// <summary>
+        /// Gets the relative path of the template to use with the current file taking into account all the possible parameters/fields that control this setting
+        /// </summary>
+        /// <returns></returns>
+        private static string GetCurrentTemplateFile(MarkdownFile md)
+        {
+            //Get the template name that is going to be used (Front Matter or configuration), if any.
+            string templateName = Common.GetFieldValue("TemplateName", md);
+            if (string.IsNullOrEmpty(templateName))
+                return string.Empty;    //Use the default basic HTML5 template
+
+            //The name (or sub-path) for the layout file (.html normaly) to be used
+            string layoutName = Common.GetFieldValue("Layout", md);
+            if (string.IsNullOrEmpty(layoutName))
+                return string.Empty;    //Use the default basic HTML5 template
+
+            //If both the template folder and the layout are established, then get the base folder for the templates
+            //This base path for the templates parameter is only available through Web.config. NOT in the file Front Matter (we're skipping the file in the following call)
+            string basePath = Common.GetFieldValue("TemplatesBasePath", defValue: "~/Templates/");
+            return VirtualPathUtility.AppendTrailingSlash(basePath) + VirtualPathUtility.AppendTrailingSlash(templateName) + layoutName;
+        }
+
         /// <summary>
         /// Reads a template from cache if available. If not, reads it frm disk.
         /// Substitutes the template fields such as {basefolder}, before caching the result
@@ -189,7 +210,9 @@ namespace MIISHandler
                 //Try to read the file with fragment
                 try
                 {
-                    md.Dependencies.Add(fragmentFileName);
+                    if (md.Dependencies != null)
+                        md.Dependencies.Add(fragmentFileName);
+
                     MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
                     fldVal = mdFld.RawHTML;
                 }
