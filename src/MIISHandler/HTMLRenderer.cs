@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Security;
 using System.Text.RegularExpressions;
@@ -130,16 +131,23 @@ namespace MIISHandler
         /// </summary>
         /// <param name="filePath">Path to the template</param>
         /// <param name="ctx">The current request context (needed in in order to transform virtual paths)</param>
+        /// <param name="isFragment">true to indicate that the current template is a fragment of other template, so that is excludes content and other fragments from processing</param>
         /// <returns>The text contents of the template</returns>
         /// <exception cref="System.Security.SecurityException">Thrown if the app has no read access to the requested file</exception>
         /// <exception cref="System.IO.FileNotFoundException">Thrown when the requested file does not exist</exception>
-        private static string ReadTemplate(string templateVirtualPath, HttpContext ctx)
+        private static string ReadTemplate(string templateVirtualPath, HttpContext ctx, bool isFragment = false)
         {
             string templatePath = ctx.Server.MapPath(templateVirtualPath);
             string cachedContent = HttpRuntime.Cache[templatePath] as string;
             if (string.IsNullOrEmpty(cachedContent))
             {
                 var templateContents = IOHelper.ReadTextFromFile(templatePath);  //Read template contents from disk
+                                                                                 //Init the cache dependencies list
+                List<string> cacheDependencies = new List<string>
+                {
+                    templatePath   //Add current file as cache dependency (the read process will add the fragments if needed)
+                };
+
                 //////////////////////////////
                 //Replace template fields
                 //////////////////////////////
@@ -153,6 +161,7 @@ namespace MIISHandler
                     switch (name)
                     {
                         case "content": //Main HTML content transformed from Markdown, just checks if it's present because is mandatory. The processing is done later on each file
+                            if (isFragment) break; //Don't process content with fragments
                             if (ContentPresent) //Only one {content} placeholder can be present 
                                 throw new Exception("Invalid template: The " + TemplatingHelper.FIELD_PREFIX + "content" + TemplatingHelper.FIELD_SUFIX + " placeholder can be only used once in a template!");
                             ContentPresent = true;
@@ -168,8 +177,24 @@ namespace MIISHandler
                             fldVal = VirtualPathUtility.RemoveTrailingSlash(templatebasefolder);    //No trailing slash
                             break;
                         default:
-                            continue;   //Any  field not in the previous cases gets ignored (they must be processed within a Markdown file)
+                            if (!isFragment && name.StartsWith("$"))
+                            {
+                                //string includeFileName = Path.Combine(Path.GetDirectoryName(ctx.Server.MapPath(templatePath)), name.Substring(1));  //The current template file folder + the include filename
+                                string includeFileName = VirtualPathUtility.RemoveTrailingSlash(VirtualPathUtility.GetDirectory(templateVirtualPath)) + "/" + name.Substring(1);  //The current template file folder + the include filename
+                                try
+                                {
+                                    fldVal = ReadTemplate(includeFileName, ctx, true);    //Insert the raw contents of the include (no processing!)
+                                    cacheDependencies.Add(ctx.Server.MapPath(includeFileName)); //Add "import" file to the cache for the main template file results
+                                    break;
+                                }
+                                catch   //If it fails, simply do nothing
+                                {
+                                }   
+                            }
+                            //Continue with the loop, skip the substitution.
+                            continue;   //Any  field not in the previous cases is ignored, so no substitution (they must be processed within the file contents)
                     }
+                    //Do the field substitution
                     templateContents = templateContents.Replace(field.Value, fldVal);
                 }
 
@@ -177,10 +202,12 @@ namespace MIISHandler
                 templateContents = WebHelper.TransformVirtualPaths(templateContents);
 
                 //The {content} placeholder must be present or no Markdown contents can be shown
-                if (!ContentPresent)
+                if ( !(isFragment || ContentPresent))
                     throw new Exception("Invalid template: The " + TemplatingHelper.FIELD_PREFIX + "content" + TemplatingHelper.FIELD_SUFIX + " placeholder must be present!");
 
-                HttpRuntime.Cache.Insert(templatePath, templateContents, new CacheDependency(templatePath)); //Add result to cache with dependency on the file
+                //Add result to cache with dependency on the file(s)
+                HttpRuntime.Cache.Insert(templatePath, templateContents, new CacheDependency(cacheDependencies.ToArray()));
+
                 return templateContents; //Return content
             }
             else

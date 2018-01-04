@@ -8,7 +8,7 @@ namespace IISHelpers
         //The regular expression to find fields in templates
         internal static string FIELD_PREFIX = "{{";
         internal static string FIELD_SUFIX = "}}";
-        internal static Regex REGEXFIELDS_PATTERN = new Regex(Regex.Escape(FIELD_PREFIX) + @"\s*?[0-9A-Z\*\-_]+?\s*?" + Regex.Escape(FIELD_SUFIX), RegexOptions.IgnoreCase);
+        internal static Regex REGEXFIELDS_PATTERN = new Regex(Regex.Escape(FIELD_PREFIX) + @"\s*?[0-9A-Z\*\$\.\-_]+?\s*?" + Regex.Escape(FIELD_SUFIX), RegexOptions.IgnoreCase);
 
         //Extension Method for strings that does a Case-Insensitive Replace()
         //Takes into account replacement strings with $x that would be mistaken for RegExp substituions

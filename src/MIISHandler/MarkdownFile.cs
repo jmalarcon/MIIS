@@ -111,8 +111,10 @@ namespace MIISHandler
                         if (string.IsNullOrEmpty(_html)) //If it's not in the cache, transform it
                         {
                             //Initialize the file dependencies
-                            this.Dependencies = new List<string>();
-                            this.Dependencies.Add(this.FilePath);   //Add current file as cache dependency (the render process will add the fragments if needed)
+                            this.Dependencies = new List<string>
+                            {
+                                this.FilePath   //Add current file as cache dependency (the render process will add the fragments if needed)
+                            };
                             _html = HTMLRenderer.RenderMarkdown(this);
                             HttpRuntime.Cache.Insert(this.FilePath + "_HTML", _html, new CacheDependency(this.Dependencies.ToArray())); //Add result to cache with dependency on the file
                         }
