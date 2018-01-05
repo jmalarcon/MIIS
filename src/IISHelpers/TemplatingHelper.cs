@@ -6,10 +6,9 @@ namespace IISHelpers
 {
     internal static class TemplatingHelper
     {
-        //The regular expression to find fields in templates
-        internal static string FIELD_PREFIX = "{{";
-        internal static string FIELD_SUFIX = "}}";
-        internal static string FIELD_NAME_REGEX = @"\s*?[0-9A-Z\*\$\.\-_]+?\s*?";
+        private static string PLACEHOLDER_PREFIX = "{{";   //Placeholders' prefix
+        private static string PLACEHOLDER_SUFIX = "}}";    //Placeholders' suffix
+        private static string PLACEHOLDER_NAME_REGEX = @"[0-9A-Z\/\.\-_]+?";  //Placeholders' name pattern (includes "/" for paths, "." for file names
 
 
         //Extension Method for strings that does a Case-Insensitive Replace()
@@ -17,20 +16,35 @@ namespace IISHelpers
         internal static string ReplacePlaceHolder(string originalContent, string placeholderName, string newValue)
         {
             return Regex.Replace(originalContent,
-                Regex.Escape(FIELD_PREFIX) + "\\s*?" + Regex.Escape(placeholderName) + "\\s*?" + Regex.Escape(FIELD_SUFIX),
+                GetPlaceholderRegexString(placeholderName),
                 Regex.Replace(newValue, "\\$[0-9]+", @"$$$0"),
                 RegexOptions.IgnoreCase);
+        }
+
+        /// <summary>
+        /// Builds the appropriate regular expression to search for an specific placeholder name using the correct prefix and suffix
+        /// </summary>
+        /// <param name="placeholderName">The name of the placeholder</param>
+        /// <returns></returns>
+        private static string GetPlaceholderRegexString(string placeholderName, string phPrefix = "")
+        {
+            if (placeholderName != PLACEHOLDER_NAME_REGEX)
+                placeholderName = Regex.Escape(placeholderName);
+
+            return Regex.Escape(PLACEHOLDER_PREFIX) + @"\s*?" + Regex.Escape(phPrefix) + placeholderName + @"\s*?" + Regex.Escape(PLACEHOLDER_SUFIX);
         }
 
         /// <summary>
         /// Gets all the placeholders in the content, as regular expression matches
         /// </summary>
         /// <param name="content"></param>
+        /// <param name="name">Optional. The name of a specific palceholder to search. If not provided returns all the placeholders present in the content</param>
         /// <returns>A collection of RegExp matches with the placeholders in a content</returns>
-        internal static MatchCollection GetAllPlaceHolderMatches(string content)
+        internal static MatchCollection GetAllPlaceHolderMatches(string content, string name = "", string phPrefix = "")
         {
-            Regex REGEXFIELDS_PATTERN = new Regex(Regex.Escape(FIELD_PREFIX) + FIELD_NAME_REGEX + Regex.Escape(FIELD_SUFIX), RegexOptions.IgnoreCase);
-            return REGEXFIELDS_PATTERN.Matches(content);
+            string phName = string.IsNullOrEmpty(name) ? PLACEHOLDER_NAME_REGEX : Regex.Escape(name);
+            Regex rePlaceholders = new Regex(GetPlaceholderRegexString(phName, phPrefix), RegexOptions.IgnoreCase);
+            return rePlaceholders.Matches(content);
         }
 
         /// <summary>
@@ -38,11 +52,9 @@ namespace IISHelpers
         /// </summary>
         /// <param name="content"></param>
         /// <returns>An array of strings with the name, without duplicates</returns>
-        internal static string[] GetAllPlaceHolders(string content)
+        internal static string[] GetAllPlaceHolderNames(string content, string name = "", string phPrefix = "")
         {
-            Regex REGEXFIELDS_PATTERN = new Regex(Regex.Escape(FIELD_PREFIX) + FIELD_NAME_REGEX + Regex.Escape(FIELD_SUFIX), RegexOptions.IgnoreCase);
-
-            MatchCollection matches = REGEXFIELDS_PATTERN.Matches(content);
+            MatchCollection matches = GetAllPlaceHolderMatches(content, name, phPrefix);
 
             string[] names = new string[matches.Count];
 
@@ -54,10 +66,16 @@ namespace IISHelpers
             return names.Distinct<string>().ToArray();
         }
 
+        /// <summary>
+        /// Checks if the specified placeholder is present in the content
+        /// </summary>
+        /// <param name="content">The content to test</param>
+        /// <param name="placeholderName">The name of the placeholder (without wrappers)</param>
+        /// <returns></returns>
         internal static bool IsPlaceHolderPresent(string content, string placeholderName)
         {
-            //Regex.Match()
-            return true;
+            Regex rePlaceHolder = new Regex(GetPlaceholderRegexString(placeholderName), RegexOptions.IgnoreCase);
+            return rePlaceHolder.IsMatch(content);
         }
 
         /// <summary>
@@ -68,7 +86,17 @@ namespace IISHelpers
         /// <returns>The name of the placeholder in lowercase</returns>
         internal static string GetFieldName(string placeholder)
         {
-            return placeholder.Substring(FIELD_PREFIX.Length, placeholder.Length - (FIELD_PREFIX.Length + FIELD_SUFIX.Length)).Trim().ToLower();
+            return placeholder.Substring(PLACEHOLDER_PREFIX.Length, placeholder.Length - (PLACEHOLDER_PREFIX.Length + PLACEHOLDER_SUFIX.Length)).Trim().ToLower();
+        }
+
+        /// <summary>
+        /// Given a placeholder name, returns the full placeholder, using the defined prefix and suffix
+        /// </summary>
+        /// <param name="name">The placeholder name</param>
+        /// <returns></returns>
+        internal static string GetPlaceholderName(string name)
+        {
+            return PLACEHOLDER_PREFIX + name + PLACEHOLDER_SUFIX;
         }
     }
 }
