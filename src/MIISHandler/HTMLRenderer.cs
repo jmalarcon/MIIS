@@ -59,7 +59,7 @@ namespace MIISHandler
             */
             //////////////////////////////
 
-            foreach (Match field in TemplatingHelper.REGEXFIELDS_PATTERN.Matches(template))
+            foreach (Match field in TemplatingHelper.GetAllPlaceHolderMatches(template))
             {
                 //Get the field name (without braces and in lowercase)
                 string name = TemplatingHelper.GetFieldName(field.Value);
@@ -153,7 +153,7 @@ namespace MIISHandler
                 //////////////////////////////
                 bool ContentPresent = false;
                 string basefolder = "", templatebasefolder = "";
-                foreach (Match field in TemplatingHelper.REGEXFIELDS_PATTERN.Matches(templateContents))
+                foreach (Match field in TemplatingHelper.GetAllPlaceHolderMatches(templateContents))
                 {
                     //Get the field name (without prefix or suffix and in lowercase)
                     string name = TemplatingHelper.GetFieldName(field.Value);
