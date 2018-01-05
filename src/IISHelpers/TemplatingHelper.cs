@@ -6,9 +6,9 @@ namespace IISHelpers
 {
     internal static class TemplatingHelper
     {
-        private static string PLACEHOLDER_PREFIX = "{{";   //Placeholders' prefix
-        private static string PLACEHOLDER_SUFIX = "}}";    //Placeholders' suffix
-        private static string PLACEHOLDER_NAME_REGEX = @"[0-9A-Z\/\.\-_]+?";  //Placeholders' name pattern (includes "/" for paths, "." for file names
+        internal static string PLACEHOLDER_PREFIX = "{{";   //Placeholders' prefix
+        internal static string PLACEHOLDER_SUFIX = "}}";    //Placeholders' suffix
+        internal static string PLACEHOLDER_NAME_REGEX = @"[0-9A-Z\/\.\-_]+?";  //Placeholders' name pattern (includes "/" for paths, "." for file names
 
 
         //Extension Method for strings that does a Case-Insensitive Replace()

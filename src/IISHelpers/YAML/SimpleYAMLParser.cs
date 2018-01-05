@@ -22,8 +22,6 @@ namespace IISHelpers.YAML
     public class SimpleYAMLParser
     {
 
-        private string YAML_PROP_RE_STRING = @"^[\s\t]*?{{propname}}\:(.+)$";
-
         //The YAML to be processed
         private string yaml;
 
@@ -34,6 +32,16 @@ namespace IISHelpers.YAML
         public SimpleYAMLParser(string frontmatter)
         {
             yaml = frontmatter;
+        }
+
+        /// <summary>
+        /// Builds the appropriate regular expression to search for an specific placeholder name using the correct prefix and suffix
+        /// </summary>
+        /// <param name="propName">The name of the placeholder</param>
+        /// <returns></returns>
+        private static string GetPropertyRegexString(string propName)
+        {
+            return @"^[\s\t]*?" + Regex.Escape(propName) + @"\:(.+)$";
         }
 
         /// <summary>
@@ -50,7 +58,7 @@ namespace IISHelpers.YAML
                     return string.Empty;
 
                 //Search for the property value using regular expressions
-                Regex re = new Regex(YAML_PROP_RE_STRING.Replace("{{propname}}", propertyName), RegexOptions.Multiline | RegexOptions.IgnoreCase);
+                Regex re = new Regex(GetPropertyRegexString(propertyName), RegexOptions.Multiline | RegexOptions.IgnoreCase);
                 Match property = re.Match(yaml);
                 if (property == null)
                     return string.Empty;
