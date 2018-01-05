@@ -1,0 +1,77 @@
+@media only screen and (min-width: 720px) {
+	.header .stretch .title {
+		padding-left: 150px;
+	}
+}
+
+@media only screen and (min-width: 720px) and (max-width:959px) {
+	.header {
+		background-position-x: 50px !Important;
+	}
+}
+
+/** Side menu */
+.drawer .toc h1, .drawer .toc h2, .drawer .toc h3, .drawer .toc h4, .drawer .toc h5, .drawer .toc h6 {
+	margin-top:1.5em;
+	font-weight: bold;
+}
+
+.drawer .toc  ul  li a {
+	font-weight: normal;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+}
+
+.drawer .toc ul li a.current-doc {
+	font-weight: 700;
+}
+
+/* BODY */
+/*For IE and older browsers, in order to correctly display the body*/
+.main {
+	display:block;
+}
+
+/* Smaller copyright and in italics */
+aside.copyright {
+	font-size: x-small;
+	font-style: italic;
+}
+
+/* Separation between the horizontal bar and the copyright text */
+aside.copyright hr {
+	margin:1.2em 0;
+}
+
+/* smaller separation for the lower part titles */
+.article h1 {
+	padding-bottom:0.7em;
+}
+
+/*All images centered*/
+.wrapper img {
+	display:block;
+	margin: 0 auto;
+}
+
+/*Code*/
+.article pre > code {
+	color: black !important;
+	padding-left:2em;
+}
+
+/* Videos */
+.wrapper video {
+	max-width:100%;
+	display: block;
+	margin: 1.2em auto;
+	cursor: pointer;
+}
+
+/* More padding on the left for first-level lists and less for the second level ones */
+.article ul li, .article ol {
+	padding-left:2em;
+}
+.article ul li li {
+	padding-left:1em;
+}
