@@ -31,5 +31,23 @@ namespace IISHelpers
             //Markdig codifies the "~" as "%7E" , so we need to process it this way too
             return content.Replace("%7E/", absoluteBase);
         }
+
+        //Gets current user IP (even if it's forwarded by a proxy
+        internal static string GetIPAddress()
+        {
+            HttpContext ctx = HttpContext.Current;
+            string ip = ctx.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+
+            if (!string.IsNullOrEmpty(ip))
+            {
+                string[] addresses = ip.Split(',');
+                if (addresses.Length != 0)
+                {
+                    return addresses[0];
+                }
+            }
+
+            return ctx.Request.ServerVariables["REMOTE_ADDR"];
+        }
     }
 }

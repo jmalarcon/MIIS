@@ -12,9 +12,15 @@ namespace IISHelpers
 
 
         //Extension Method for strings that does a Case-Insensitive Replace()
-        //Takes into account replacement strings with $x that would be mistaken for RegExp substituions
+        //Takes into account replacement strings with $x that would be mistaken for RegExp substitutions
         internal static string ReplacePlaceHolder(string originalContent, string placeholderName, string newValue)
         {
+            if (string.IsNullOrEmpty(originalContent) || string.IsNullOrEmpty(placeholderName))
+                return originalContent;
+
+            if (string.IsNullOrEmpty(newValue))
+                newValue = string.Empty;
+
             return Regex.Replace(originalContent,
                 GetPlaceholderRegexString(placeholderName),
                 Regex.Replace(newValue, "\\$[0-9]+", @"$$$0"),
