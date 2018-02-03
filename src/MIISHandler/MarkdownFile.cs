@@ -18,7 +18,7 @@ namespace MIISHandler
     {
 
         public const string HTML_EXT = ".mdh";  //File extension for HTML contents
-        private Regex FRONT_MATTER_RE = new Regex(@"^---(.*?)---", RegexOptions.Singleline);
+        private Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}", RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
 
         #region private fields
         private string _content;
@@ -35,6 +35,11 @@ namespace MIISHandler
         //Reads and process the file. 
         //IMPORTANT: Expects the PHYSICAL path to the file.
         //Possibly generates errors that must be handled in the call-stack
+        //IMPORTANT: It doesn't need to cache the results because it's only directly used (and therefore read from disk)
+        //in downloads (it could be cached for that but it's a not a frequent operation so it can be left that way instead of ocupping memory)
+        //and in File-Processing fields, that use the rawHTML proprty and therefore this property too (and Markdown transformation) but in this case
+        //the final result is cached and it's ony done once per file, so its effect it's neglictive and we save memory. 
+        //This default behaviour could be changed in the future as needed.
         public MarkdownFile(string mdFilePath)
         {
             this.FilePath = mdFilePath;
@@ -53,7 +58,7 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_content))
                 {
                     _content = IOHelper.ReadTextFromFile(this.FilePath);
-                    ProcessFrontMatter();
+                    ProcessFrontMatter();   //Make sure the FM is processed AND removed from the original content
                 }
 
                 return _content;
@@ -103,7 +108,7 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_html))
                 {
                     //Read the file contents from disk or cache depending on parameter
-                    if (Common.GetFieldValue("UseMDCaching", this, "1") == "1")
+                    if (Common.GetFieldValue("UseMDCaching", null, "1") == "1")
                     {
                         //The common case: cache enabled. 
                         //Try to read from cache
@@ -229,22 +234,49 @@ namespace MIISHandler
         #endregion
 
         #region Aux methods
+        //Extracts Front-Matter from current file
         private void ProcessFrontMatter()
         {
             if (_FrontMatter != null)
                     return;
 
+            string strFM = string.Empty;
+            bool cacheEnabled = Common.GetFieldValue("UseMDCaching", null, "1") == "1";
+
+            if (cacheEnabled)   //If the file cache is enabled
+            {
+                strFM = HttpRuntime.Cache[this.FilePath + "_FM"] as string;  //Try to read Front-Matter from cache
+                if (!string.IsNullOrEmpty(strFM)) //If it in the cache, use it
+                {
+                    _FrontMatter = new SimpleYAMLParser(strFM);
+                    return;
+                }
+                else
+                {
+                    strFM = string.Empty;   //Re-set to an empty string
+                }
+            }
+
+            //If cache is not enabled or the FM is not currently cached, read from contents
             //Default value
-            _FrontMatter = new SimpleYAMLParser(string.Empty);
+            _FrontMatter = new SimpleYAMLParser(strFM);
 
             //Extract and remove YAML Front Matter
             Match fm = FRONT_MATTER_RE.Match(this.Content);
             if (fm.Length > 0) //If there's front matter available
             {
+                strFM = fm.Groups[0].Value;
                 //Save front matter text
-                _FrontMatter = new SimpleYAMLParser(fm.Groups[0].Value);
-                //Remove Front Matter from the original contents
+                _FrontMatter = new SimpleYAMLParser(strFM);
+
+                 //Remove Front Matter from the original contents
                 _content = _content.Substring(fm.Length + Environment.NewLine.Length); //To remove the new line character after the front matter
+            }
+
+            //Cache FM contents if caching is enabled
+            if (cacheEnabled)
+            {
+                HttpRuntime.Cache.Insert(this.FilePath + "_FM", strFM, new CacheDependency(this.FilePath)); //Add FM to cache with dependency on the current MD/MDH file
             }
         }
         #endregion

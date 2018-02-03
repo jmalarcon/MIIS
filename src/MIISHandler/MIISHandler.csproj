@@ -41,8 +41,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Markdig, Version=0.14.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Markdig.0.14.8\lib\net35\Markdig.dll</HintPath>
+    <Reference Include="Markdig, Version=0.14.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Markdig.0.14.9\lib\net35\Markdig.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -91,7 +91,6 @@
     <Compile Include="HTMLRenderer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
     <Content Include="Templates\Material\assets\fonts\icon.eot" />
     <Content Include="Templates\Material\assets\fonts\icon.ttf" />
     <Content Include="Templates\Material\assets\fonts\icon.woff" />
@@ -102,6 +101,7 @@
     <Content Include="Templates\_common_fonts\fontawesome-webfont.eot" />
     <Content Include="Templates\_common_fonts\fontawesome-webfont.ttf" />
     <Content Include="Templates\_common_fonts\fontawesome-webfont.woff" />
+    <Content Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

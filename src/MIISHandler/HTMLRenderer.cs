@@ -159,7 +159,7 @@ namespace MIISHandler
                 //////////////////////////////
                 //Replace template-specific fields
                 //////////////////////////////
-                //Legacy "basefolder" placeholder (now "~/" it recommended)
+                //Legacy "basefolder" placeholder (now "~/" it's recommended)
                 templateContents = TemplatingHelper.ReplacePlaceHolder(templateContents, "basefolder", 
                     VirtualPathUtility.RemoveTrailingSlash(VirtualPathUtility.ToAbsolute("~/")));
                 //Template base folder
@@ -227,15 +227,18 @@ namespace MIISHandler
                 /*
                  * There are two types of fields:
                  * - Value fields: {name} -> Get a value from the properties of the file or from web.config -> Simply replace them
-                 * - File processing fields, ending in .md or .mdh. ej: {{myfile.md}} -> The file is read and it's contents transformed into HTML take the place of the placeholder
+                 * - File processing fields (FPF), ending in .md or .mdh. ej: {{myfile.md}} -> The file is read and it's contents transformed into HTML take the place of the placeholder
                  *   Useful for menus, and other independet parts in custom templates and parts of the same page.
                 */
                 if (fldVal.EndsWith(".md") || fldVal.EndsWith(MarkdownFile.HTML_EXT))
                 {
                     try
                     {
-                        MarkdownFile mdFld = new MarkdownFile(ctx.Server.MapPath(fldVal));
-                        fldVal = mdFld.RawHTML;
+                        string fpfPath = ctx.Server.MapPath(fldVal);    //The File-Processing Field path
+                        MarkdownFile mdFld = new MarkdownFile(fpfPath);
+                        fldVal = mdFld.RawHTML; //Use the raw HTML, not the processed HTML (this last one includes the template too)
+                        //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes
+                        md.Dependencies.Add(fpfPath);
                     }
                     catch (SecurityException)
                     {
