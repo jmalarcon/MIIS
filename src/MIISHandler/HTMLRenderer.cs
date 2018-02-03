@@ -150,7 +150,7 @@ namespace MIISHandler
                     cacheDependencies.Add(ctx.Server.MapPath(includeFileName)); //Add "include" file to the cache dependencies for the main template file cached html
                 }
 
-                //After inserting all he "includes", check if there's a content placeholder present (mandatory)
+                //After inserting all the "includes", check if there's a content placeholder present (mandatory)
                 if (!TemplatingHelper.IsPlaceHolderPresent(templateContents, "content"))
                 {
                     throw new Exception("Invalid template: The " + TemplatingHelper.GetPlaceholderName("content") + " placeholder must be present!");
@@ -197,7 +197,6 @@ namespace MIISHandler
                 //Try to read the file with fragment
                 try
                 {
-                    if (md.Dependencies != null)
                         md.Dependencies.Add(fragmentFileName);
 
                     MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
@@ -237,20 +236,20 @@ namespace MIISHandler
                         string fpfPath = ctx.Server.MapPath(fldVal);    //The File-Processing Field path
                         MarkdownFile mdFld = new MarkdownFile(fpfPath);
                         fldVal = mdFld.RawHTML; //Use the raw HTML, not the processed HTML (this last one includes the template too)
-                        //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes
+                        //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
                         md.Dependencies.Add(fpfPath);
                     }
                     catch (SecurityException)
                     {
-                        fldVal = String.Format("Can't access file for {0}", name);
+                        fldVal = String.Format("Can't access file for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX);
                     }
                     catch (FileNotFoundException)
                     {
-                        fldVal = String.Format("File not found for {0}", name);
+                        fldVal = String.Format("File not found for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX);
                     }
                     catch (Exception ex)
                     {
-                        fldVal = String.Format("Error loading {0}: {1}", fldVal, ex.Message);   //This should only happen while testing, never in production, so I send the exception's message
+                        fldVal = String.Format("Error loading {0}: {1}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX, ex.Message);   //This should only happen while testing, never in production, so I send the exception's message
                     }
                 }
                 else if (fldVal.StartsWith("~/"))    //If its a virtual path to a static file (for example a path to a CSS or JS file)

@@ -43,6 +43,11 @@ namespace MIISHandler
         public MarkdownFile(string mdFilePath)
         {
             this.FilePath = mdFilePath;
+            //Initialize the file dependencies
+            this.Dependencies = new List<string>
+            {
+                this.FilePath   //Add current file as cache dependency (the render process will add the fragments and other files if needed)
+            };
         }
         #endregion
 
@@ -115,11 +120,6 @@ namespace MIISHandler
                         _html = HttpRuntime.Cache[this.FilePath + "_HTML"] as string;
                         if (string.IsNullOrEmpty(_html)) //If it's not in the cache, transform it
                         {
-                            //Initialize the file dependencies
-                            this.Dependencies = new List<string>
-                            {
-                                this.FilePath   //Add current file as cache dependency (the render process will add the fragments if needed)
-                            };
                             _html = HTMLRenderer.RenderMarkdown(this);
                             HttpRuntime.Cache.Insert(this.FilePath + "_HTML", _html, new CacheDependency(this.Dependencies.ToArray())); //Add result to cache with dependency on the file
                         }
@@ -230,7 +230,7 @@ namespace MIISHandler
         }
 
         //The file paths of files the current file depends on, including itself (current file + fragments)
-        internal List<string> Dependencies { get; set; }
+        internal List<string> Dependencies { get; private set; }
         #endregion
 
         #region Aux methods
