@@ -46,30 +46,33 @@ namespace MIISHandler
             string templateFile = GetCurrentTemplateFile(md);
             if (!String.IsNullOrEmpty(templateFile))
             {
-                template = ReadTemplate(templateFile, ctx);    //Read, transform and cache template
+                List<string> templateDependencies = new List<string>();
+                template = ReadTemplate(templateFile, ctx, templateDependencies);    //Read, transform and cache template
+                //Add template file dependences as dependences for the Markdown file cache too
+                md.Dependencies.AddRange(templateDependencies);
             }
 
             //First process the "content" field with the main HTML content transformed from Markdown
             //This allows to use other fields inside the content itself, not only in the templates
-            template = TemplatingHelper.ReplacePlaceHolder(template, "content", md.RawHTML);
+            string finalContent = TemplatingHelper.ReplacePlaceHolder(template, "content", md.RawHTML);
 
             //Process well-known fields one by one
-            template = TemplatingHelper.ReplacePlaceHolder(template, "title", md.Title);
-            template = TemplatingHelper.ReplacePlaceHolder(template, "filename", md.FileName);
-            template = TemplatingHelper.ReplacePlaceHolder(template, "datecreated", md.DateCreated.ToString());
-            template = TemplatingHelper.ReplacePlaceHolder(template, "datemodified", md.DateLastModified.ToString());
-            template = TemplatingHelper.ReplacePlaceHolder(template, "isauthenticated", ctx.User.Identity.IsAuthenticated.ToString());
-            template = TemplatingHelper.ReplacePlaceHolder(template, "authtype", ctx.User.Identity.AuthenticationType);
-            template = TemplatingHelper.ReplacePlaceHolder(template, "username", ctx.User.Identity.Name);
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "title", md.Title);
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "filename", md.FileName);
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "datecreated", md.DateCreated.ToString());
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "datemodified", md.DateLastModified.ToString());
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "isauthenticated", ctx.User.Identity.IsAuthenticated.ToString());
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "authtype", ctx.User.Identity.AuthenticationType);
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "username", ctx.User.Identity.Name);
 
             //Process fragments (other files inserted into the current one or template)
-            template = ProcessFragments(template, md, ctx);
+            finalContent = ProcessFragments(finalContent, md, ctx);
 
             //Process custom fields
-            template = ProcessCustomFields(template, md, ctx);
+            finalContent = ProcessCustomFields(finalContent, md, ctx);
 
             //Return the transformed file
-            return template;
+            return finalContent;
         }
         #endregion
 
@@ -106,25 +109,22 @@ namespace MIISHandler
         /// <returns>The text contents of the template</returns>
         /// <exception cref="System.Security.SecurityException">Thrown if the app has no read access to the requested file</exception>
         /// <exception cref="System.IO.FileNotFoundException">Thrown when the requested file does not exist</exception>
-        private static string ReadTemplate(string templateVirtualPath, HttpContext ctx, bool isInclude = false)
+        private static string ReadTemplate(string templateVirtualPath, HttpContext ctx, List<string> cacheDependencies, bool isInclude = false)
         {
             string templatePath = ctx.Server.MapPath(templateVirtualPath);
-            string cachedContent = HttpRuntime.Cache[templatePath] as string;   //Templates are always cached for performance reasons (no switch parameter to disable it)
+            string cachedContent = HttpRuntime.Cache[templatePath] as string;   //Templates are always cached for performance reasons (no switch/parameter to disable it)
             if (string.IsNullOrEmpty(cachedContent))
             {
                 var templateContents = IOHelper.ReadTextFromFile(templatePath);  //Read template contents from disk
 
+                //Add current file as cache dependency (the read process will add the fragments if needed)
+                cacheDependencies.Add(templatePath);
+
                 //If it's an include, just return the raw contents 
-                //Placeholders are porcessed in the main template
-                //Tke into account that sub-includes are not allowed in includes to prevent circular references, so they won't be processed either (which is OK)
+                //Placeholders are processed in the main template
+                //Take into account that sub-includes are not allowed in includes to prevent circular references, so they won't be processed in this case (which is OK)
                 if (isInclude)
                     return templateContents;
-
-                //Init the cache dependencies list
-                List<string> cacheDependencies = new List<string>
-                {
-                    templatePath   //Add current file as cache dependency (the read process will add the fragments if needed)
-                };
 
                 string phValue = string.Empty;    //The value to substitute the placeholder
 
@@ -139,7 +139,7 @@ namespace MIISHandler
                     string includeFileName = VirtualPathUtility.RemoveTrailingSlash(VirtualPathUtility.GetDirectory(templateVirtualPath)) + "/" + include.Substring(FILE_INCLUDES_PREFIX.Length);  //The current template file folder + the include filename
                     try
                     {
-                        phValue = ReadTemplate(includeFileName, ctx, true);    //Insert the raw contents of the include (no processing!)
+                        phValue = ReadTemplate(includeFileName, ctx, cacheDependencies, true);    //Insert the raw contents of the include (no processing!)
                     }
                     catch   //If it fails, simply do nothing
                     {
@@ -147,7 +147,6 @@ namespace MIISHandler
                         phValue = String.Format("<!-- Include file '{0}' not found  -->", includeFileName);
                     }
                     templateContents = TemplatingHelper.ReplacePlaceHolder(templateContents, include, phValue);
-                    cacheDependencies.Add(ctx.Server.MapPath(includeFileName)); //Add "include" file to the cache dependencies for the main template file cached html
                 }
 
                 //After inserting all the "includes", check if there's a content placeholder present (mandatory)
@@ -170,6 +169,7 @@ namespace MIISHandler
                 templateContents = WebHelper.TransformVirtualPaths(templateContents);
 
                 //Add result to cache with dependency on the file(s)
+                //Templates are cached ALWAYS, and this is not dependent on the UseMDcaching parameter (that one is only for MarkDown or MDH files)
                 HttpRuntime.Cache.Insert(templatePath, templateContents, new CacheDependency(cacheDependencies.ToArray()));
 
                 return templateContents; //Return content

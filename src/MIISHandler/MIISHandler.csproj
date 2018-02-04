@@ -71,6 +71,9 @@
     <Content Include="Templates\readthedocs\css\theme.css" />
     <Content Include="Templates\readthedocs\css\theme_extra.css" />
     <Content Include="Templates\readthedocs\fonts\fontawesome-webfont.svg" />
+    <Content Include="Templates\readthedocs\includes\beginning.html" />
+    <Content Include="Templates\readthedocs\includes\end.html" />
+    <Content Include="Templates\readthedocs\includes\forkme.html" />
     <Content Include="Templates\readthedocs\js\highlight.pack.js" />
     <Content Include="Templates\readthedocs\js\jquery-2.1.1.min.js" />
     <Content Include="Templates\readthedocs\js\modernizr-2.8.3.min.js" />

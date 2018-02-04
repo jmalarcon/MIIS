@@ -63,7 +63,8 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_content))
                 {
                     _content = IOHelper.ReadTextFromFile(this.FilePath);
-                    ProcessFrontMatter();   //Make sure the FM is processed AND removed from the original content
+                    ProcessFrontMatter();   //Make sure the FM is processed
+                    removeFrontMatter(); //and removed
                 }
 
                 return _content;
@@ -269,8 +270,8 @@ namespace MIISHandler
                 //Save front matter text
                 _FrontMatter = new SimpleYAMLParser(strFM);
 
-                 //Remove Front Matter from the original contents
-                _content = _content.Substring(fm.Length + Environment.NewLine.Length); //To remove the new line character after the front matter
+                //Remove Front Matter from the original contents
+                removeFrontMatter();
             }
 
             //Cache FM contents if caching is enabled
@@ -278,6 +279,12 @@ namespace MIISHandler
             {
                 HttpRuntime.Cache.Insert(this.FilePath + "_FM", strFM, new CacheDependency(this.FilePath)); //Add FM to cache with dependency on the current MD/MDH file
             }
+        }
+
+        //Removes the front matter, if any, from the current contents
+        private void removeFrontMatter()
+        {
+            _content = FRONT_MATTER_RE.Replace(_content, "");
         }
         #endregion
     }
