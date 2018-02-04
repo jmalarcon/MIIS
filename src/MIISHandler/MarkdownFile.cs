@@ -21,7 +21,7 @@ namespace MIISHandler
         private Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}", RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
 
         #region private fields
-        private string _content;
+        private string _content = "";
         private string _rawHtml;
         private string _html;
         private string _title;
@@ -63,8 +63,7 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_content))
                 {
                     _content = IOHelper.ReadTextFromFile(this.FilePath);
-                    ProcessFrontMatter();   //Make sure the FM is processed
-                    removeFrontMatter(); //and removed
+                    ProcessFrontMatter();   //Make sure the FM is processed and removed
                 }
 
                 return _content;
@@ -259,7 +258,7 @@ namespace MIISHandler
             }
 
             //If cache is not enabled or the FM is not currently cached, read from contents
-            //Default value
+            //Default value (empty), prevents Content property from processing Front-Matter twice if it's still not read
             _FrontMatter = new SimpleYAMLParser(strFM);
 
             //Extract and remove YAML Front Matter
@@ -269,9 +268,7 @@ namespace MIISHandler
                 strFM = fm.Groups[0].Value;
                 //Save front matter text
                 _FrontMatter = new SimpleYAMLParser(strFM);
-
-                //Remove Front Matter from the original contents
-                removeFrontMatter();
+                removeFrontMatter();    //Remove Front-Matter from raw content
             }
 
             //Cache FM contents if caching is enabled

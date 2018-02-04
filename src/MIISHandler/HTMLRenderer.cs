@@ -109,22 +109,29 @@ namespace MIISHandler
         /// <returns>The text contents of the template</returns>
         /// <exception cref="System.Security.SecurityException">Thrown if the app has no read access to the requested file</exception>
         /// <exception cref="System.IO.FileNotFoundException">Thrown when the requested file does not exist</exception>
-        private static string ReadTemplate(string templateVirtualPath, HttpContext ctx, List<string> cacheDependencies, bool isInclude = false)
+        private static string ReadTemplate(string templateVirtualPath, HttpContext ctx, List<string> cacheDependencies, List<string> graph = null, bool isInclude = false)
         {
             string templatePath = ctx.Server.MapPath(templateVirtualPath);
             string cachedContent = HttpRuntime.Cache[templatePath] as string;   //Templates are always cached for performance reasons (no switch/parameter to disable it)
             if (string.IsNullOrEmpty(cachedContent))
             {
+                //Check for circular references
+                if (graph != null)
+                {
+                    //Check if current file is already on the graph
+                    //if it is, then we have a circular reference
+                    if (graph.Contains(templatePath))
+                    {
+                        throw new CircularReferenceException( String.Format("Template not valid!\nThe file '{0}' is a circular reference: {1}", templateVirtualPath, String.Join(" >\n ", graph.ToArray())) );
+                    }
+                    graph.Add(templatePath);    //Add current include to the graph to track circular references
+                }
+
                 var templateContents = IOHelper.ReadTextFromFile(templatePath);  //Read template contents from disk
 
                 //Add current file as cache dependency (the read process will add the fragments if needed)
-                cacheDependencies.Add(templatePath);
-
-                //If it's an include, just return the raw contents 
-                //Placeholders are processed in the main template
-                //Take into account that sub-includes are not allowed in includes to prevent circular references, so they won't be processed in this case (which is OK)
-                if (isInclude)
-                    return templateContents;
+                if (!cacheDependencies.Contains(templatePath))
+                    cacheDependencies.Add(templatePath);
 
                 string phValue = string.Empty;    //The value to substitute the placeholder
 
@@ -139,7 +146,24 @@ namespace MIISHandler
                     string includeFileName = VirtualPathUtility.RemoveTrailingSlash(VirtualPathUtility.GetDirectory(templateVirtualPath)) + "/" + include.Substring(FILE_INCLUDES_PREFIX.Length);  //The current template file folder + the include filename
                     try
                     {
-                        phValue = ReadTemplate(includeFileName, ctx, cacheDependencies, true);    //Insert the raw contents of the include (no processing!)
+                        //Initialize graph to detect circular references
+                        List<string> newGraph;
+                        if (graph == null)
+                        {
+                            newGraph = new List<string>()
+                            {
+                                templatePath
+                            };
+                        }
+                        else
+                        {
+                            newGraph = graph;
+                        }
+                        phValue = ReadTemplate(includeFileName, ctx, cacheDependencies, newGraph, true);    //Insert the raw contents of the include (no processing!)
+                    }
+                    catch(CircularReferenceException crex)
+                    {
+                        throw crex;
                     }
                     catch   //If it fails, simply do nothing
                     {
@@ -149,28 +173,32 @@ namespace MIISHandler
                     templateContents = TemplatingHelper.ReplacePlaceHolder(templateContents, include, phValue);
                 }
 
-                //After inserting all the "includes", check if there's a content placeholder present (mandatory)
-                if (!TemplatingHelper.IsPlaceHolderPresent(templateContents, "content"))
+
+                if (!isInclude)
                 {
-                    throw new Exception("Invalid template: The " + TemplatingHelper.GetPlaceholderName("content") + " placeholder must be present!");
+                    //After inserting all the "includes", check if there's a content placeholder present (mandatory)
+                    if ( !TemplatingHelper.IsPlaceHolderPresent(templateContents, "content") )
+                    {
+                        throw new Exception("Invalid template: The " + TemplatingHelper.GetPlaceholderName("content") + " placeholder must be present!");
+                    }
+
+                    //////////////////////////////
+                    //Replace template-specific fields
+                    //////////////////////////////
+                    //Legacy "basefolder" placeholder (now "~/" it's recommended)
+                    templateContents = TemplatingHelper.ReplacePlaceHolder(templateContents, "basefolder",
+                        VirtualPathUtility.RemoveTrailingSlash(VirtualPathUtility.ToAbsolute("~/")));
+                    //Template base folder
+                    templateContents = TemplatingHelper.ReplacePlaceHolder(templateContents, "templatebasefolder",
+                        VirtualPathUtility.RemoveTrailingSlash(VirtualPathUtility.GetDirectory(VirtualPathUtility.ToAbsolute(templateVirtualPath))));
+
+                    //Transform virtual paths into absolute to the root paths (This is done only once per file if cached)
+                    templateContents = WebHelper.TransformVirtualPaths(templateContents);
+
+                    //If it's the main file, add result to cache with dependency on the file(s)
+                    //Templates are cached ALWAYS, and this is not dependent on the UseMDcaching parameter (that one is only for MarkDown or MDH files)
+                    HttpRuntime.Cache.Insert(templatePath, templateContents, new CacheDependency(cacheDependencies.ToArray()));
                 }
-
-                //////////////////////////////
-                //Replace template-specific fields
-                //////////////////////////////
-                //Legacy "basefolder" placeholder (now "~/" it's recommended)
-                templateContents = TemplatingHelper.ReplacePlaceHolder(templateContents, "basefolder", 
-                    VirtualPathUtility.RemoveTrailingSlash(VirtualPathUtility.ToAbsolute("~/")));
-                //Template base folder
-                templateContents = TemplatingHelper.ReplacePlaceHolder(templateContents, "templatebasefolder",
-                    VirtualPathUtility.RemoveTrailingSlash(VirtualPathUtility.GetDirectory(VirtualPathUtility.ToAbsolute(templateVirtualPath))));
-
-                //Transform virtual paths into absolute to the root paths (This is done only once per file if cached)
-                templateContents = WebHelper.TransformVirtualPaths(templateContents);
-
-                //Add result to cache with dependency on the file(s)
-                //Templates are cached ALWAYS, and this is not dependent on the UseMDcaching parameter (that one is only for MarkDown or MDH files)
-                HttpRuntime.Cache.Insert(templatePath, templateContents, new CacheDependency(cacheDependencies.ToArray()));
 
                 return templateContents; //Return content
             }
@@ -263,6 +291,15 @@ namespace MIISHandler
             }
 
             return template;
+        }
+        #endregion
+
+        #region Aux classes
+        internal class CircularReferenceException : Exception
+        {
+            public CircularReferenceException(string msg):base(msg)
+            {
+            }
         }
         #endregion
     }
