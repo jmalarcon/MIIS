@@ -56,6 +56,9 @@ namespace MIISHandler
             //This allows to use other fields inside the content itself, not only in the templates
             string finalContent = TemplatingHelper.ReplacePlaceHolder(template, "content", md.RawHTML);
 
+            //Process fragments (other files inserted into the current one or template)
+            finalContent = ProcessFragments(finalContent, md, ctx);
+
             //Process well-known fields one by one
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "title", md.Title);
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "filename", md.FileName);
@@ -65,11 +68,11 @@ namespace MIISHandler
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "authtype", ctx.User.Identity.AuthenticationType);
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "username", ctx.User.Identity.Name);
 
-            //Process fragments (other files inserted into the current one or template)
-            finalContent = ProcessFragments(finalContent, md, ctx);
-
             //Process custom fields
             finalContent = ProcessCustomFields(finalContent, md, ctx);
+
+            //Transfrom virtual paths
+            finalContent = WebHelper.TransformVirtualPaths(finalContent);
 
             //Return the transformed file
             return finalContent;
@@ -186,8 +189,7 @@ namespace MIISHandler
                     //Replace template-specific fields
                     //////////////////////////////
                     //Legacy "basefolder" placeholder (now "~/" it's recommended)
-                    templateContents = TemplatingHelper.ReplacePlaceHolder(templateContents, "basefolder",
-                        VirtualPathUtility.RemoveTrailingSlash(VirtualPathUtility.ToAbsolute("~/")));
+                    templateContents = TemplatingHelper.ReplacePlaceHolder(templateContents, "basefolder", "~/");
                     //Template base folder
                     templateContents = TemplatingHelper.ReplacePlaceHolder(templateContents, "templatebasefolder",
                         VirtualPathUtility.RemoveTrailingSlash(VirtualPathUtility.GetDirectory(VirtualPathUtility.ToAbsolute(templateVirtualPath))));

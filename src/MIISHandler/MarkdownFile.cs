@@ -91,9 +91,6 @@ namespace MIISHandler
                         //Convert markdown to HTML
                         _rawHtml = Markdig.Markdown.ToHtml(this.Content, pipeline); //Converto to HTML
                     }
-
-                    //Transform virtual paths before returning
-                    _rawHtml = WebHelper.TransformVirtualPaths(_rawHtml);
                 }
 
                 return _rawHtml;
