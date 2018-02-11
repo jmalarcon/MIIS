@@ -28,7 +28,7 @@ namespace MIISHandler
         private string _filename;
         private DateTime _dateCreated;
         private DateTime _dateLastModified;
-        SimpleYAMLParser _FrontMatter;
+        private SimpleYAMLParser _FrontMatter;
         #endregion
 
         #region Constructor
@@ -60,12 +60,7 @@ namespace MIISHandler
         {
             get
             {
-                if (string.IsNullOrEmpty(_content))
-                {
-                    _content = IOHelper.ReadTextFromFile(this.FilePath);
-                    ProcessFrontMatter();   //Make sure the FM is processed and removed
-                }
-
+                ensureContentAndFrontMatter();
                 return _content;
             }
         }
@@ -175,7 +170,7 @@ namespace MIISHandler
             {
                 if (_FrontMatter == null)
                 {
-                    ProcessFrontMatter();
+                    ensureContentAndFrontMatter();
                 }
 
                 return _FrontMatter;
@@ -234,6 +229,17 @@ namespace MIISHandler
         #endregion
 
         #region Aux methods
+        //Ensure that the content of the file is loaded from disk and the Front Matter processed & removed from it
+        private void ensureContentAndFrontMatter()
+        {
+            if (string.IsNullOrEmpty(_content))
+            {
+                _content = IOHelper.ReadTextFromFile(this.FilePath);
+                ProcessFrontMatter();   //Make sure the FM is processed
+                removeFrontMatter();    //This is a separate step because FM can be cached and it's only dependent of the current file
+            }
+        }
+
         //Extracts Front-Matter from current file
         private void ProcessFrontMatter()
         {
@@ -268,7 +274,6 @@ namespace MIISHandler
                 strFM = fm.Groups[0].Value;
                 //Save front matter text
                 _FrontMatter = new SimpleYAMLParser(strFM);
-                removeFrontMatter();    //Remove Front-Matter from raw content
             }
 
             //Cache FM contents if caching is enabled
