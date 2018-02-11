@@ -8,11 +8,12 @@ Just open the `web.config` file and locate the `system.webServer/handlers` secti
 ```
 <system.webServer>
     <handlers>
-      <add name=".md extension" path="*.md" verb="GET" type="IISMarkdownHandler.IISMarkdownHandler, IISMarkdownHandler" resourceType="File" requireAccess="Read"/>
-      <add name=".markdown extension" path="*.markdown" verb="GET" type="IISMarkdownHandler.IISMarkdownHandler, IISMarkdownHandler" resourceType="File" requireAccess="Read"/>
-      <add name=".mdown extension" path="*.mdown" verb="GET" type="IISMarkdownHandler.IISMarkdownHandler, IISMarkdownHandler" resourceType="File" requireAccess="Read"/>
-      <add name=".mkdn extension" path="*.mkdn" verb="GET" type="IISMarkdownHandler.IISMarkdownHandler, IISMarkdownHandler" resourceType="File" requireAccess="Read"/>
-      <add name=".mkd extension" path="*.mkd" verb="GET" type="IISMarkdownHandler.IISMarkdownHandler, IISMarkdownHandler" resourceType="File" requireAccess="Read"/>
+      <add name=".mdh HTML extension" path="*.mdh" verb="GET" type="MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
+      <add name=".md extension" path="*.md" verb="GET" type=""MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
+      <add name=".markdown extension" path="*.markdown" verb="GET" type=""MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
+      <add name=".mdown extension" path="*.mdown" verb="GET" type=""MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
+      <add name=".mkdn extension" path="*.mkdn" verb="GET" type=""MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
+      <add name=".mkd extension" path="*.mkd" verb="GET" type=""MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
     </handlers>
     <defaultDocument enabled="true">
       <files>
@@ -25,7 +26,19 @@ Just open the `web.config` file and locate the `system.webServer/handlers` secti
 You can add or remove extensions as needed.
 
 ## The `.mdh` special extension
-By default (if not changed in the previous section of the `web.config` file) MIIS supports a special file type for pure HTML contents. Anything inside a `.mdh` file will be used with the current template un-transformed. This is very useful to be used in special pages that need a very specific HTML structure,such as the main front-page of a site or any other complex page. With this kind of files you'll use HTML instead of Markdown to gain control over the final HTML and can keep the indentation of the code (in Markdown indented HTML code would be interpreted as a code fragment).
+By default (if not changed in the previous section of the `web.config` file) MIIS supports a special file type for pure HTML contents. Anything inside a `.mdh` file will be used un-transformed within the current assigned template. This is very useful for pages that need a very specific HTML structure, such as the main front-page of a site or any other complex page. With this kind of files you'll use HTML instead of Markdown to gain control over the final HTML and can keep the indentation of the code (in Markdown indented HTML code would be interpreted as a code fragment).
+
+If you are using this kind of files and Visual Studio Code is your editor of choice, there's a simple way to achieve that VSCode will treat this files as normal HTML files, giving you Intellisense, Emmet, and all the nice features you love.
+
+Just open your VSCode settings and add this node to the JSON file:
+
+```
+ "files.associations": {
+    "*.mdh": "html"
+}
+```
+
+Form now on, you'll get the normal behavior of HTML files while editing `.mdh` files too.
 
 ## Default Documents
 

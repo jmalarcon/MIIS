@@ -1,17 +1,16 @@
 #### Overview
 - [Quick Start](./)
-- [Markdown Features](Markdown-Features.md)
+- [Markdown Features](Markdown-Features)
 
 #### Configuration & Templating
-- [Settings](Settings.md)
-- [CSS Styles](cssStyles.md)
-- [Available Templates](Template-List.md)
-- [Creating Custom Templates](Templating.md)
+- [Configuration](Settings)
+- [Out-Of-The-Box Templates](Template-List)
+- [Creating Custom Templates](Templating)
 
 #### Deployment
-- [Run Locally with IIS Express](IISExpress.md)
-- [Run in Azure](Azure.md)
-- [Files configuration](Managing-File-Extensions.md)
+- [Run Locally with IIS Express](IISExpress)
+- [Run in Azure](Azure)
+- [Files configuration](Managing-File-Extensions)
 
 ----
 - [Markdown Reference](https://guides.github.com/features/mastering-markdown/)

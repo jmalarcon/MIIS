@@ -4,8 +4,7 @@ The Markdown to HTML conversion is provided by [Markdig](https://github.com/lune
 It supports:
 - All the core CommonMark Mardown features (600+ tests passed from CommonMark specs)
 - Auto-links for `http://`, `https://`, `ftp://`, `mailto:` and `www.xxxx.yyy`.
-- Emojis: :-) :thumbsup: (You can disable them with the [`UseEmoji` setting](Settings.md))
-- Soft lines and hardlines
+- Emojis: :-) :thumbsup: (You can disable them with the [`UseEmoji` setting](Settings))
 - Two kinds of tables: pipes and grid tables
 - [Media url support](https://talk.commonmark.org/t/embedded-audio-and-video/441) for YouTube, Vimeo, mp3, mp4...
 - Extra-emphasis
@@ -17,6 +16,5 @@ It supports:
 - [Smartypants](https://daringfireball.net/projects/smartypants/)
 - [Mermaid diagrams](https://knsv.github.io/mermaid/#mermaid)
 - [Math/Latex extension](https://talk.commonmark.org/t/ignore-latex-like-math-mode-or-parse-it/1926)
-- Ignores YAML frontmatter
 
 You can check all the supported Markdown features details in the [Markdig github page](https://github.com/lunet-io/markdig){target=_blank}.

@@ -22,4 +22,9 @@ You'll see your documentation site right away.
 
 You can change the port the site is served from modifying the `/port` parameter in the previous file.
 
->Please, notice that the site is not automatically refreshed, so if you change the contents of a document you must refresh the browser to see the changes.
+>Please, notice that the site is not automatically refreshed, so if you change the contents of a document you must refresh the browser to see the changes. Also IISExpress can be caching many of your resources (images, scripts...). In that case open the Developer Tools of your browser and check the "Disable Cache" option in the Network tab, so that they are forced to load.
+
+## Using Visual Studio Code?
+If you edit your site contents using [Visual Studio Code](https://code.visualstudio.com) (and you should!), than instead of going through all the previous indications just install Warren Buckley's amazing [IIS Express extension](https://marketplace.visualstudio.com/items?itemName=warren-buckley.iis-express).
+
+This extension will allow you to launch your MIIS site with IIS Express just by pressing `CTRL+F5`, and will even open your browser for you with the site already loaded. A must have!

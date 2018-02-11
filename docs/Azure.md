@@ -16,9 +16,13 @@ Click the "Create" button. After a few seconds your site will be available.
 
 You can deploy to Azure using a lot of different methods. I, for example, like to deploy my sites directly from their Git repository or from DropBox. But the easiest and more straight-forward way is through FTP.
 
-Go to your Web App properties and search for "Deployment Credentials". Enter a user name and (complex) password to access your site through FTP:
+Go to your Web App main page and press the "Get publish profile" button.
 
 ![Web App, create FTP credentials](Images/Azure/02-FTP-Credentials.png)
+
+Inside the downloaded file you'll find the credentials to access your site through FTP. 
+
+>**IMPORTANT**: Don't change or use the FTP credentials in the "Deployment credentials" section, since those are common for all the sites in your Azure account, and are dangerous to share.
 
 4.- **Transfer files** to your Web App.
 
