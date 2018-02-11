@@ -1,10 +1,17 @@
-# MIIS: A Markdown based CMS for IIS
+# MIIS: MIIS: A Markdown File-based CMS for IIS and Azure
 
 ![MIIS Logo](MIIS_Logo.png)
 
-A Markdown based CMS system for IIS by [@jm_alarcon](https://twitter.com/jm_alarcon).
+A Markdown and HTML file-based CMS system for IIS by [@jm_alarcon](https://twitter.com/jm_alarcon).
 
-**Your Markdown-based documentation system or web site in less than 30 seconds!**
+MIIS is a perfect blend between a traditional CMS (such as Wordpress) and a Static Site Generator (such as Jekyll). Get the best of world worlds:
+
+- No backend database or special setup needed
+- No need to recompile and deploy after any change
+- Lightning-fast, without unneeded bloat
+
+**Set up your Markdown-based documentation system or web site in less than 30 seconds!**
+
 
 ## System Requirements
 
