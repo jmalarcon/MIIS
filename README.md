@@ -1,4 +1,4 @@
-# MIIS: MIIS: A Markdown File-based CMS for IIS and Azure
+# MIIS: A Markdown File-based CMS for IIS and Azure
 
 ![MIIS Logo](MIIS_Logo.png)
 
