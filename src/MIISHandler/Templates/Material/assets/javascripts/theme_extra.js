@@ -1,4 +1,4 @@
-$(window).load(function(){
+$(function(){
     /*
     Zooms automatically (with zoomify) all the images that are smaller than the available width when loading the page
     */
