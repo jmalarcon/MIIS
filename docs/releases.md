@@ -7,9 +7,9 @@ MIIS uses [semantic versioning](https://semver.org){target="_blank"}. That means
 
 >You can check all the releases, including the minor ones, at [Github](https://github.com/jmalarcon/MIIS/releases){target="_blank"}.
 
-## Version 2.0 Beta 1
+## Version 2.0
 
-Released, February 2018
+Released, March 2018
 
 ## - Breaking changes
 - **New app DLL name**: `MIISHandler.dll` instead of the old one `IISMarkdownHandler.dll`. Make sure you delete the old one before updating! You must change the handlers section in your `web.config` file. Just copy it from the downloaded MISS released files.
