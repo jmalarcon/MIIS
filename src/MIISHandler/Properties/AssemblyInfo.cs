@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 [assembly: AssemblyTitle("MIISHandler")]
 [assembly: AssemblyDescription("A file-based CMS for IIS and Azure Web Apps")]
-[assembly: AssemblyConfiguration("Beta 1")]
+[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MIISHandler")]
 [assembly: AssemblyCopyright("JM Alarcón  2017-2018 - JMAlarcon - www.jasoft.org - Open Source")]
