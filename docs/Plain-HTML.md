@@ -26,6 +26,6 @@ cssfile: {{tilde}}/CSS/github.css
 ---
 ```
 
-> **IMPORTANT**: notice how you can use the **relative path syntax** of ASP.NET, with a `{{tilde}}` at the beginning of the path, so that the resulting CSS is always pointing to the root of the application. If the Markdown is served from the root folder of the virtual server using `{{tilde}}/` or `/` will be the same thing. But if your Markdown app is hosted as a virtual app or virtual folder in IIS or Azure Web Apps, this is a very important feature to use.
+> **IMPORTANT**: notice how you can use the **relative path syntax** of ASP.NET, with a `~` at the beginning of the path, so that the resulting CSS is always pointing to the root of the application. If the Markdown is served from the root folder of the virtual server using `{{tilde}}/` or `/` will be the same thing. But if your Markdown app is hosted as a virtual app or virtual folder in IIS or Azure Web Apps, this is a very important feature to use.
 
 You can serve the Markdown files using a full-fledged template with content parameters, navigation, etc... Check the [Configuration](Settings) section for this.
