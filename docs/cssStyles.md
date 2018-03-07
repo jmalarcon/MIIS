@@ -3,7 +3,7 @@
 If you don't use a template and serve plain HTML from the Markdown, you can set the default style for the resulting files by setting the `cssfile` parameter in your `web.config`:
 
 ```
-<add key="MIIS:cssfile" value="~/CSS/github.css" />
+<add key="MIIS:cssfile" value="{{tilde}}/CSS/github.css" />
 ```
 I've included several .css files inside the CSS folder in the release folder of MIIS:
 

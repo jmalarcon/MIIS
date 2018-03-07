@@ -144,7 +144,7 @@ For a working example of these kind of fields take a look at any of the provided
 For example, the Material template defines a parameter called `toc` that you can point to a Markdown (or `.mdh`) file that wll be used as a Table of Contents for your documentation site. The normal thing to do is to define the value for this paramenter in your root folder's `web.config` file (as done in the sample included in the release), for example:
 
 ```
-<add key="MIIS:toc" value="~/toc.md"/>
+<add key="MIIS:toc" value="{{tilde}}/toc.md"/>
 ```
 
 but you can also define this field especially for one of your files that needs a different ToC for any reason using its Front Matter:

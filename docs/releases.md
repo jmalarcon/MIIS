@@ -15,7 +15,7 @@ Released, March 2018
 - **New app DLL name**: `MIISHandler.dll` instead of the old one `IISMarkdownHandler.dll`. Make sure you delete the old one before updating! You must change the handlers section in your `web.config` file. Just copy it from the downloaded MISS released files.
 - **Placeholders now use double curly-braces** (`{{field}}`) instead of just one. Upgrade your templates before updating.
 - **The `Markdown-Template` parameter doesn't exist anymore**. Now it uses two independent parameters for the template location and the layout, being much more flexible. See [configuration/settings](Settings).
-- the `BaseFolder` field is deprecated. Use `~/` instead.
+- the `BaseFolder` field is deprecated. Use `{{tilde}}/` instead.
 - The `BaseFolder` and  `TemplateBaseFolder` fields do not include a slash `/` at the end. This makes the paths more readable.
 - The `UseMDCaching` and `AllowEmojis` parameter's value are `"1"` by default (enabled), so you don't need to specifcy them most of the time.
 
