@@ -29,6 +29,7 @@ namespace MIISHandler
         private DateTime _dateCreated;
         private DateTime _dateLastModified;
         private SimpleYAMLParser _FrontMatter;
+        private bool _isPublished;
         #endregion
 
         #region Constructor
@@ -60,7 +61,7 @@ namespace MIISHandler
         {
             get
             {
-                ensureContentAndFrontMatter();
+                EnsureContentAndFrontMatter();
                 return _content;
             }
         }
@@ -167,7 +168,8 @@ namespace MIISHandler
             {
                 if (_FrontMatter == null)
                 {
-                    ensureContentAndFrontMatter();
+                    //ensureContentAndFrontMatter();
+                    ProcessFrontMatter();
                 }
 
                 return _FrontMatter;
@@ -223,18 +225,35 @@ namespace MIISHandler
 
         //The file paths of files the current file depends on, including itself (current file + fragments)
         internal List<string> Dependencies { get; private set; }
+
+        //If the file is published or is explicitly forbidden by the author using the "Published" field
+        internal bool isPublished
+        {
+            get
+            {
+                //Check if the File is published with the "Published" field
+                string isPublished = Common.GetFieldValue("Published", this, "1").ToLower();
+                //Check explicit negative values. Any other value means it's published (for the sake of security)
+                return !(isPublished == "0" || isPublished == "false" || isPublished == "no");
+            }
+        }
         #endregion
 
         #region Aux methods
-        //Ensure that the content of the file is loaded from disk and the Front Matter processed & removed from it
-        private void ensureContentAndFrontMatter()
+        //Ensures that the content of the file is loaded from disk
+        private void EnsureContent()
         {
             if (string.IsNullOrEmpty(_content))
             {
                 _content = IOHelper.ReadTextFromFile(this.FilePath);
-                ProcessFrontMatter();   //Make sure the FM is processed
-                removeFrontMatter();    //This is a separate step because FM can be cached and it's only dependent of the current file
             }
+        }
+        //Ensures that the content of the file is loaded from disk and the Front Matter processed & removed from it
+        private void EnsureContentAndFrontMatter()
+        {
+            EnsureContent();
+            ProcessFrontMatter();   //Make sure the FM is processed
+            removeFrontMatter();    //This is a separate step because FM can be cached and it's only dependent of the current file
         }
 
         //Extracts Front-Matter from current file
@@ -256,7 +275,7 @@ namespace MIISHandler
                 }
                 else
                 {
-                    strFM = string.Empty;   //Re-set to an empty string
+                    strFM = "---\r\n---";   //Re-set to an empty FrontMatter (if I use an empty string it would be reading contents from this for all the files without Front Matter
                 }
             }
 
@@ -265,7 +284,8 @@ namespace MIISHandler
             _FrontMatter = new SimpleYAMLParser(strFM);
 
             //Extract and remove YAML Front Matter
-            Match fm = FRONT_MATTER_RE.Match(this.Content);
+            EnsureContent();
+            Match fm = FRONT_MATTER_RE.Match(this._content);
             if (fm.Length > 0) //If there's front matter available
             {
                 strFM = fm.Groups[0].Value;

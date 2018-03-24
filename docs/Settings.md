@@ -86,6 +86,35 @@ You can turn this feature off if needed using this parameter:
 ```
 <add key="MIIS:UseEmoji" value="1" />
 ```
+
+----
+
+### - Published
+By default all the Markdown and MDH files are published. You can prevent any file or set of files to be rendered by using this parameter.
+
+You can include this parameter in the Front Matter of a file to prevent it to be rendered:
+
+```
+---
+Title: My draft page
+Published: false
+---
+```
+
+If anyone writes the path to this file in the browser they will get a 404 Status error of "File not found".
+
+Any value different to `false`, `no` o `0` will be considered as valid to publish the file. The default value if the parameter is not defined is `true` and will render the page normally.
+
+You can set this parameter globally or for specific folders using `web.config` and adding:
+
+```
+<add key="MIIS:Published" value="0" />
+```
+
+(any of the previously specified values are valid)
+
+Doing this will prevent the rendering of any file in the folder where this `web.config` is located, except those ones that specifically define `Published: true` or a similar value in their Front Matter. This can be very useful under some circumstances.
+
 ----
 
 ## Standard and Custom Fields

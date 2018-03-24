@@ -48,9 +48,17 @@ namespace MIISHandler
                 }
                 else
                 {
-                    //Send the rendered HTML for the file
-                    ctx.Response.ContentType = "text/html";
-                    ctx.Response.Write(mdFile.HTML);
+                    //Check if the File is published
+                    if (mdFile.isPublished)
+                    {
+                        //Send the rendered HTML for the file
+                        ctx.Response.ContentType = "text/html";
+                        ctx.Response.Write(mdFile.HTML);
+                    }
+                    else
+                    {
+                        throw new FileNotFoundException();
+                    }
                 }
             }
             catch (SecurityException)
