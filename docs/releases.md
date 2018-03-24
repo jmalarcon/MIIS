@@ -7,6 +7,13 @@ MIIS uses [semantic versioning](https://semver.org){target="_blank"}. That means
 
 >You can check all the releases, including the minor ones, at [Github](https://github.com/jmalarcon/MIIS/releases){target="_blank"}.
 
+## Version 2.1.0
+
+Released, March 24th 2018
+
+- Added the **new ["Published" property](https://miis.azurewebsites.net/Settings#published)** that allows you to prevent certain files or entire folders to be rendered when requested.
+- Squashed a bug with templates' caching preventing some files to invalidate their cache
+
 ## Version 2.0
 
 Released, March 2018
