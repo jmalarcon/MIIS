@@ -48,7 +48,7 @@ namespace MIISHandler
             {
                 List<string> templateDependencies = new List<string>();
                 template = ReadTemplate(templateFile, ctx, templateDependencies);    //Read, transform and cache template
-                //Add template file dependences as dependences for the Markdown file cache too
+                //Add template file's dependences as dependences for the Markdown file cache too
                 md.Dependencies.AddRange(templateDependencies);
             }
 
@@ -200,12 +200,18 @@ namespace MIISHandler
                     //If it's the main file, add result to cache with dependency on the file(s)
                     //Templates are cached ALWAYS, and this is not dependent on the UseMDcaching parameter (that one is only for MarkDown or MDH files)
                     HttpRuntime.Cache.Insert(templatePath, templateContents, new CacheDependency(cacheDependencies.ToArray()));
+                    //Keep a list of template's dependencies to reuse when not reading from cache
+                    ctx.Application[templatePath] = cacheDependencies;
                 }
 
                 return templateContents; //Return content
             }
             else
+            {
+                //Get dependencies for this template
+                cacheDependencies.AddRange(ctx.Application[templatePath] as List<string>);
                 return cachedContent;   //Return directly from cache
+            }
         }
 
         //Finds fragment placeholders and insert their contents
@@ -216,7 +222,7 @@ namespace MIISHandler
             {
                 string fragmentContent = string.Empty;   //Default empty value
                 string fragmentFileName = ctx.Server.MapPath(Path.GetFileNameWithoutExtension(md.FileName) + fragmentName.Substring(FILE_FRAGMENT_PREFIX.Length));  //Removing the "*" at the beggining
-                                                                                                                                  //Test if a file the same file extension exists
+                //Test if a file the same file extension exists
                 if (File.Exists(fragmentFileName + md.FileExt))
                     fragmentFileName += md.FileExt;
                 else if (File.Exists(fragmentFileName + ".md")) //Try with .md extension
@@ -227,7 +233,7 @@ namespace MIISHandler
                 //Try to read the file with fragment
                 try
                 {
-                        md.Dependencies.Add(fragmentFileName);
+                    md.Dependencies.Add(fragmentFileName);
 
                     MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
                     fragmentContent = mdFld.RawHTML;
