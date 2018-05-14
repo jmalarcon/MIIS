@@ -5,6 +5,7 @@ using System.Web.Caching;
 using System.IO;
 using System.Text.RegularExpressions;
 using Markdig;
+using Markdig.SyntaxHighlighting;
 using IISHelpers;
 using IISHelpers.YAML;
 
@@ -55,7 +56,7 @@ namespace MIISHandler
         #region Properties
         //Complex properties
         public string FilePath { get; private set; } //The full path to the file
-        
+
         //The raw file contents, read from disk
         public string Content
         {
@@ -82,7 +83,9 @@ namespace MIISHandler
                     else  //Is markdown: transform into HTML
                     {
                         //Configure markdown conversion
-                        MarkdownPipelineBuilder mdPipe = new MarkdownPipelineBuilder().UseAdvancedExtensions();
+                        MarkdownPipelineBuilder mdPipe = new MarkdownPipelineBuilder()
+                            .UseAdvancedExtensions()
+                            .UseSyntaxHighlighting();
                         //Check if we must generate emojis
                         if (Common.GetFieldValue("UseEmoji", this, "1") != "0")
                         {
@@ -179,8 +182,10 @@ namespace MIISHandler
         //Basic properties directly gotten from the file info
 
         //The file name
-        public string FileName {
-            get {
+        public string FileName
+        {
+            get
+            {
                 if (!string.IsNullOrEmpty(_filename))
                     return _filename;
 
@@ -189,18 +194,21 @@ namespace MIISHandler
                 return _filename;
             }
         }
-        
+
         //The file extrension (with dot)
         public string FileExt
         {
-            get {
+            get
+            {
                 return Path.GetExtension(this.FileName);
             }
         }
 
         //Date when the file was created
-        public DateTime DateCreated {
-            get {
+        public DateTime DateCreated
+        {
+            get
+            {
                 if (_dateCreated != default(DateTime))
                     return _dateCreated;
 
@@ -211,7 +219,8 @@ namespace MIISHandler
         }
 
         //Date when the file was last modified
-        public DateTime DateLastModified {
+        public DateTime DateLastModified
+        {
             get
             {
                 if (_dateLastModified != default(DateTime))
@@ -260,7 +269,7 @@ namespace MIISHandler
         private void ProcessFrontMatter()
         {
             if (_FrontMatter != null)
-                    return;
+                return;
 
             string strFM = string.Empty;
             bool cacheEnabled = Common.GetFieldValue("UseMDCaching", null, "1") == "1";
