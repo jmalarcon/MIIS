@@ -27,7 +27,7 @@ $(function(){
             return ($(this).attr('href') != '');
         }).parent().find('ul > li').hide();
     
-    currLink.parentsUntil('.miis-toc > ul').last().find('li').show()
+    currLink.parentsUntil('.miis-toc > ul').last().find('li').show();
 
     /*
     Get the Prev & Next links to set the navigation buttons
