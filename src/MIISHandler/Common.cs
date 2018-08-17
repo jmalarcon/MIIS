@@ -7,6 +7,23 @@ namespace MIISHandler
     {
         public const string WEB_CONFIG_PARAM_PREFIX = "MIIS:"; //THe prefix to use to search for parameters in web.config
 
+        public static string GetFieldValueFromFM(string name, MarkdownFile md, string defValue = "")
+        {
+            if (md != null) //If there's a file, possibly with a Front Matter
+            {
+                //Retrieve from the front matter...
+                string val = md.FrontMatter[name];
+                if (!string.IsNullOrEmpty(val))
+                    return val;
+                else
+                    return defValue;    //Return defValue if field is not available
+            }
+            else
+            {
+                return defValue;    //Return defValue if there's not MD file to process
+            }
+        }
+
         /// <summary>
         /// Returns the value, if any, for a specified field name. It takes the value from the FrontMatter first, and if it's not there, tries to read it from the current Web.config.
         /// In web.config it first tries to read them prefixed with "MIIS_" to prevent collision with other products, and then without the prefix.

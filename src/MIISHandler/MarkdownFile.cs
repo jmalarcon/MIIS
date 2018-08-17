@@ -29,7 +29,6 @@ namespace MIISHandler
         private DateTime _dateCreated;
         private DateTime _dateLastModified;
         private SimpleYAMLParser _FrontMatter;
-        private bool _isPublished;
         #endregion
 
         #region Constructor
@@ -227,14 +226,28 @@ namespace MIISHandler
         internal List<string> Dependencies { get; private set; }
 
         //If the file is published or is explicitly forbidden by the author using the "Published" field
-        internal bool isPublished
+        internal bool IsPublished
         {
             get
             {
                 //Check if the File is published with the "Published" field
                 string isPublished = Common.GetFieldValue("Published", this, "1").ToLower();
-                //Check explicit negative values. Any other value means it's published (for the sake of security)
-                return !(isPublished == "0" || isPublished == "false" || isPublished == "no");
+                //For the sake of security, if it's not explicitly a "falsy" value, then is assumed true
+                return !TypesHelper.IsFalsy(isPublished);
+            }
+        }
+
+        //Determines a special status code to return for the file (default is 200, OK)
+        //Valid status codes: https://docs.microsoft.com/en-us/windows/desktop/WinHttp/http-status-codes
+        internal int HttpStatusCode
+        {
+            get
+            {
+                //Check if the File has a status code that is not a 200 (default OK status code)
+                string statusCode = Common.GetFieldValueFromFM("HttpStatusCode", this, "200").ToLower();
+                bool isInt = int.TryParse(statusCode, out int nStatus);
+                if (!isInt) nStatus = 200;
+                return Math.Abs(nStatus);
             }
         }
         #endregion
@@ -253,7 +266,7 @@ namespace MIISHandler
         {
             EnsureContent();
             ProcessFrontMatter();   //Make sure the FM is processed
-            removeFrontMatter();    //This is a separate step because FM can be cached and it's only dependent of the current file
+            RemoveFrontMatter();    //This is a separate step because FM can be cached and it's only dependent of the current file
         }
 
         //Extracts Front-Matter from current file
@@ -301,7 +314,7 @@ namespace MIISHandler
         }
 
         //Removes the front matter, if any, from the current contents
-        private void removeFrontMatter()
+        private void RemoveFrontMatter()
         {
             _content = FRONT_MATTER_RE.Replace(_content, "");
         }

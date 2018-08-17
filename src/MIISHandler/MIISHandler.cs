@@ -49,8 +49,12 @@ namespace MIISHandler
                 else
                 {
                     //Check if the File is published
-                    if (mdFile.isPublished)
+                    if (mdFile.IsPublished)
                     {
+                        //Check if is a 404 page
+                        if (mdFile.HttpStatusCode != 200)
+                            ctx.Response.StatusCode = mdFile.HttpStatusCode;
+
                         //Send the rendered HTML for the file
                         ctx.Response.ContentType = "text/html";
                         ctx.Response.Write(mdFile.HTML);
