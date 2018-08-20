@@ -7,6 +7,13 @@ MIIS uses [semantic versioning](https://semver.org){target="_blank"}. That means
 
 >You can check all the releases, including the minor ones, at [Github](https://github.com/jmalarcon/MIIS/releases){target="_blank"}.
 
+## Version 2.2.0
+
+Released, August 20th 2018
+
+- Added the **new ["HttpStatusCode" property](https://miis.azurewebsites.net/Settings#httpstatuscode)** that allows pages to send an specific status code to the client, such as 404, 410, 500, etc... in order to create special pages with specific purposes.
+
+
 ## Version 2.1.0
 
 Released, March 24th 2018

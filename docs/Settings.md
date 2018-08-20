@@ -117,6 +117,33 @@ Doing this will prevent the rendering of any file in the folder where this `web.
 
 ----
 
+## - HttpStatusCode
+By default all pages return a 200 HTTP Status code, that is: a success code. However, some of the pages that you need in a site must return different status codes to tell browsers and search engines that, for example, a file hasn't be found (404), a file used to exists but no anymore (410) or that a server error has happened (500), [among others](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes).
+
+For example, if you're creating a page named `404error.md` in the root folder of your site, in order to associate it with the 404 status code so that it's going to be shown when users request a non-existent resource, you should decorate it's FrontMatter with this field, like this:
+
+```
+HttpStatusCode: 404
+```
+
+this will send a 404 status code to the client when a file hasn't been found.
+
+In order for this to work you should assign this file as the one used to handle 404 errors in your site. For this you need to add this nodes to your `web.config` file in the root folder:
+
+```
+<system.webServer>
+    <httpErrors errorMode="Custom">
+        <remove statusCode="404"/>
+        <error statusCode="404" path="/404error.mdh" responseMode="ExecuteURL"  />
+    </httpErrors>
+</system.webServer>
+```
+
+Now, when a user or a search engine spider asks for a non-existent resource in your site they'll see this page and, what's more important, they'll see the 404 status in the response.
+
+>You cannot set the message or other headers sent with this response. For example, status code 301 (permanent redirection) means that a resource has permanently moved and you should indicate in a header the new location of the resource. Since this is something already easy to do directly with IIS/Azure and it's better and more performant to do it that way, this feature is designed only for another types of status code, such as the ones indicated above (404, 403, 500...), which are needed for specific cases and don't rely on extra info sent to the client.
+----
+
 ## Standard and Custom Fields
 
 There are some basic **[standard fields](Templating#standard-fields)** that you can use anywhere in your contents or templates.

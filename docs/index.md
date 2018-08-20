@@ -16,7 +16,7 @@ MIIS is a perfect blend between a traditional CMS (such as Wordpress) and a Stat
 
 **Set up your Markdown-based documentation system or web site in less than 30 seconds!**
 
-> **[What's new in Version 2.1?](releases)**
+> **[What's new in Version 2.2?](releases)**
 
 ## System Requirements
 
