@@ -44,7 +44,7 @@ namespace MIISHandler
             HttpContext ctx = HttpContext.Current;
             string template = DEFAULT_TEMPLATE; //The default template for the final HTML
             string templateFile = GetCurrentTemplateFile(md);
-            if (!String.IsNullOrEmpty(templateFile))
+            if (!string.IsNullOrEmpty(templateFile))
             {
                 List<string> templateDependencies = new List<string>();
                 template = ReadTemplate(templateFile, ctx, templateDependencies);    //Read, transform and cache template
