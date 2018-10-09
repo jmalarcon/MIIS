@@ -18,7 +18,7 @@ namespace MIISHandler
     {
 
         public const string HTML_EXT = ".mdh";  //File extension for HTML contents
-        private Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}", RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
+        private readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}", RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
 
         #region private fields
         private string _content = "";
