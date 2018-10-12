@@ -43,6 +43,11 @@ namespace MIISHandler
                     return val;
             }
 
+            return GetFieldValueFromConfig(name, defValue);
+        }
+
+        public static string GetFieldValueFromConfig(string name, string defValue)
+        {
             //Retrieve from Web.config using the app-specific prefix or without it if it's not present
             return WebHelper.GetParamValue(WEB_CONFIG_PARAM_PREFIX + name, WebHelper.GetParamValue(name, defValue));
         }
