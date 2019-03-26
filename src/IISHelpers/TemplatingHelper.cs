@@ -23,7 +23,7 @@ namespace IISHelpers
 
             return Regex.Replace(originalContent,
                 GetPlaceholderRegexString(placeholderName),
-                Regex.Replace(newValue, "\\$[0-9]+", @"$$$0"),
+                newValue.Replace("$", "$$"),    //Prevents any substitution elements (such as $0, $$... https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference#substitutions) in the new value
                 RegexOptions.IgnoreCase);
         }
 
