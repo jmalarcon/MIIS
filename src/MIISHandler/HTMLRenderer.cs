@@ -88,7 +88,7 @@ namespace MIISHandler
         {
             //Get the template name that is going to be used (Front Matter or configuration), if any.
             string templateName = Common.GetFieldValue("TemplateName", md);
-            if (string.IsNullOrEmpty(templateName))
+            if (string.IsNullOrEmpty(templateName) || templateName.ToLower() == "none")
                 return string.Empty;    //Use the default basic HTML5 template
 
             //The name (or sub-path) for the layout file (.html normaly) to be used

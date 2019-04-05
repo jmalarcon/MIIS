@@ -33,7 +33,7 @@ This means that, by default, the templates are located inside a folder named "Te
 ### - TemplateName
 This is the name of the subfolder in the previous `TemplatesBasePath` folder, that contains the layout files and the rest of resources for the template we want to use in our site. 
 
->If this this parameter is not established, then a basic minimum HTML5 template is used. See: [Serving plain HTML from Markdown](Plain-HTML){target="_blank"}
+>If this this parameter is not established or if it's set as `none`, then a basic minimum HTML5 template is used. See: [Serving plain HTML from Markdown](Plain-HTML){target="_blank"}
 
 ----
 
