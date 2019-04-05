@@ -69,6 +69,8 @@ namespace MIISHandler
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "username", ctx.User.Identity.Name);
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "domain", ctx.Request.Url.Authority);
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "baseurl", $"{ctx.Request.Url.Scheme}{System.Uri.SchemeDelimiter}{ctx.Request.Url.Authority}");
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "now", DateTime.Now.ToString());
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "time", DateTime.Now.ToLongTimeString());
 
             //Process custom fields
             finalContent = ProcessCustomFields(finalContent, md, ctx);
