@@ -33,7 +33,7 @@ This means that, by default, the templates are located inside a folder named "Te
 ### - TemplateName
 This is the name of the subfolder in the previous `TemplatesBasePath` folder, that contains the layout files and the rest of resources for the template we want to use in our site. 
 
->If this this parameter is not established or if it's set as `none`, then a basic minimum HTML5 template is used. See: [Serving plain HTML from Markdown](Plain-HTML){target="_blank"}
+>If this this parameter is not established or if it's set as `none`, then a basic minimum HTML5 template is used. See: [Serving plain HTML from Markdown](Plain-HTML){target="_blank"}. You can specify `raw` too as the value for this parameter to obtain the raw HTML form the file, without any other "wrapping" tags. This is useful to get raw data from a file, after being transformed and rendered (you can use a `.mdh` file without any HTML in it to return any kind of data in text format).
 
 ----
 

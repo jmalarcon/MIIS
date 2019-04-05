@@ -46,10 +46,19 @@ namespace MIISHandler
             string templateFile = GetCurrentTemplateFile(md);
             if (!string.IsNullOrEmpty(templateFile))
             {
-                List<string> templateDependencies = new List<string>();
-                template = ReadTemplate(templateFile, ctx, templateDependencies);    //Read, transform and cache template
-                //Add template file's dependences as dependences for the Markdown file cache too
-                md.Dependencies.AddRange(templateDependencies);
+                //If the specified template is "raw" then just return the raw HTML without any wrapping HTML code 
+                //(no html, head or body tags). Useful to return special pages with raw content.
+                if(templateFile == "raw")
+                {
+                    template = "{{content}}";
+                }
+                else
+                {
+                    List<string> templateDependencies = new List<string>();
+                    template = ReadTemplate(templateFile, ctx, templateDependencies);    //Read, transform and cache template
+                    //Add template file's dependences as dependences for the Markdown file cache too
+                    md.Dependencies.AddRange(templateDependencies);
+                }
             }
 
             //First process the "content" field with the main HTML content transformed from Markdown
@@ -96,6 +105,9 @@ namespace MIISHandler
             string templateName = Common.GetFieldValue("TemplateName", md);
             if (string.IsNullOrEmpty(templateName) || templateName.ToLower() == "none")
                 return string.Empty;    //Use the default basic HTML5 template
+
+            if (templateName.ToLower() == "raw")
+                return "raw";   //Use raw contents, without any wrapping HTML tags
 
             //The name (or sub-path) for the layout file (.html normaly) to be used
             string layoutName = Common.GetFieldValue("Layout", md);
