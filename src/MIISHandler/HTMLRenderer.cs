@@ -71,6 +71,8 @@ namespace MIISHandler
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "baseurl", $"{ctx.Request.Url.Scheme}{System.Uri.SchemeDelimiter}{ctx.Request.Url.Authority}");
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "now", DateTime.Now.ToString());
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "time", DateTime.Now.ToLongTimeString());
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "url", ctx.Request.Url.AbsolutePath);
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "noexturl", ctx.Request.Path.Remove(ctx.Request.Path.LastIndexOf(".")));   //Files processed by MIIS always have extension on disk
 
             //Process custom fields
             finalContent = ProcessCustomFields(finalContent, md, ctx);
