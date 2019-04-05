@@ -67,6 +67,8 @@ namespace MIISHandler
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "isauthenticated", ctx.User.Identity.IsAuthenticated.ToString());
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "authtype", ctx.User.Identity.AuthenticationType);
             finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "username", ctx.User.Identity.Name);
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "domain", ctx.Request.Url.Authority);
+            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "baseurl", $"{ctx.Request.Url.Scheme}{System.Uri.SchemeDelimiter}{ctx.Request.Url.Authority}");
 
             //Process custom fields
             finalContent = ProcessCustomFields(finalContent, md, ctx);
