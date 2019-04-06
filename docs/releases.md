@@ -1,11 +1,30 @@
 ---
 title: Release history
 field: {{field}}
+prefield: {{
+postfield: }}
 ---
 # MIIS Release History
 MIIS uses [semantic versioning](https://semver.org){target="_blank"}. That means it only changes the major version when there're breaking changes. A change in the minor version means new features. A change in the third number means no new features, just bug fixes.
 
 >You can check all the releases, including the minor ones, at [Github](https://github.com/jmalarcon/MIIS/releases){target="_blank"}.
+
+## Version 2.3.0
+
+Released, April 6th 2019
+
+- Removed the `allowDownloading` option and the corresponding "download" query string parameter.
+- Now you can disable the current template in a page by specifying `TemplateName: none´ in the Front-Matter. This will use the default HTML5 basic template that only includes de basic tags, a CSS file and the content. This is useful for testing purposes or to create some basic pages for special purposes.
+- If you specify `TemplateName: raw´ in the Front-Matter, then **no template will be used** and you'll get the final raw HTML for the requested page. useful for debugging and to return raw information.
+- When you use the "raw" template to get raw contents from a file, you can also add a new `{{prefield}}mime{{postfield}}` parameter **in the page** (it's a Front-Mater only field) that allows you to specify the MIME type of the raw content that is going to be returned from the current page. This parameter can be useful to return formatted text that gets generated from a raw `.mdh` file.
+- 6 new [standard fields](/Templating#standard-fields) available to use in templates and content pages:
+    - `{{prefield}}Url{{postfield}}`
+    - `{{prefield}}NoExtUrl{{postfield}}`
+    - `{{prefield}}Domain{{postfield}}`
+    - `{{prefield}}BaseUrl{{postfield}}`
+    - `{{prefield}}Now{{postfield}}`
+    - `{{prefield}}Time{{postfield}}`
+- Fixed extra new line added at the beggining of the content because of Front-Matter removel. No extra new line is added now.
 
 ## Version 2.2.0
 
@@ -27,7 +46,7 @@ Released, March 2018
 
 ## - Breaking changes
 - **New app DLL name**: `MIISHandler.dll` instead of the old one `IISMarkdownHandler.dll`. Make sure you delete the old one before updating! You must change the handlers section in your `web.config` file. Just copy it from the downloaded MISS released files.
-- **Placeholders now use double curly-braces** (`{{field}}`) instead of just one. Upgrade your templates before updating.
+- **Placeholders now use double curly-braces** (`{{prefield}}field{{postfield}}`) instead of just one. Upgrade your templates before updating.
 - **The `Markdown-Template` parameter doesn't exist anymore**. Now it uses two independent parameters for the template location and the layout, being much more flexible. See [configuration/settings](Settings).
 - the `BaseFolder` field is deprecated. Use `{{tilde}}/` instead.
 - The `BaseFolder` and  `TemplateBaseFolder` fields do not include a slash `/` at the end. This makes the paths more readable.
