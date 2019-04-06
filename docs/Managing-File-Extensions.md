@@ -10,10 +10,6 @@ Just open the `web.config` file and locate the `system.webServer/handlers` secti
     <handlers>
       <add name=".mdh HTML extension" path="*.mdh" verb="GET" type="MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
       <add name=".md extension" path="*.md" verb="GET" type=""MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
-      <add name=".markdown extension" path="*.markdown" verb="GET" type=""MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
-      <add name=".mdown extension" path="*.mdown" verb="GET" type=""MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
-      <add name=".mkdn extension" path="*.mkdn" verb="GET" type=""MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
-      <add name=".mkd extension" path="*.mkd" verb="GET" type=""MIISHandler.MIISHandler, MIISHandler" resourceType="File" requireAccess="Read"/>
     </handlers>
     <defaultDocument enabled="true">
       <files>
@@ -23,7 +19,7 @@ Just open the `web.config` file and locate the `system.webServer/handlers` secti
   </system.webServer>
 ```
 
-You can add or remove extensions as needed.
+You can add extra Markdown extensions such as `.markdown` or `.mkd` as needed.
 
 ## The `.mdh` special extension
 By default (if not changed in the previous section of the `web.config` file) MIIS supports a special file type for pure HTML contents. Anything inside a `.mdh` file will be used un-transformed within the current assigned template. This is very useful for pages that need a very specific HTML structure, such as the main front-page of a site or any other complex page. With this kind of files you'll use HTML instead of Markdown to gain control over the final HTML and can keep the indentation of the code (in Markdown indented HTML code would be interpreted as a code fragment).
@@ -57,8 +53,3 @@ http://www.mydomain.com/SubFolder/index.md
 ```
 
 You can change this name or add more default names to be used in the same order as they appear in this setting.
-
-## Allow Downloading of Markdown Files
-Chances are that your IIS has no entries for Markdown file extensions in its MIME Types configuration. In order to allow downloading the  files if you enable this option, you need to add the Markdown MIME type for all the Markdown file extensions. This is already taken care for you in the default `web.config` file included in the release folder for MIIS.
-
-You can get rid of it just removing the `<staticContent>` section in the configuration file.

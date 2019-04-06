@@ -31,9 +31,9 @@ This means that, by default, the templates are located inside a folder named "Te
 ----
 
 ### - TemplateName
-This is the name of the subfolder in the previous `TemplatesBasePath` folder, that contains the layout files and the rest of resources for the template we want to use in our site. 
+This is the name of the subfolder in the previous `TemplatesBasePath` folder, that contains the layout files and the rest of resources for the template we want to use in our site. You can set it in your `web.config` file to be applied to the whole folder or application, or in the Front-Matter of files to change it for that specific file only.
 
->If this this parameter is not established or if it's set as `none`, then a basic minimum HTML5 template is used. See: [Serving plain HTML from Markdown](Plain-HTML){target="_blank"}. You can specify `raw` too as the value for this parameter to obtain the raw HTML form the file, without any other "wrapping" tags. This is useful to get raw data from a file, after being transformed and rendered (you can use a `.mdh` file without any HTML in it to return any kind of data in text format).
+>If this this parameter is not established or if it's set as `none`, then a basic minimum HTML5 template is used. See: [Serving plain HTML from Markdown](Plain-HTML){target="_blank"}. You can specify `raw` too as the value for this parameter to obtain the raw transformed HTML for the file, without any other "wrapping" tags. This is useful to get raw data from a file, after being transformed and rendered (you can use a `.mdh` file without any HTML in it to return any kind of data in text format).
 
 ----
 
@@ -43,6 +43,15 @@ The name of the file (including extension) in the previous folder that contains 
 This parameter allows you to point to an HTML file (or any other text file with HTML inside) that will be used **to merge it's HTML with the HTML generated from the Markdown files** or with the HTML inside the MDH files.
 
 There are **[several templates included](Template-List.md)** by default with MIIS, and you can **[create your own](Templating)** from scratch or to retrofit any existing website.
+
+----
+
+### - MIME
+The normal MIME type to be used in any file is `"text/html"` since this is what is returned from most of the pages. However you can change it at your own peril using this (Front-Matter only) parameter. 
+
+For example, if you want to return a text file from a `.mdh` file that has enabled `TemplateName: raw` and therefore will return it's raw transformed contents, you can set up `mime: text/plain` in the Front-Matter of the file.
+
+>If the MIME type is not valid you'll get an error. The MIME type should be registered in IIS in order for it to work. If this is not the case you won't able to get the file from the server.
 
 ----
  
@@ -58,23 +67,6 @@ If for any reason you need to turn off this behavior (very low memory environmen
 ```
 
 >This parameters is global and cannot be set individually in the Front-Matter of a single file. You can set it only in `web.config` files, and can disable caching for entire sub-folders (for example, one with thousands of files non frequently accessed), or the application as a whole.
-
-----
-
-### - allowDownloading
-By default you can't download Markdown files from the server (the source of your final pages). But sometimes it can be useful to allow your users to download the original Markdown files, to use them directly, or to create new versions, etc...
-
-You can switch this feature on through this parameter:
-
-```
-<add key="MIIS:allowDownloading" value="1"/>
-```
-
-After that, any Markdown file [registered in your app](Managing-File-Extensions) can be downloaded just adding the `?download=1` query string parameter in the file request.
-
-You can see this feature in practice if you enable this feature and use the provided "Barebones" template, that includes a link to download Markdown files in the footer of every document.
-
->**IMPORTANT**: in order for the Markdown files to be downloaded you need to add the corresponding MIME type to your web server. CHeck out [how to do it](Managing-File-Extensions#allow-downloading-of-markdown-files).
 
 ----
 

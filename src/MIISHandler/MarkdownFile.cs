@@ -250,6 +250,18 @@ namespace MIISHandler
                 return Math.Abs(nStatus);
             }
         }
+
+        //Determines if the page has an special MIME type specified
+        internal string MimeType
+        {
+            get
+            {
+                //Check if the File has an special MIME type set in the Front Matter
+                string mimeType = Common.GetFieldValueFromFM("MIME", this, "text/html").ToLower();
+                //It should contain a slash, but not in the first character
+                 return mimeType.IndexOf("/") > 1 ? mimeType:  "text/html";
+            }
+        }
         #endregion
 
         #region Aux methods

@@ -32,37 +32,20 @@ namespace MIISHandler
                 string filePath = ctx.Server.MapPath(ctx.Request.FilePath);
                 MarkdownFile mdFile = new MarkdownFile(filePath);
 
-                //If the feature is enabled and the user requests the original file, send the original file
-                if (!string.IsNullOrEmpty(ctx.Request.QueryString["download"]))
+                //Check if the File is published
+                if (mdFile.IsPublished)
                 {
-                    if (Common.GetFieldValue("allowDownloading") == "1")
-                    {
-                        ctx.Response.ContentType = "text/markdown; charset=UTF-8";
-                        ctx.Response.AppendHeader("content-disposition", "attachment; filename=" + mdFile.FileName);
-                        ctx.Response.Write(mdFile.Content);
-                    }
-                    else
-                    {
-                        throw new SecurityException("Download of markdown not allowed. Change configuration.");
-                    }
+                    //Check if is a special status code page (404, etc)
+                    if (mdFile.HttpStatusCode != 200)
+                        ctx.Response.StatusCode = mdFile.HttpStatusCode;
+
+                    //Send the rendered content for the file
+                    ctx.Response.ContentType = mdFile.MimeType; //text/html by default
+                    ctx.Response.Write(mdFile.HTML);
                 }
                 else
                 {
-                    //Check if the File is published
-                    if (mdFile.IsPublished)
-                    {
-                        //Check if is a 404 page
-                        if (mdFile.HttpStatusCode != 200)
-                            ctx.Response.StatusCode = mdFile.HttpStatusCode;
-
-                        //Send the rendered HTML for the file
-                        ctx.Response.ContentType = "text/html";
-                        ctx.Response.Write(mdFile.HTML);
-                    }
-                    else
-                    {
-                        throw new FileNotFoundException();
-                    }
+                    throw new FileNotFoundException();
                 }
             }
             catch (SecurityException)
