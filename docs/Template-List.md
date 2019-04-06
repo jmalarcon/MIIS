@@ -8,7 +8,7 @@ title: Out-of-the-box templates
 > Otherwise noted, the following templates offer a single layout called `main.html`.
 
 ## :page_facing_up: Barebones
-A simple template that uses the same `cssfile` parameter (as the default one) and adds information about the Markdown file in the footer of every page and a link to download the original markdown file (you must [enable this feature](Settings#allowdownloading) or get rid of this link in the template).
+A simple template that uses the same `cssfile` parameter (as the default one) and adds information about the Markdown file in the footer of every page.
 
 ![Sample footer from a MD file rendered with the barebones template](Images/Templates/Barebones_Footer.png)
 
