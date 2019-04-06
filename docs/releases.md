@@ -24,7 +24,7 @@ Released, April 6th 2019
     - `{{prefield}}BaseUrl{{postfield}}`
     - `{{prefield}}Now{{postfield}}`
     - `{{prefield}}Time{{postfield}}`
-- Fixed extra new line added at the beggining of the content because of Front-Matter removel. No extra new line is added now.
+- Fixed extra new line added at the begnining of the content because of Front-Matter removed. No extra new line is added now.
 
 ## Version 2.2.0
 
