@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="{{description}}">
+    <meta name="author" content="{{author}}">
+    <title>{{title}} - {{sitetitle}}</title>
+    <link rel="stylesheet" href="{{templatebasefolder}}/assets/stylesheets/application.css">
+      <link rel="stylesheet" href="{{templatebasefolder}}/assets/stylesheets/palettes.css">
+      <link rel="stylesheet" href="{{templatebasefolder}}/assets/stylesheets/theme_extra.css">
+      <link rel="stylesheet" href="{{templatebasefolder}}/../common.css">
+      <link rel="stylesheet" href="{{templatebasefolder}}/assets/stylesheets/zoomify.min.css">
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Ubuntu">
+      <style>
+        body, input {
+          font-family: 'Ubuntu', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Ubuntu Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+          <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('{{templatebasefolder}}/assets/fonts/icon.eot?52m981');
+      	src: url('{{templatebasefolder}}/assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('{{templatebasefolder}}/assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('{{templatebasefolder}}/assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('{{templatebasefolder}}/assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+
+      /* highlight this style to make them look more like notes */
+      .wrapper blockquote {
+        font: 14px/22px normal helvetica, sans-serif;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        margin-left: 50px;
+        padding-left: 15px;
+        border-left: 3px solid;
+      }
+    </style>
+
+    <script src="{{templatebasefolder}}/assets/javascripts/modernizr.js"></script>
+  </head>
+
+  <body class="palette-primary-{{primarycolor}} palette-accent-{{accent}}">
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+        <div class="bar default">
+          <div class="button button-menu" role="button" aria-label="Menu">
+            <label class="toggle-button icon icon-menu" for="toggle-drawer">
+              <span></span>
+            </label>
+          </div>
+          <div class="stretch">
+            <div class="title">
+                <ul class="path">
+                      <li>
+                        {{sitetitle}}
+                        <i class="icon icon-link"></i>
+                        {{title}}
+                      </li>
+                </ul>
+            </div>
+          </div>
+            <div class="button button-twitter" role="button" aria-label="Twitter">
+              <a href="https://twitter.com/{{authortwitter}}" title="@{{authortwitter}} on Twitter" target="_blank" class="toggle-button icon icon-twitter"></a>
+            </div>
+            <div class="button button-github" role="button" aria-label="GitHub">
+              <a href="https://github.com/{{authorgithub}}" title="@{{authorgithub}} on GitHub" target="_blank" class="toggle-button icon icon-github"></a>
+            </div>
+        </div>
+      </nav>
+    </header>
+    <main class="main">
+      <div class="drawer">
+          <nav aria-label="Navigation">
+            <a href="~/" class="project">
+              <div class="banner">
+                  <div class="logo">
+                    <img src="~/{{logo}}">
+                  </div>
+                <div class="name">
+                  <strong>
+                    {{sitetitle}}
+                  </strong>
+                </div>
+              </div>
+            </a>
+            <div class="scrollable">
+              <div class="wrapper">
+                <div class="toc miis-toc">
+                  {{toc}}
+                </div>
+              </div>
+            </div>
+          </nav>
+      </div>
+      <article class="article">
+        <div class="wrapper miis-content">
+          {{content}}
+          <aside class="copyright" role="note">
+            <hr/>
+              © {{copyright}}
+          </aside>
+            <footer class="footer">
+                <nav class="pagination" aria-label="Footer">
+                  <div class="previous">
+                      <a id="prev-button">
+                        <span class="direction">{{prevtext}}</span>
+                        <div class="page">
+                          <div class="button button-previous" role="button" aria-label="Previous">
+                            <i class="icon icon-back"></i>
+                          </div>
+                          <div class="stretch">
+                            <div class="title">
+                              
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                  </div>
+                  <div class="next">
+                      <a id="next-button">
+                        <span class="direction">{{nexttext}}</span>
+                        <div class="page">
+                          <div class="stretch">
+                            <div class="title">
+                            </div>
+                          </div>
+                          <div class="button button-next" role="button" aria-label="Next">
+                            <i class="icon icon-forward"></i>
+                          </div>
+                        </div>
+                      </a>
+                  </div>
+                </nav>
+            </footer>
+        </div>
+      </article>
+    </main>
+    <script src="{{templatebasefolder}}/assets/javascripts/application.js"></script>
+    <script src="{{templatebasefolder}}/assets/javascripts/jquery-3.3.1.min.js"></script>
+    <script src="{{templatebasefolder}}/assets/javascripts/zoomify.min.js"></script>
+    <script src="{{templatebasefolder}}/assets/javascripts/theme_extra.js"></script>
+    <script src="{{templatebasefolder}}/../common.js"></script>
+{{ $../_common/GA.html }}
+  </body>
+</html>

@@ -1,0 +1,7 @@
+---
+Title: This is a raw data sample
+TemplateName: raw
+mime: text/plain
+data: 1,2,3,4,5,6
+---
+{{ Title }}: {{data}}
