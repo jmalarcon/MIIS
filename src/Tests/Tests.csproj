@@ -111,12 +111,15 @@
     <Content Include="raw.mdh" />
     <Content Include="index.md" />
     <Content Include="toc.md" />
+    <Content Include="liquid.mdh" />
+    <Content Include="fpf.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <None Include="Web.Release.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
+    <Content Include="well-known-fields.md" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MIISHandler\MIISHandler.csproj">

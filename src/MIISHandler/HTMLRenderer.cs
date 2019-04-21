@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Security;
-using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Caching;
 using IISHelpers;
+using DotLiquid;
 
 namespace MIISHandler
 {
@@ -68,25 +68,12 @@ namespace MIISHandler
             //Process fragments (other files inserted into the current one or template)
             finalContent = ProcessFragments(finalContent, md, ctx);
 
-            //Process well-known fields one by one
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "title", md.Title);
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "filename", md.FileName);
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "datecreated", md.DateCreated.ToString());
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "datemodified", md.DateLastModified.ToString());
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "isauthenticated", ctx.User.Identity.IsAuthenticated.ToString());
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "authtype", ctx.User.Identity.AuthenticationType);
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "username", ctx.User.Identity.Name);
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "domain", ctx.Request.Url.Authority);
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "baseurl", $"{ctx.Request.Url.Scheme}{System.Uri.SchemeDelimiter}{ctx.Request.Url.Authority}");
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "now", DateTime.Now.ToString());
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "time", DateTime.Now.ToLongTimeString());
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "url", ctx.Request.Url.AbsolutePath);
-            finalContent = TemplatingHelper.ReplacePlaceHolder(finalContent, "noexturl", ctx.Request.Path.Remove(ctx.Request.Path.LastIndexOf(".")));   //Files processed by MIIS always have extension on disk
+            //Process template + content + fields with DotLiquid
+            Template parser = Template.Parse(finalContent);
+            Hash fieldsInfo = new MDFieldsResolver(md, ctx);
+            finalContent = parser.Render(fieldsInfo);
 
-            //Process custom fields
-            finalContent = ProcessCustomFields(finalContent, md, ctx);
-
-            //Transfrom virtual paths
+            //Transform virtual paths
             finalContent = WebHelper.TransformVirtualPaths(finalContent);
 
             //Return the transformed file
@@ -264,56 +251,6 @@ namespace MIISHandler
                 }
                 //Replace the placeholder with the value
                 template = TemplatingHelper.ReplacePlaceHolder(template, fragmentName, fragmentContent);
-            }
-
-            return template;
-        }
-
-        //Takes care of custom fields such as Front Matter Properties and custom default values in web.config
-        private static string ProcessCustomFields(string template, MarkdownFile md, HttpContext ctx)
-        {
-            string[] names = TemplatingHelper.GetAllPlaceHolderNames(template);
-            foreach (string name in names)
-            {
-                //Get current value for the field, from Front Matter or web.config
-                string fldVal = Common.GetFieldValue(name, md);
-                /*
-                 * There are two types of fields:
-                 * - Value fields: {name} -> Get a value from the properties of the file or from web.config -> Simply replace them
-                 * - File processing fields (FPF), ending in .md or .mdh. ej: {{myfile.md}} -> The file is read and it's contents transformed into HTML take the place of the placeholder
-                 *   Useful for menus, and other independet parts in custom templates and parts of the same page.
-                */
-                if (fldVal.EndsWith(".md") || fldVal.EndsWith(MarkdownFile.HTML_EXT))
-                {
-                    try
-                    {
-                        string fpfPath = ctx.Server.MapPath(fldVal);    //The File-Processing Field path
-                        MarkdownFile mdFld = new MarkdownFile(fpfPath);
-                        fldVal = mdFld.RawHTML; //Use the raw HTML, not the processed HTML (this last one includes the template too)
-                        //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
-                        md.Dependencies.Add(fpfPath);
-                    }
-                    catch (SecurityException)
-                    {
-                        fldVal = String.Format("Can't access file for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX);
-                    }
-                    catch (FileNotFoundException)
-                    {
-                        fldVal = String.Format("File not found for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX);
-                    }
-                    catch (Exception ex)
-                    {
-                        fldVal = String.Format("Error loading {0}: {1}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX, ex.Message);   //This should only happen while testing, never in production, so I send the exception's message
-                    }
-                }
-                else if (fldVal.StartsWith("~/"))    //If its a virtual path to a static file (for example a path to a CSS or JS file)
-                {
-                    //Convert relative path to relative URL from the root (changes the "~/" for the root path 
-                    //of the application. Needed if the current handler is running as a virtual app in IIS)
-                    fldVal = VirtualPathUtility.ToAbsolute(fldVal);
-                    //There's no need to transform any other virtual path because this is done (and cached) on every file the first time is retrieved and transformed
-                }
-                template = TemplatingHelper.ReplacePlaceHolder(template, name, fldVal);
             }
 
             return template;

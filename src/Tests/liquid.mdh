@@ -1,0 +1,75 @@
+﻿---
+TemplateName: raw
+Title: A sample Liquid syntax file with a little bit of everything
+Robots: noindex,nofollow
+cssfile: github
+UserInput: This had <b>HTML</b> inside. A Liquid filter stripped it.
+Max: 3
+#doesExist: Whatever
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="robots" content="{{Robots}}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title | upcase }}</title>
+    <link rel="stylesheet" href="~/CSS/{{cssfile | append: ".css" }}">
+</head>
+<body>
+<pre>
+
+{%- comment -%}
+This is a comment. Shouldn't appear.
+{%- endcomment -%}
+
+	{{ UserInput | strip_html }}
+
+	{{ "Ground control to Major Tom." | truncate: 20 }}
+
+
+    {% if doesExist == "" %}
+		This does not exist
+    {% else %}
+		This should exist if you change the Front-Matter
+			{%- if doesExist == "Whatever" -%}
+			This is a nested if
+		{%- endif -%}
+    {% endif %}
+
+	{%- unless TemplateName != "raw" -%}
+		This is a raw template!
+	{%- endunless -%}
+
+    {% raw %}
+		This is not evaluated: {{ Title }}
+    {% endraw %}
+
+	This field does not exist, so we use a default value: {{ product_price | default: "$4.99" }}
+    
+	{% assign num = -100 %}
+    {{ num }}
+
+	{% if num <= max %}
+		{{num }} <= {{max}}
+	{% else %}
+		{{num }} > {{max}}
+	{% endif %}
+
+        {{baseURL | }}
+
+		{% assign numbers = "1,5,4,3,2" | split: "," %}
+
+	I have {{ numbers | size }} numbers in the array
+        The first number is  {{ numbers.first }}
+        Let's count them in reverse:
+        {%- for num in numbers reversed -%}
+        - Num: {{ num }}
+        {%- endfor -%}
+
+	All the numbers in a single list: {{ numbers | join: ","}}
+	Numbers sorted: {{ numbers | sort | join:"," }}
+    
+</pre>
+</body>
+</html>
