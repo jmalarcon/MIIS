@@ -116,6 +116,7 @@
     <Content Include="insertfiles\fpf_circular_reference.md" />
     <Content Include="insertfiles\fpf_circular_reference-01.md" />
     <Content Include="insertfiles\fpf_circular_reference-02.md" />
+    <Content Include="customtags.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -128,6 +129,10 @@
     <ProjectReference Include="..\MIISHandler\MIISHandler.csproj">
       <Project>{80934ba3-4d14-4dd1-ab2c-6466fce8e791}</Project>
       <Name>MIISHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\YouTubeTag\MIISYouTubeTag.csproj">
+      <Project>{da8c87f0-67ac-4e0f-a999-9b1089aac1e8}</Project>
+      <Name>MIISYouTubeTag</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

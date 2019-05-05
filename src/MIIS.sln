@@ -9,6 +9,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IISHelpers", "IISHelpers\II
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{211FB561-9B94-4EAE-8E3A-4F2F92ADAEA5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISYouTubeTag", "YouTubeTag\MIISYouTubeTag.csproj", "{DA8C87F0-67AC-4E0F-A999-9B1089AAC1E8}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		IISHelpers\IISHelpers.projitems*{80934ba3-4d14-4dd1-ab2c-6466fce8e791}*SharedItemsImports = 4
@@ -27,6 +29,10 @@ Global
 		{211FB561-9B94-4EAE-8E3A-4F2F92ADAEA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{211FB561-9B94-4EAE-8E3A-4F2F92ADAEA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{211FB561-9B94-4EAE-8E3A-4F2F92ADAEA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA8C87F0-67AC-4E0F-A999-9B1089AAC1E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA8C87F0-67AC-4E0F-A999-9B1089AAC1E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA8C87F0-67AC-4E0F-A999-9B1089AAC1E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA8C87F0-67AC-4E0F-A999-9B1089AAC1E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

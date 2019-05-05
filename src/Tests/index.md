@@ -17,7 +17,7 @@ This is [a link to the root folder](~/)
 This file was created on {{datecreated}} and is inside a div with a class name
 :::
 
-Add a video from YouTube:
+Add a video from YouTube using an image in MarkDown:
 
 ![You've been rickrolled!!](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 

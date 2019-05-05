@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Web;
 using System.Web.Caching;
 using IISHelpers;
-using MIISHandler.Tags;
 using DotLiquid;
 
 namespace MIISHandler
@@ -71,7 +70,7 @@ namespace MIISHandler
             finalContent = ProcessFragments(finalContent, md, ctx);
 
             //Dynamically setup and add to DotLiquid template processor all the new custom tags, TODO: and filters
-            RegisterCustomTags();
+            RegisterCustomTags();   //Register custom MIIS Liquid Tags
 
             //Process template + content + fields with DotLiquid
             Template parser = Template.Parse(finalContent);
@@ -261,6 +260,44 @@ namespace MIISHandler
             return template;
         }
 
+        //Registers all custom Tags in the assembly passed as a parameter
+        private static void RegisterCustomTagsInAssembly(Assembly assembly)
+        {
+            MethodInfo genericRegisterTag = typeof(Template).GetMethod("RegisterTag"); //Needed to call it as a generic for each tag using reflection
+                                                                                       //Get all custom tags in the MIISHandler.Tags namespace
+            var tags = from c in assembly.GetTypes()
+                       where c.IsClass && c.Namespace == CUSTOM_TAGS_NAMESPACE && c.IsSubclassOf(typeof(Tag))
+                       select c;
+            //Register each tag
+            tags.ToList().ForEach(tag =>
+            {
+                //This would be the normal, non-refelction way to do it: Template.RegisterTag<TagClass>("tagclassname");
+                MethodInfo registerTag = genericRegisterTag.MakeGenericMethod(tag);
+                registerTag.Invoke(null, new object[] { tag.Name.ToLower() });
+            });
+        }
+
+        //Loads all of the *Tag.dll asemblies in the "Bin" folder
+        //Source: https://stackoverflow.com/a/5599581/4141866
+        private static void LoadAndRegisterCustomTagAssemblies()
+        {
+            string binPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "bin"); //Path to the bin folder
+
+            foreach (string dll in Directory.GetFiles(binPath, "*Tag.dll", SearchOption.AllDirectories))   //Including subdirectories, so you can add the custom tags in subfolders
+            {
+                try
+                {
+                    Assembly loadedAssembly = Assembly.LoadFile(dll);
+                    RegisterCustomTagsInAssembly(loadedAssembly);
+                }
+                catch (FileLoadException)
+                { } // The Assembly has already been loaded.
+                catch (BadImageFormatException)
+                { } // If a BadImageFormatException exception is thrown, the file is not an assembly.
+
+            }
+        }
+
         //The Namespace that contains custom DotLiquid tags
         private const string CUSTOM_TAGS_NAMESPACE = "MIISHandler.Tags";
         //The Application variable that flags that the custom tags had beed added
@@ -275,18 +312,10 @@ namespace MIISHandler
                 app.Lock(); //Prevent parallel request to add the tags twice
                 try
                 {
-                    MethodInfo genericRegisterTag = typeof(Template).GetMethod("RegisterTag"); //Needed to call it as a generic for each tag using reflection
-                    //Get all custom tags in the MIISHandler.Tags namespace
-                    var tags = from c in Assembly.GetExecutingAssembly().GetTypes()
-                               where c.IsClass && c.Namespace == CUSTOM_TAGS_NAMESPACE && c.IsSubclassOf(typeof(Tag))
-                               select c;
-                    //Register each tag
-                    tags.ToList().ForEach(tag =>
-                    {
-                        //This would be the normal, non-refelction way to do it: Template.RegisterTag<TagClass>("tagclassname");
-                        MethodInfo registerTag = genericRegisterTag.MakeGenericMethod(tag);
-                        registerTag.Invoke(null, new object[] { tag.Name.ToLower() });
-                    });
+                    //Register custom "native" tags (included in MIISHandler)
+                    RegisterCustomTagsInAssembly(Assembly.GetExecutingAssembly());
+                    //Load Custom Tag assemblies and register them
+                    LoadAndRegisterCustomTagAssemblies();
                     app[TAGS_ADDED_FLAG] = 1;   //Anything in the value would do to flag that Tags have been inserted
                 }
                 catch

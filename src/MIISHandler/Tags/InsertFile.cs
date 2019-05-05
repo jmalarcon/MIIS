@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Web;
 using DotLiquid;
-using IISHelpers;
 
 namespace MIISHandler.Tags
 {
@@ -23,7 +22,7 @@ namespace MIISHandler.Tags
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
             base.Initialize(tagName, markup, tokens);
-            //Just make a not of the current parameter (presumably the name of the file to render)
+            //Just make a note of the current parameter (presumably the name of the file to render)
             fileName = markup.Trim();
         }
 
