@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web;
 using DotLiquid;
 using IISHelpers;
@@ -6,12 +7,14 @@ using IISHelpers;
 namespace MIISHandler
 {
     /// <summary>
-    /// This class allows to retrieve field values dynamically for DotLiquid (just when they're needed)
+    /// This class allows to retrieve field values dynamically/lazyly for DotLiquid (just when they're needed)
     /// </summary>
-    internal class MDFieldsResolver : Hash
+    public class MDFieldsResolver : Hash
     {
-        private MarkdownFile md;
-        private HttpContext ctx;
+        //
+        public const string INTERNAL_REFERENCE_TO_CURRENT_FILE = "_currentfileproxy";    //Must be lowercase
+        private readonly MarkdownFile md;
+        private readonly HttpContext ctx;
 
         //Constructor
         public MDFieldsResolver(MarkdownFile mdFile, HttpContext context)
@@ -20,13 +23,17 @@ namespace MIISHandler
             ctx = context;
         }
 
-        //Retrieves the value for the specified field or returns "" if it doesn't exist
+        //Retrieves the value for the specified field or returns an empty string if it doesn't exist
         protected override object GetValue(string name)
         {
-            string res = "";    //Default value
+            object res = "";
             switch (name.ToLower())
             {
-            //Check well Known fields first
+                //Check well Known fields first
+                case INTERNAL_REFERENCE_TO_CURRENT_FILE:
+                    //This is intended to be used internally only, from custom tags
+                    res = new MIISFile(md);
+                    break;
                 case "title":
                     res = md.Title;
                     break;
@@ -69,18 +76,18 @@ namespace MIISHandler
 					break;
             //Custom fields
             default:
-                    res = Common.GetFieldValue(name, md);
+                    string sres = Common.GetFieldValue(name, md);
                     /*
                      * There are two types of fields:
                      * - Value fields: {{name}} -> Get a value from the Front-Matter or from web.config -> Simply replace them
                      * - File processing fields (FPF), ending in .md or .mdh. ej: {{myfile.md}} -> The file is read and it's contents transformed into HTML take the place of the placeholder
                      *   Useful for menus, and other independet parts in custom templates and parts of the same page.
                     */
-                    if (res.EndsWith(".md") || res.EndsWith(MarkdownFile.HTML_EXT))
+                    if (sres.ToLower().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || sres.ToLower().EndsWith(MarkdownFile.HTML_EXT))
                     {
                         try
                         {
-                            string fpfPath = ctx.Server.MapPath(res);    //The File-Processing Field path
+                            string fpfPath = ctx.Server.MapPath(sres);    //The File-Processing Field path
                             MarkdownFile mdFld = new MarkdownFile(fpfPath);
                             res = mdFld.RawHTML; //Use the raw HTML, not the processed HTML (this last one includes the template too)
                                                     //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)

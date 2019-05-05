@@ -17,6 +17,7 @@ namespace MIISHandler
     public class MarkdownFile
     {
 
+        public const string MARKDOWN_DEF_EXT = ".md";   //Default extension for markdown files
         public const string HTML_EXT = ".mdh";  //File extension for HTML contents
         private readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}" + Environment.NewLine, RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
 

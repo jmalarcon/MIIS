@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.IO;
-using System.Security;
+using System.Reflection;
 using System.Web;
 using System.Web.Caching;
 using IISHelpers;
+using MIISHandler.Tags;
 using DotLiquid;
 
 namespace MIISHandler
@@ -48,7 +50,7 @@ namespace MIISHandler
             {
                 //If the specified template is "raw" then just return the raw HTML without any wrapping HTML code 
                 //(no html, head or body tags). Useful to return special pages with raw content.
-                if(templateFile == "raw")
+                if (templateFile == "raw")
                 {
                     template = "{{content}}";
                 }
@@ -67,6 +69,9 @@ namespace MIISHandler
 
             //Process fragments (other files inserted into the current one or template)
             finalContent = ProcessFragments(finalContent, md, ctx);
+
+            //Dynamically setup and add to DotLiquid template processor all the new custom tags, TODO: and filters
+            RegisterCustomTags();
 
             //Process template + content + fields with DotLiquid
             Template parser = Template.Parse(finalContent);
@@ -230,10 +235,10 @@ namespace MIISHandler
                 //Test if a file the same file extension exists
                 if (File.Exists(fragmentFileName + md.FileExt))
                     fragmentFileName += md.FileExt;
-                else if (File.Exists(fragmentFileName + ".md")) //Try with .md extension
-                    fragmentFileName += ".md";
+                else if (File.Exists(fragmentFileName + MarkdownFile.MARKDOWN_DEF_EXT)) //Try with .md extension
+                    fragmentFileName += MarkdownFile.MARKDOWN_DEF_EXT;
                 else
-                    fragmentFileName += ".mdh"; //Try with .mdh
+                    fragmentFileName += MarkdownFile.HTML_EXT; //Try with .mdh
 
                 //Try to read the file with fragment
                 try
@@ -254,6 +259,46 @@ namespace MIISHandler
             }
 
             return template;
+        }
+
+        //The Namespace that contains custom DotLiquid tags
+        private const string CUSTOM_TAGS_NAMESPACE = "MIISHandler.Tags";
+        //The Application variable that flags that the custom tags had beed added
+        private const string TAGS_ADDED_FLAG = "__MIISCustomTagsAdded";
+        
+        //Registers all the custom Liquid tags in the project. It will do it only the first time
+        private static void RegisterCustomTags()
+        {
+            HttpApplicationState app = HttpContext.Current.Application;
+            if (app[TAGS_ADDED_FLAG] == null)   //Tags had not been added before
+            {
+                app.Lock(); //Prevent parallel request to add the tags twice
+                try
+                {
+                    MethodInfo genericRegisterTag = typeof(Template).GetMethod("RegisterTag"); //Needed to call it as a generic for each tag using reflection
+                    //Get all custom tags in the MIISHandler.Tags namespace
+                    var tags = from c in Assembly.GetExecutingAssembly().GetTypes()
+                               where c.IsClass && c.Namespace == CUSTOM_TAGS_NAMESPACE && c.IsSubclassOf(typeof(Tag))
+                               select c;
+                    //Register each tag
+                    tags.ToList().ForEach(tag =>
+                    {
+                        //This would be the normal, non-refelction way to do it: Template.RegisterTag<TagClass>("tagclassname");
+                        MethodInfo registerTag = genericRegisterTag.MakeGenericMethod(tag);
+                        registerTag.Invoke(null, new object[] { tag.Name.ToLower() });
+                    });
+                    app[TAGS_ADDED_FLAG] = 1;   //Anything in the value would do to flag that Tags have been inserted
+                }
+                catch
+                {
+                    //retrow the exception
+                    throw;
+                }
+                finally
+                {
+                    app.UnLock();   //Ensure application state is not locked
+                }
+            }
         }
         #endregion
 

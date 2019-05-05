@@ -112,7 +112,10 @@
     <Content Include="index.md" />
     <Content Include="toc.md" />
     <Content Include="liquid.mdh" />
-    <Content Include="fpf.md" />
+    <Content Include="insertfiles\fpf.md" />
+    <Content Include="insertfiles\fpf_circular_reference.md" />
+    <Content Include="insertfiles\fpf_circular_reference-01.md" />
+    <Content Include="insertfiles\fpf_circular_reference-02.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
