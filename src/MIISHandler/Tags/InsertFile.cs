@@ -32,7 +32,7 @@ namespace MIISHandler.Tags
             //Current HTTPContext
             HttpContext ctx = HttpContext.Current;
             //Current MD or MDF file
-            MIISFile currentMDF = context[MDFieldsResolver.INTERNAL_REFERENCE_TO_CURRENT_FILE] as MIISFile;
+            dynamic currentMDF = context[MDFieldsResolver.INTERNAL_REFERENCE_TO_CURRENT_FILE]; //as MIISFile;
 
             string subRenderedContent = "";
 

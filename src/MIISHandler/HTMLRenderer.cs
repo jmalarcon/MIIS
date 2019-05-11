@@ -281,14 +281,20 @@ namespace MIISHandler
         //Source: https://stackoverflow.com/a/5599581/4141866
         private static void LoadAndRegisterCustomTagAssemblies()
         {
-            string binPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "bin"); //Path to the bin folder
+            //Path to the bin folder
+            string binPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "bin");
+            //The names of the assemblies currently referenced in the app (to prevent checking them for custom Tags)
+            AssemblyName[] referencedAssemblies = Assembly.GetExecutingAssembly().GetReferencedAssemblies();
+            List<string> referencedAssembliesNamesList = referencedAssemblies.Select(ra => ra.FullName).ToList<string>();
 
-            foreach (string dll in Directory.GetFiles(binPath, "*Tag.dll", SearchOption.AllDirectories))   //Including subdirectories, so you can add the custom tags in subfolders
+            foreach (string dll in Directory.GetFiles(binPath, "*.dll", SearchOption.AllDirectories))   //Including subdirectories, so you can add the custom tags in subfolders
             {
                 try
                 {
                     Assembly loadedAssembly = Assembly.LoadFile(dll);
-                    RegisterCustomTagsInAssembly(loadedAssembly);
+                    //If it's not an assembly referenced by the main app (the main app is not in the list, so it's also checked and loaded)
+                    if (referencedAssembliesNamesList.IndexOf(loadedAssembly.FullName) < 0) 
+                        RegisterCustomTagsInAssembly(loadedAssembly);
                 }
                 catch (FileLoadException)
                 { } // The Assembly has already been loaded.
@@ -312,8 +318,6 @@ namespace MIISHandler
                 app.Lock(); //Prevent parallel request to add the tags twice
                 try
                 {
-                    //Register custom "native" tags (included in MIISHandler)
-                    RegisterCustomTagsInAssembly(Assembly.GetExecutingAssembly());
                     //Load Custom Tag assemblies and register them
                     LoadAndRegisterCustomTagAssemblies();
                     app[TAGS_ADDED_FLAG] = 1;   //Anything in the value would do to flag that Tags have been inserted
