@@ -110,11 +110,11 @@ namespace MIISHandler
                     {
                         //The common case: cache enabled. 
                         //Try to read from cache
-                        _html = HttpRuntime.Cache[this.FilePath + "_HTML"] as string;
+                        _html = HttpRuntime.Cache[this.CachingIDHTML] as string;
                         if (string.IsNullOrEmpty(_html)) //If it's not in the cache, transform it
                         {
                             _html = HTMLRenderer.RenderMarkdown(this);
-                            HttpRuntime.Cache.Insert(this.FilePath + "_HTML", _html, new CacheDependency(this.Dependencies.ToArray())); //Add result to cache with dependency on the file
+                            HttpRuntime.Cache.Insert(this.CachingIDHTML, _html, new CacheDependency(this.Dependencies.ToArray())); //Add result to cache with dependency on the file
                         }
                     }
                     else
@@ -263,6 +263,28 @@ namespace MIISHandler
                  return mimeType.IndexOf("/") > 1 ? mimeType:  "text/html";
             }
         }
+
+        #region caching
+        //Returns the internal identifier to be used as the key for the caching entry of this document
+        private string CachingIDHTML
+        {
+            get
+            {
+                return this.FilePath + "_HTML";
+            }
+        }
+
+        //Returns the internal identifier to be used as the key for the caching entry of this document's Front Matter
+        private string CachingIDFrontMatter
+        {
+            get
+            {
+                return this.FilePath + "_FM";
+            }
+        }
+        //HttpContext.Current.Request.Url.Query;
+        #endregion
+
         #endregion
 
         #region Aux methods
@@ -293,7 +315,7 @@ namespace MIISHandler
 
             if (cacheEnabled)   //If the file cache is enabled
             {
-                strFM = HttpRuntime.Cache[this.FilePath + "_FM"] as string;  //Try to read Front-Matter from cache
+                strFM = HttpRuntime.Cache[this.CachingIDFrontMatter] as string;  //Try to read Front-Matter from cache
                 if (!string.IsNullOrEmpty(strFM)) //If it in the cache, use it
                 {
                     _FrontMatter = new SimpleYAMLParser(strFM);
@@ -322,7 +344,7 @@ namespace MIISHandler
             //Cache FM contents if caching is enabled
             if (cacheEnabled)
             {
-                HttpRuntime.Cache.Insert(this.FilePath + "_FM", strFM, new CacheDependency(this.FilePath)); //Add FM to cache with dependency on the current MD/MDH file
+                HttpRuntime.Cache.Insert(this.CachingIDFrontMatter, strFM, new CacheDependency(this.FilePath)); //Add FM to cache with dependency on the current MD/MDH file
             }
         }
 
