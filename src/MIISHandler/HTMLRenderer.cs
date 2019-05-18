@@ -276,7 +276,8 @@ namespace MIISHandler
 
             //Get all custom tags in the MIISHandler.Tags namespace
             var tags = from c in assembly.GetTypes()
-                       where c.IsClass && c.Namespace == CUSTOM_TAGS_NAMESPACE && c.IsSubclassOf(typeof(Tag))
+                       where c.IsClass && c.Namespace == CUSTOM_TAGS_NAMESPACE 
+                             && (c.IsSubclassOf(typeof(Tag)) || c.IsSubclassOf(typeof(Block)))
                        select c;
             //Register each tag
             tags.ToList().ForEach(tag =>
