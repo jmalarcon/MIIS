@@ -117,6 +117,7 @@
     <Content Include="insertfiles\fpf_circular_reference-01.md" />
     <Content Include="insertfiles\fpf_circular_reference-02.md" />
     <Content Include="customtags.md" />
+    <Content Include="customfilters.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -129,6 +130,10 @@
     <ProjectReference Include="..\MIISHandler\MIISHandler.csproj">
       <Project>{80934ba3-4d14-4dd1-ab2c-6466fce8e791}</Project>
       <Name>MIISHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MIISToTitleCaseFilter\MIISTitleCaseFilter.csproj">
+      <Project>{a7db5b34-882a-422f-af62-42158a1e5049}</Project>
+      <Name>MIISTitleCaseFilter</Name>
     </ProjectReference>
     <ProjectReference Include="..\YouTubeTag\MIISYouTubeTag.csproj">
       <Project>{da8c87f0-67ac-4e0f-a999-9b1089aac1e8}</Project>

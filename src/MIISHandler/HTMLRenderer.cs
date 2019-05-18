@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Caching;
 using IISHelpers;
 using DotLiquid;
+using MIISHandler.Filters;
 
 namespace MIISHandler
 {
@@ -33,7 +34,7 @@ namespace MIISHandler
         private static string FILE_FRAGMENT_PREFIX = "*";  //How to identify fragments placeholders in content files
         #endregion
 
-        #region Methods
+        #region Main Method - Render
         /// <summary>
         /// Renders the HTML from the markdown using the templates and parameters specified in web.config
         /// and processing the templates
@@ -70,7 +71,7 @@ namespace MIISHandler
             finalContent = ProcessFragments(finalContent, md, ctx);
 
             //Dynamically setup and add to DotLiquid template processor all the new custom tags, TODO: and filters
-            RegisterCustomTags();   //Register custom MIIS Liquid Tags
+            RegisterCustomExtensions();   //Register custom MIIS Liquid Tags & Filters
 
             //Process template + content + fields with DotLiquid
             Template parser = Template.Parse(finalContent);
@@ -260,26 +261,50 @@ namespace MIISHandler
             return template;
         }
 
+#region Reflection methods
+        //The Namespace that contains custom DotLiquid tags
+        private const string CUSTOM_TAGS_NAMESPACE = "MIISHandler.Tags";
+        //The Namespace that contains custom DotLiquid filters
+        private const string CUSTOM_FILTERS_NAMESPACE = "MIISHandler.Filters";
+        //The Application variable that flags that the custom tags had beed added
+        private const string MIIS_EXTENSIONS_ADDED_FLAG = "__MIISCustomExtensionsAdded";
+
         //Registers all custom Tags in the assembly passed as a parameter
         private static void RegisterCustomTagsInAssembly(Assembly assembly)
         {
             MethodInfo genericRegisterTag = typeof(Template).GetMethod("RegisterTag"); //Needed to call it as a generic for each tag using reflection
-                                                                                       //Get all custom tags in the MIISHandler.Tags namespace
+
+            //Get all custom tags in the MIISHandler.Tags namespace
             var tags = from c in assembly.GetTypes()
                        where c.IsClass && c.Namespace == CUSTOM_TAGS_NAMESPACE && c.IsSubclassOf(typeof(Tag))
                        select c;
             //Register each tag
             tags.ToList().ForEach(tag =>
-            {
-                //This would be the normal, non-refelction way to do it: Template.RegisterTag<TagClass>("tagclassname");
-                MethodInfo registerTag = genericRegisterTag.MakeGenericMethod(tag);
-                registerTag.Invoke(null, new object[] { tag.Name.ToLower() });
-            });
+                {
+                    //This would be the normal, non-reflection way to do it: Template.RegisterTag<TagClass>("tagclassname");
+                    MethodInfo registerTag = genericRegisterTag.MakeGenericMethod(tag);
+                    registerTag.Invoke(null, new object[] { tag.Name.ToLower() });
+                });
+        }
+
+        //Registers all custom filters in the assembly passed as a parameter
+        private static void RegisterCustomFiltersInAssembly(Assembly assembly)
+        {
+            //Custom filters are obtained from classes in the Filters namespace that implement the IFilterFactory interface
+            var filterFactories = from c in assembly.GetTypes()
+                       where c.IsClass && c.Namespace == CUSTOM_FILTERS_NAMESPACE && (typeof(IFilterFactory)).IsAssignableFrom(c)
+                       select c;
+            //Register each filter globally using its factory method (GetFilterType)
+            filterFactories.ToList().ForEach( filterFactory =>
+                {
+                    IFilterFactory ff = (IFilterFactory) Activator.CreateInstance(filterFactory);
+                    Template.RegisterFilter(ff.GetFilterType());
+                });
         }
 
         //Loads all of the *Tag.dll asemblies in the "Bin" folder
         //Source: https://stackoverflow.com/a/5599581/4141866
-        private static void LoadAndRegisterCustomTagAssemblies()
+        private static void LoadAndRegisterCustomExtensionsInAssemblies()
         {
             //Path to the bin folder
             string binPath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "bin");
@@ -293,34 +318,31 @@ namespace MIISHandler
                 {
                     Assembly loadedAssembly = Assembly.LoadFile(dll);
                     //If it's not an assembly referenced by the main app (the main app is not in the list, so it's also checked and loaded)
-                    if (referencedAssembliesNamesList.IndexOf(loadedAssembly.FullName) < 0) 
+                    if (referencedAssembliesNamesList.IndexOf(loadedAssembly.FullName) < 0)
+                    {
                         RegisterCustomTagsInAssembly(loadedAssembly);
+                        RegisterCustomFiltersInAssembly(loadedAssembly);
+                    }
                 }
                 catch (FileLoadException)
                 { } // The Assembly has already been loaded.
                 catch (BadImageFormatException)
                 { } // If a BadImageFormatException exception is thrown, the file is not an assembly.
-
             }
         }
-
-        //The Namespace that contains custom DotLiquid tags
-        private const string CUSTOM_TAGS_NAMESPACE = "MIISHandler.Tags";
-        //The Application variable that flags that the custom tags had beed added
-        private const string TAGS_ADDED_FLAG = "__MIISCustomTagsAdded";
         
-        //Registers all the custom Liquid tags in the project. It will do it only the first time
-        private static void RegisterCustomTags()
+        //Registers all the custom Liquid tags and filters in the project. It will do it only the first time
+        private static void RegisterCustomExtensions()
         {
             HttpApplicationState app = HttpContext.Current.Application;
-            if (app[TAGS_ADDED_FLAG] == null)   //Tags had not been added before
+            if (app[MIIS_EXTENSIONS_ADDED_FLAG] == null)   //Tags had not been added before
             {
                 app.Lock(); //Prevent parallel request to add the tags twice
                 try
                 {
                     //Load Custom Tag assemblies and register them
-                    LoadAndRegisterCustomTagAssemblies();
-                    app[TAGS_ADDED_FLAG] = 1;   //Anything in the value would do to flag that Tags have been inserted
+                    LoadAndRegisterCustomExtensionsInAssemblies();
+                    app[MIIS_EXTENSIONS_ADDED_FLAG] = 1;   //Anything in the value would do to flag that Tags have been inserted
                 }
                 catch
                 {
@@ -333,10 +355,11 @@ namespace MIISHandler
                 }
             }
         }
-        #endregion
+#endregion
+#endregion
 
-        #region Aux classes
-        internal class CircularReferenceException : Exception
+    #region Aux classes
+    internal class CircularReferenceException : Exception
         {
             public CircularReferenceException(string msg):base(msg)
             {
