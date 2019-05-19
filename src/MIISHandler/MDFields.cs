@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Web;
 using DotLiquid;
 using IISHelpers;
@@ -10,8 +11,11 @@ namespace MIISHandler
     /// </summary>
     public class MDFieldsResolver : Hash
     {
-        //
-        public const string INTERNAL_REFERENCE_TO_CURRENT_FILE = "_currentfileproxy";    //Must be lowercase
+        //This is an internal field accesible only through custom tags, that gives access to this resolver
+        public const string INTERNAL_REFERENCE_TO_CURRENT_FILE = "_currentfileproxy";
+        //The delimiter that signals custom Front-Matter sources for fields that generate information dynamically
+        private const string FRONT_MATTER_SOURCES_PREFIX = "!!";
+
         private readonly MarkdownFile md;
         private readonly HttpContext ctx;
 
@@ -75,14 +79,15 @@ namespace MIISHandler
 					break;
             //Custom fields
             default:
-                    string sres = Common.GetFieldValue(name, md);
+                    string sres = FieldValuesHelper.GetFieldValue(name, md);
                     /*
-                     * There are two types of fields:
-                     * - Value fields: {{name}} -> Get a value from the Front-Matter or from web.config -> Simply replace them
-                     * - File processing fields (FPF), ending in .md or .mdh. ej: {{myfile.md}} -> The file is read and it's contents transformed into HTML take the place of the placeholder
+                     * There are three types of fields:
+                     * - File processing fields (FPF), ending in .md or .mdh. ej: myfile.md -> The file is read and it's contents transformed into HTML take the place of the placeholder
                      *   Useful for menus, and other independet parts in custom templates and parts of the same page.
+                     * - Custom Dinamic Field Sources, that start with !! and use a custom class to populate the field with an object. Ej: !!customSource param1 param2
+                     * - Value fields: {{name}} -> Get a value from the Front-Matter or from web.config -> Simply replace them
                     */
-                    if (sres.ToLower().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || sres.ToLower().EndsWith(MarkdownFile.HTML_EXT))
+                    if (sres.ToLower().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || sres.ToLower().EndsWith(MarkdownFile.HTML_EXT))   //FPF
                     {
                         try
                         {
@@ -105,6 +110,13 @@ namespace MIISHandler
                             //This should only happen while testing, never in production, so I send the exception's message
                             res = String.Format("Error loading {0}: {1}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX, ex.Message);
                         }
+                    }
+                    else if (sres.StartsWith(FRONT_MATTER_SOURCES_PREFIX))  //Custom FM Source
+                    {
+                        //Get the name of the source and it's params splitting the string (the first element would be the name of the surce, and the rest, the parameters, if any
+                        string[] srcelements = sres.Substring(FRONT_MATTER_SOURCES_PREFIX.Length).Trim().Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
+                        if (srcelements.Length > 0)
+                            return FieldValuesHelper.GetFieldValueFromFMSource(srcelements[0], srcelements.Skip(1).ToArray());
                     }
                     break;
             }

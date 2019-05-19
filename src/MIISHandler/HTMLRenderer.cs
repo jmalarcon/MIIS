@@ -8,6 +8,7 @@ using System.Web.Caching;
 using IISHelpers;
 using DotLiquid;
 using MIISHandler.Filters;
+using MIISHandler.FMSources;
 
 namespace MIISHandler
 {
@@ -71,7 +72,7 @@ namespace MIISHandler
             finalContent = ProcessFragments(finalContent, md, ctx);
 
             //Dynamically setup and add to DotLiquid template processor all the new custom tags, TODO: and filters
-            RegisterCustomExtensions();   //Register custom MIIS Liquid Tags & Filters
+            RegisterCustomExtensions();   //Register custom MIIS Liquid Tags, Filters and Front-Matter sources
 
             //Process template + content + fields with DotLiquid
             Template parser = Template.Parse(finalContent);
@@ -94,7 +95,7 @@ namespace MIISHandler
         private static string GetCurrentTemplateFile(MarkdownFile md)
         {
             //Get the template name that is going to be used (Front Matter or configuration), if any.
-            string templateName = Common.GetFieldValue("TemplateName", md);
+            string templateName = FieldValuesHelper.GetFieldValue("TemplateName", md);
             if (string.IsNullOrEmpty(templateName) || templateName.ToLower() == "none")
                 return string.Empty;    //Use the default basic HTML5 template
 
@@ -102,13 +103,13 @@ namespace MIISHandler
                 return "raw";   //Use raw contents, without any wrapping HTML tags
 
             //The name (or sub-path) for the layout file (.html normaly) to be used
-            string layoutName = Common.GetFieldValue("Layout", md);
+            string layoutName = FieldValuesHelper.GetFieldValue("Layout", md);
             if (string.IsNullOrEmpty(layoutName))
                 return string.Empty;    //Use the default basic HTML5 template
 
             //If both the template folder and the layout are established, then get the base folder for the templates
             //This base path for the templates parameter is only available through Web.config. NOT in the file Front Matter (we're skipping the file in the following call)
-            string basePath = Common.GetFieldValue("TemplatesBasePath", defValue: "~/Templates/");
+            string basePath = FieldValuesHelper.GetFieldValue("TemplatesBasePath", defValue: "~/Templates/");
             return VirtualPathUtility.AppendTrailingSlash(basePath) + VirtualPathUtility.AppendTrailingSlash(templateName) + layoutName;
         }
 
@@ -266,6 +267,9 @@ namespace MIISHandler
         private const string CUSTOM_TAGS_NAMESPACE = "MIISHandler.Tags";
         //The Namespace that contains custom DotLiquid filters
         private const string CUSTOM_FILTERS_NAMESPACE = "MIISHandler.Filters";
+        //The Namespace that contains custom DotLiquid Front-Matter Sources
+        private const string CUSTOM_FMSOURCES_NAMESPACE = "MIISHandler.FMSources";
+        
         //The Application variable that flags that the custom tags had beed added
         private const string MIIS_EXTENSIONS_ADDED_FLAG = "__MIISCustomExtensionsAdded";
 
@@ -296,14 +300,29 @@ namespace MIISHandler
                        where c.IsClass && c.Namespace == CUSTOM_FILTERS_NAMESPACE && (typeof(IFilterFactory)).IsAssignableFrom(c)
                        select c;
             //Register each filter globally using its factory method (GetFilterType)
-            filterFactories.ToList().ForEach( filterFactory =>
+            filterFactories.ToList().ForEach( filterFactoryClass =>
                 {
-                    IFilterFactory ff = (IFilterFactory) Activator.CreateInstance(filterFactory);
+                    IFilterFactory ff = (IFilterFactory) Activator.CreateInstance(filterFactoryClass);
                     Template.RegisterFilter(ff.GetFilterType());
                 });
         }
 
-        //Loads all of the *Tag.dll asemblies in the "Bin" folder
+        //Registers all custom Front-Matter sources inside the assembly passed as a parameter
+        private static void RegisterCustomFMSourcesInAssembly(Assembly assembly)
+        {
+            //Custom FM sources are obtained from classes in the FMSources namespace that implement the IFMSource interface
+            var fmSources = from c in assembly.GetTypes()
+                                  where c.IsClass && c.Namespace == CUSTOM_FMSOURCES_NAMESPACE && (typeof(IFMSource)).IsAssignableFrom(c)
+                                  select c;
+            //Register each FMSource globally using its factory method (GetFilterType)
+            fmSources.ToList().ForEach(fmSourceClass =>
+            {
+                IFMSource fms = (IFMSource)Activator.CreateInstance(fmSourceClass);
+                FieldValuesHelper.AddFrontMatterSource(fms.SourceName, fms.GetType());
+            });
+        }
+
+        //Loads all of the Tags, Fields and custom FM sources from the asemblies in the "Bin" folder
         //Source: https://stackoverflow.com/a/5599581/4141866
         private static void LoadAndRegisterCustomExtensionsInAssemblies()
         {
@@ -323,6 +342,7 @@ namespace MIISHandler
                     {
                         RegisterCustomTagsInAssembly(loadedAssembly);
                         RegisterCustomFiltersInAssembly(loadedAssembly);
+                        RegisterCustomFMSourcesInAssembly(loadedAssembly);
                     }
                 }
                 catch (FileLoadException)

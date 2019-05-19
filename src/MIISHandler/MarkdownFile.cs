@@ -84,7 +84,7 @@ namespace MIISHandler
                         //Configure markdown conversion
                         MarkdownPipelineBuilder mdPipe = new MarkdownPipelineBuilder().UseAdvancedExtensions();
                         //Check if we must generate emojis
-                        if (Common.GetFieldValue("UseEmoji", this, "1") != "0")
+                        if (FieldValuesHelper.GetFieldValue("UseEmoji", this, "1") != "0")
                         {
                             mdPipe = mdPipe.UseEmojiAndSmiley();
                         }
@@ -106,7 +106,7 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_html))
                 {
                     //Read the file contents from disk or cache depending on parameter
-                    if (Common.GetFieldValue("UseMDCaching", null, "1") == "1")
+                    if (FieldValuesHelper.GetFieldValue("UseMDCaching", null, "1") == "1")
                     {
                         //The common case: cache enabled. 
                         //Try to read from cache
@@ -232,7 +232,7 @@ namespace MIISHandler
             get
             {
                 //Check if the File is published with the "Published" field
-                string isPublished = Common.GetFieldValue("Published", this, "1").ToLower();
+                string isPublished = FieldValuesHelper.GetFieldValue("Published", this, "1").ToLower();
                 //For the sake of security, if it's not explicitly a "falsy" value, then is assumed true
                 return !TypesHelper.IsFalsy(isPublished);
             }
@@ -245,7 +245,7 @@ namespace MIISHandler
             get
             {
                 //Check if the File has a status code that is not a 200 (default OK status code)
-                string statusCode = Common.GetFieldValueFromFM("HttpStatusCode", this, "200").ToLower();
+                string statusCode = FieldValuesHelper.GetFieldValueFromFM("HttpStatusCode", this, "200").ToLower();
                 bool isInt = int.TryParse(statusCode, out int nStatus);
                 if (!isInt) nStatus = 200;
                 return Math.Abs(nStatus);
@@ -258,7 +258,7 @@ namespace MIISHandler
             get
             {
                 //Check if the File has an special MIME type set in the Front Matter
-                string mimeType = Common.GetFieldValueFromFM("MIME", this, "text/html").ToLower();
+                string mimeType = FieldValuesHelper.GetFieldValueFromFM("MIME", this, "text/html").ToLower();
                 //It should contain a slash, but not in the first character
                  return mimeType.IndexOf("/") > 1 ? mimeType:  "text/html";
             }
@@ -311,7 +311,7 @@ namespace MIISHandler
                     return;
 
             string strFM = string.Empty;
-            bool cacheEnabled = Common.GetFieldValue("UseMDCaching", null, "1") == "1";
+            bool cacheEnabled = FieldValuesHelper.GetFieldValue("UseMDCaching", null, "1") == "1";
 
             if (cacheEnabled)   //If the file cache is enabled
             {

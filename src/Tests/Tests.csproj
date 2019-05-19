@@ -118,6 +118,7 @@
     <Content Include="insertfiles\fpf_circular_reference-02.md" />
     <Content Include="customtags.md" />
     <Content Include="customfilters.md" />
+    <Content Include="customFMSrc.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -130,6 +131,10 @@
     <ProjectReference Include="..\MIISHandler\MIISHandler.csproj">
       <Project>{80934ba3-4d14-4dd1-ab2c-6466fce8e791}</Project>
       <Name>MIISHandler</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MIISRandomParamSample\MIISRandomParamSample.csproj">
+      <Project>{ddff0cae-3c6a-46b9-a3f5-da9b60361acb}</Project>
+      <Name>MIISRandomParamSample</Name>
     </ProjectReference>
     <ProjectReference Include="..\MIISToTitleCaseFilter\MIISTitleCaseFilter.csproj">
       <Project>{a7db5b34-882a-422f-af62-42158a1e5049}</Project>

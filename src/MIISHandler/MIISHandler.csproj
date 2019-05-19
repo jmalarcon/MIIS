@@ -66,8 +66,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common.cs" />
+    <Compile Include="FieldValuesHelper.cs" />
     <Compile Include="Filters\IFilterFactory.cs" />
+    <Compile Include="FMSources\IFMSource.cs" />
     <Compile Include="MarkdownFile.cs" />
     <Compile Include="MDFields.cs" />
     <Compile Include="MIISFile.cs" />
