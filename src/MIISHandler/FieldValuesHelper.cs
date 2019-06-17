@@ -59,13 +59,13 @@ namespace MIISHandler
         /// <param name="sourceName">The name of the FM source to call</param>
         /// <param name="srcParams">a list of params in test form</param>
         /// <returns></returns>
-        public static object GetFieldValueFromFMSource(string sourceName, params string[] srcParams)
+        public static object GetFieldValueFromFMSource(string sourceName, MIISFile file, params string[] srcParams)
         {
             if (_FMSources.ContainsKey(sourceName))
             {
                 //Instantiate a new class of this type
                 IFMSource fms = (IFMSource)Activator.CreateInstance(_FMSources[sourceName]);
-                return fms.GetValue(srcParams);
+                return fms.GetValue(file, srcParams);
             }
             else
             {

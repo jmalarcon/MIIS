@@ -140,7 +140,7 @@
       <Project>{a7db5b34-882a-422f-af62-42158a1e5049}</Project>
       <Name>MIISTitleCaseFilter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\YouTubeTag\MIISYouTubeTag.csproj">
+    <ProjectReference Include="..\MIISYouTubeTag\MIISYouTubeTag.csproj">
       <Project>{da8c87f0-67ac-4e0f-a999-9b1089aac1e8}</Project>
       <Name>MIISYouTubeTag</Name>
     </ProjectReference>

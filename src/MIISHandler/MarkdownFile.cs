@@ -30,6 +30,8 @@ namespace MIISHandler
         private DateTime _dateCreated;
         private DateTime _dateLastModified;
         private SimpleYAMLParser _FrontMatter;
+        private bool _CachingEnabled = true;
+        private int _NumSecondsCacheIsValid = 0;
         #endregion
 
         #region Constructor
@@ -103,24 +105,14 @@ namespace MIISHandler
         {
             get
             {
-                if (string.IsNullOrEmpty(_html))
+                if (string.IsNullOrEmpty(_html))    //If it's not processed yet
                 {
-                    //Read the file contents from disk or cache depending on parameter
-                    if (FieldValuesHelper.GetFieldValue("UseMDCaching", null, "1") == "1")
+                    //Try to read from cache
+                    _html = GetFromCache(this.CachingIDHTML);
+                    if (string.IsNullOrEmpty(_html)) //If it's not in the cache, process the file
                     {
-                        //The common case: cache enabled. 
-                        //Try to read from cache
-                        _html = HttpRuntime.Cache[this.CachingIDHTML] as string;
-                        if (string.IsNullOrEmpty(_html)) //If it's not in the cache, transform it
-                        {
-                            _html = HTMLRenderer.RenderMarkdown(this);
-                            HttpRuntime.Cache.Insert(this.CachingIDHTML, _html, new CacheDependency(this.Dependencies.ToArray())); //Add result to cache with dependency on the file
-                        }
-                    }
-                    else
-                    {
-                        //If the cache is disabled always re-process the file
                         _html = HTMLRenderer.RenderMarkdown(this);
+                        AddToCache(this.CachingIDHTML, _html);  //Add to cache (if enabled)
                     }
                 }
                 return _html;
@@ -265,6 +257,62 @@ namespace MIISHandler
         }
 
         #region caching
+
+        //If false, then caching is not applied even if it's enabled in the settings.
+        //This is used by custom tags and fields to keep the document fresh
+        internal bool CachingEnabled
+        {
+            get
+            {
+                //Returns true if caching is enabled in the file or global settings, and if is not disabled by a custom tag or param
+                return TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("UseMDCaching", null, "1")) && _CachingEnabled;
+            }
+            set
+            {
+                _CachingEnabled = value;
+            }
+        }
+
+        //Set by custom tags or params. 0 means no time based expiration. Maximum value 1 day (24 hours)
+        internal int NumSecondsCacheIsValid
+        {
+            get
+            {
+                return _NumSecondsCacheIsValid;
+            }
+            set
+            {
+                _NumSecondsCacheIsValid = value;
+                if (value <= 0) _NumSecondsCacheIsValid = 0;
+                if (value > 86400) _NumSecondsCacheIsValid = 86400;    //24 hours in seconds
+            }
+        }
+
+        //Adds the specified value to the cache with the specified key, if it's enabled
+        private void AddToCache(string CacheID, string contents)
+        {
+            if (this.CachingEnabled)
+            {
+                if (this.NumSecondsCacheIsValid > 0)
+                {
+                    //Cache invalidation when files change or after a certain time
+                    HttpRuntime.Cache.Insert(CacheID, contents, new CacheDependency(this.Dependencies.ToArray()),
+                        DateTime.Now.AddSeconds(this.NumSecondsCacheIsValid), Cache.NoSlidingExpiration);
+                }
+                else
+                {
+                    //Cache invalidation just when files change
+                    HttpRuntime.Cache.Insert(CacheID, contents, new CacheDependency(this.Dependencies.ToArray())); //Add result to cache with dependency on the file
+                }
+            }
+        }
+
+        //Gets value from the cache if enabled and available
+        private string GetFromCache(string CacheID)
+        {
+            return this.CachingEnabled ? HttpRuntime.Cache[CacheID] as string : string.Empty;
+        }
+
         //Returns the internal identifier to be used as the key for the caching entry of this document
         private string CachingIDHTML
         {
@@ -282,7 +330,7 @@ namespace MIISHandler
                 return this.FilePath + "_FM";
             }
         }
-        //HttpContext.Current.Request.Url.Query;
+
         #endregion
 
         #endregion
@@ -311,24 +359,21 @@ namespace MIISHandler
                     return;
 
             string strFM = string.Empty;
-            bool cacheEnabled = FieldValuesHelper.GetFieldValue("UseMDCaching", null, "1") == "1";
 
-            if (cacheEnabled)   //If the file cache is enabled
+            strFM = GetFromCache(this.CachingIDFrontMatter);
+            if (!string.IsNullOrEmpty(strFM)) //If it in the cache, just use it
             {
-                strFM = HttpRuntime.Cache[this.CachingIDFrontMatter] as string;  //Try to read Front-Matter from cache
-                if (!string.IsNullOrEmpty(strFM)) //If it in the cache, use it
-                {
-                    _FrontMatter = new SimpleYAMLParser(strFM);
-                    return;
-                }
-                else
-                {
-                    strFM = "---\r\n---";   //Re-set to an empty FrontMatter (if I use an empty string it would be reading contents from this for all the files without Front Matter
-                }
+                _FrontMatter = new SimpleYAMLParser(strFM);
+                return; //Ready!
+            }
+            else
+            {
+                //Assign a default empty FrontMatter (if an empty string was used, contents would be read every time for all the files without a Front Matter)
+                strFM = "---\r\n---";
             }
 
-            //If cache is not enabled or the FM is not currently cached, read from contents
-            //Default value (empty), prevents Content property from processing Front-Matter twice if it's still not read
+            //If cache is not enabled or the FM is not currently cached, read it from the file contents
+            //Default value (empty FM, but no empty string), prevents the Content property from processing Front-Matter twice if it's not read yet
             _FrontMatter = new SimpleYAMLParser(strFM);
 
             //Extract and remove YAML Front Matter
@@ -341,14 +386,11 @@ namespace MIISHandler
                 _FrontMatter = new SimpleYAMLParser(strFM);
             }
 
-            //Cache FM contents if caching is enabled
-            if (cacheEnabled)
-            {
-                HttpRuntime.Cache.Insert(this.CachingIDFrontMatter, strFM, new CacheDependency(this.FilePath)); //Add FM to cache with dependency on the current MD/MDH file
-            }
+            //Cache the final FM contents (if caching is enabled)
+            AddToCache(this.CachingIDFrontMatter, strFM);
         }
 
-        //Removes the front matter, if any, from the current contents
+        //Removes the front matter, if any, from the actual contents of the file
         private void RemoveFrontMatter()
         {
             _content = FRONT_MATTER_RE.Replace(_content, "");

@@ -17,9 +17,9 @@ namespace MIISHandler.FMSources
 
         //This method gets the param value. It can return any type, but to be able to work correctly 
         //and to be used in contents, it must be a basic type, inherit from Drop, implement ILiquidizable, etc...
-        //Check: https://github.com/dotliquid/dotliquid/wiki/DotLiquid-for-Developers#rules-for-template-rendering-parameters
+        //See: https://github.com/dotliquid/dotliquid/wiki/DotLiquid-for-Developers#rules-for-template-rendering-parameters
         //If it doesn't comply with this, you'll get an error when trying to use it
         //It takes a variable number of string parameters extracted from the declarion on the file
-        object GetValue(params string[] parameters);
+        object GetValue(MIISFile currentFile, params string[] parameters);
     }
 }

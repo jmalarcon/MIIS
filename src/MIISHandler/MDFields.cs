@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using DotLiquid;
@@ -17,25 +18,30 @@ namespace MIISHandler
         private const string FRONT_MATTER_SOURCES_PREFIX = "!!";
 
         private readonly MarkdownFile md;
+        private readonly MIISFile mdProxy;
         private readonly HttpContext ctx;
+
+        //This dictionary prevents custom field values to be retrieved more than once, at the cost of taking up a little bit more memory
+        private IDictionary<string, object> InternalFileFieldCache = new Dictionary<string, object>();
 
         //Constructor
         public MDFieldsResolver(MarkdownFile mdFile, HttpContext context)
         {
             md = mdFile;
+            mdProxy = new MIISFile(md);
             ctx = context;
         }
 
         //Retrieves the value for the specified field or returns an empty string if it doesn't exist
         protected override object GetValue(string name)
         {
-            object res = "";
+            object res = "";    //Default value (empty string)
             switch (name.ToLower())
             {
                 //Check well Known fields first
                 case INTERNAL_REFERENCE_TO_CURRENT_FILE:
-                    //This is intended to be used internally only, from custom tags
-                    res = new MIISFile(md);
+                    //This is intended to be used internally only, from custom tags or front-matter custom sources
+                    res = mdProxy;
                     break;
                 case "title":
                     res = md.Title;
@@ -77,50 +83,70 @@ namespace MIISHandler
                     //Files processed by MIIS always have extension on disk
                     res = ctx.Request.Path.Remove(ctx.Request.Path.LastIndexOf("."));
 					break;
-            //Custom fields
-            default:
-                    string sres = FieldValuesHelper.GetFieldValue(name, md);
-                    /*
-                     * There are three types of fields:
-                     * - File processing fields (FPF), ending in .md or .mdh. ej: myfile.md -> The file is read and it's contents transformed into HTML take the place of the placeholder
-                     *   Useful for menus, and other independet parts in custom templates and parts of the same page.
-                     * - Custom Dinamic Field Sources, that start with !! and use a custom class to populate the field with an object. Ej: !!customSource param1 param2
-                     * - Value fields: {{name}} -> Get a value from the Front-Matter or from web.config -> Simply replace them
-                    */
-                    if (sres.ToLower().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || sres.ToLower().EndsWith(MarkdownFile.HTML_EXT))   //FPF
+                //Custom fields
+                default:
+                    //Check if the custom field has already been retrieved before
+                    bool isCached = InternalFileFieldCache.TryGetValue(name, out res);  //If it's cached the value will be saved to res
+                    if (!isCached)  //If it's not cached (has not been retrieved before) then retrieve it
                     {
-                        try
+                        res = string.Empty;   //Default value
+                        /*
+                         * There are three types of fields:
+                         * - Value fields: {{name}} -> Get a value from the Front-Matter or from web.config -> Simply replace them (default assumption)
+                         * - File processing fields (FPF), ending in .md or .mdh. ej: myfile.md -> The file is read and it's contents transformed into HTML take the place of the placeholder
+                         *   Useful for menus, and other independet parts in custom templates and parts of the same page.
+                         * - Custom Dinamic Field Sources, that start with !! and use a custom class to populate the field with an object. Ej: !!customSource param1 param2
+                        */
+
+                        //Simple value fields
+                        string rawValue = FieldValuesHelper.GetFieldValue(name, md);
+
+                        //First, Custom Dinamic Field Sources that provide values from external assemblies
+                        if (rawValue.StartsWith(FRONT_MATTER_SOURCES_PREFIX))
                         {
-                            string fpfPath = ctx.Server.MapPath(sres);    //The File-Processing Field path
-                            MarkdownFile mdFld = new MarkdownFile(fpfPath);
-                            res = mdFld.RawHTML; //Use the raw HTML, not the processed HTML (this last one includes the template too)
-                                                    //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
-                            md.Dependencies.Add(fpfPath);
+                            //Get the name of the source and it's params splitting the string (the first element would be the name of the surce, and the rest, the parameters, if any
+                            string[] srcelements = rawValue.Substring(FRONT_MATTER_SOURCES_PREFIX.Length).Trim().Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
+                            if (srcelements.Length > 0)
+                                res = FieldValuesHelper.GetFieldValueFromFMSource(srcelements[0], mdProxy, srcelements.Skip(1).ToArray());
                         }
-                        catch (System.Security.SecurityException)
+                        //Second, File Processing Fields, thar inject the content of .md or .mdh files without proceesing their inner fields (for that you need to use the inject custom tag)
+                        else if (rawValue.ToLower().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || rawValue.ToLower().EndsWith(MarkdownFile.HTML_EXT))
                         {
-                            res = String.Format("Can't access file for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX);
+                            try
+                            {
+                                string fpfPath = ctx.Server.MapPath(rawValue);    //The File-Processing Field path
+                                MarkdownFile mdFld = new MarkdownFile(fpfPath);
+                                res = mdFld.RawHTML; //Use the raw HTML, not the processed HTML (this last one includes the template too)
+                                                     //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
+                                md.Dependencies.Add(fpfPath);
+                            }
+                            catch (System.Security.SecurityException)
+                            {
+                                res = String.Format("Can't access file for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX);
+                            }
+                            catch (System.IO.FileNotFoundException)
+                            {
+                                res = String.Format("File not found for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX);
+                            }
+                            catch (Exception ex)
+                            {
+                                //This should only happen while testing, never in production, so I send the exception's message
+                                res = String.Format("Error loading {0}: {1}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX, ex.Message);
+                            }
                         }
-                        catch (System.IO.FileNotFoundException)
+                        //Finally, if it's not a custom source or a FPF, then is a normal raw value
+                        else
                         {
-                            res = String.Format("File not found for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX);
+                            res = rawValue;
                         }
-                        catch (Exception ex)
-                        {
-                            //This should only happen while testing, never in production, so I send the exception's message
-                            res = String.Format("Error loading {0}: {1}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX, ex.Message);
-                        }
+                        
+                        //Cache the retrieved value
+                        InternalFileFieldCache[name] = res;
                     }
-                    else if (sres.StartsWith(FRONT_MATTER_SOURCES_PREFIX))  //Custom FM Source
-                    {
-                        //Get the name of the source and it's params splitting the string (the first element would be the name of the surce, and the rest, the parameters, if any
-                        string[] srcelements = sres.Substring(FRONT_MATTER_SOURCES_PREFIX.Length).Trim().Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
-                        if (srcelements.Length > 0)
-                            return FieldValuesHelper.GetFieldValueFromFMSource(srcelements[0], srcelements.Skip(1).ToArray());
-                    }
+                    //Get out of the switch
                     break;
             }
-
+            //Return retrieved value
             return res;
         }
     }
