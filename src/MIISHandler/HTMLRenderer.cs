@@ -312,8 +312,8 @@ namespace MIISHandler
         {
             //Custom FM sources are obtained from classes in the FMSources namespace that implement the IFMSource interface
             var fmSources = from c in assembly.GetTypes()
-                                  where c.IsClass && c.Namespace == CUSTOM_FMSOURCES_NAMESPACE && (typeof(IFMSource)).IsAssignableFrom(c)
-                                  select c;
+                                  where c.IsClass && c.Namespace == CUSTOM_FMSOURCES_NAMESPACE && typeof(IFMSource).IsAssignableFrom(c)
+                            select c;
             //Register each FMSource globally using its factory method (GetFilterType)
             fmSources.ToList().ForEach(fmSourceClass =>
             {

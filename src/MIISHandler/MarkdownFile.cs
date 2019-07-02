@@ -193,7 +193,7 @@ namespace MIISHandler
         //Date when the file was created
         public DateTime DateCreated {
             get {
-                if (_dateCreated != default(DateTime))
+                if (_dateCreated != default)
                     return _dateCreated;
 
                 FileInfo fi = new FileInfo(this.FilePath);
@@ -206,7 +206,7 @@ namespace MIISHandler
         public DateTime DateLastModified {
             get
             {
-                if (_dateLastModified != default(DateTime))
+                if (_dateLastModified != default)
                     return _dateLastModified;
 
                 FileInfo fi = new FileInfo(this.FilePath);

@@ -8,6 +8,7 @@ published: false
 - [Liquid Syntax in HTML](~/liquid.mdh){target="_blank"}
 - [Liquid Syntax in Markdown](~/liquid.md)
 - [Raw content (text/plain) from MDH](~/raw.mdh){target="_blank"}
+- [Custom Front-Matter and Request params](~/customFMSrc.md?param1=1&s=Hi)
 
 ----
 - [Markdown Reference](https://guides.github.com/features/mastering-markdown/){target="_blank"}

@@ -91,11 +91,12 @@ namespace MIISHandler
                     {
                         res = string.Empty;   //Default value
                         /*
-                         * There are three types of fields:
+                         * There are 4 types of fields:
                          * - Value fields: {{name}} -> Get a value from the Front-Matter or from web.config -> Simply replace them (default assumption)
                          * - File processing fields (FPF), ending in .md or .mdh. ej: myfile.md -> The file is read and it's contents transformed into HTML take the place of the placeholder
                          *   Useful for menus, and other independet parts in custom templates and parts of the same page.
                          * - Custom Dinamic Field Sources, that start with !! and use a custom class to populate the field with an object. Ej: !!customSource param1 param2
+                         * - Querystring or Form fields, retrieved from the current request
                         */
 
                         //Simple value fields
@@ -134,7 +135,12 @@ namespace MIISHandler
                                 res = String.Format("Error loading {0}: {1}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX, ex.Message);
                             }
                         }
-                        //Finally, if it's not a custom source or a FPF, then is a normal raw value
+                        //Third, try to determine from the querystring or the form values
+                        else if (ctx.Request.QueryString[name] != null || ctx.Request.Form[name] != null)
+                        {
+                            res = ctx.Request.Params[name];
+                        }
+                        //Finally, if it's not a custom source, or a FPF or a request parameter, then is a normal raw value
                         else
                         {
                             res = rawValue;
