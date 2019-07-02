@@ -22,7 +22,7 @@ namespace MIISHandler.Tags
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
             base.Initialize(tagName, markup, tokens);
-            //Just make a note of the current parameter (presumably the name of the file to render)
+            //Just make a note of the final parameter (presumably the name of the file to render)
             fileName = markup.Trim();
         }
 
@@ -34,7 +34,12 @@ namespace MIISHandler.Tags
             //Current MD or MDF file
             dynamic currentMDF = context[MDFieldsResolver.INTERNAL_REFERENCE_TO_CURRENT_FILE]; //as MIISFile;
 
+            //Process the current parameter to allow the substitution of possible values, to be able to use them as parameters for this inserFile tag
+            Template paramsTemplate = Template.Parse(fileName);
+            fileName = paramsTemplate.Render(RenderParameters.FromContext(context, result.FormatProvider));
+
             string subRenderedContent = "";
+            CircularReferencesDetector crd = new CircularReferencesDetector(); ; //Circular references detector
 
             //Read the file contents if possible
             //Only .md, .mdh files allowed
@@ -45,12 +50,10 @@ namespace MIISHandler.Tags
                     string fp2File = ctx.Server.MapPath(fileName);    //Full path to the inserted file
                     
                     //Checks if current file has been referenced before or not
-                    CircularReferencesDetector crd;
                     object crdObj = context[CRD_CONTEXT_VAR_NAME];    //Try to get a CR Detector from context
                     if (crdObj.GetType() == typeof(string) && crdObj.ToString() == "")
                     {
                         //If there's no detector (first inserfile) then add one to the context
-                        crd = new CircularReferencesDetector();
                         crd.CheckCircularReference(currentMDF.FilePath);    //Add current initial file as a reference
                         context[CRD_CONTEXT_VAR_NAME] = crd;
                     }
@@ -94,6 +97,7 @@ namespace MIISHandler.Tags
             //Render the subfile contents in the same context as the parent
             Template partial = Template.Parse(subRenderedContent);
             partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
+            crd.Reset();
         }
     }
 
@@ -118,6 +122,12 @@ namespace MIISHandler.Tags
         internal string GetNestedFilesPath()
         {
                 return string.Join(" -> ", nestedFiles.ToArray());
+        }
+
+        //Resets the Circular Reference Detector once the tag has been processed (to allow to insert the same file more than once in the same content, not in nested contents)
+        internal void Reset()
+        {
+            nestedFiles.Clear();
         }
     }
 }

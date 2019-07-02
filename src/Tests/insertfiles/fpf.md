@@ -2,7 +2,8 @@
 title: Test for external files
 data: a,b,c,d,e
 extFile: ~/toc.md
-extFile2: raw.mdh
+extFile2: ../raw.mdh
+extFilePath: ../raw
 ---
 # This is a file that includes an external file (File Processing Fields)
 
@@ -17,5 +18,11 @@ For security reasons, won't process further fields inside the external file!!:
 This content is taken from a external file with teh MIIS-Liquid's special tag `insertfile` and includes **field processing** in the same contest as the parent file:
 
 ```
-{% insertfile raw.mdh %}
+{% insertfile ../raw.mdh %}
+```
+
+You can even use Front-Matter fields as the origin for the file to load:
+
+```
+{% insertfile {{extFilePath}}.mdh %}
 ```
