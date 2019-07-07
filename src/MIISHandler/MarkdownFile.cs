@@ -29,6 +29,7 @@ namespace MIISHandler
         private string _filename;
         private DateTime _dateCreated;
         private DateTime _dateLastModified;
+        private DateTime _date;
         private SimpleYAMLParser _FrontMatter;
         private bool _CachingEnabled = true;
         private int _NumSecondsCacheIsValid = 0;
@@ -215,6 +216,19 @@ namespace MIISHandler
             }
         }
 
+        //The date indicated in the "date" filed of the Front-Matter, used to get the date when the file should get published
+        //If it's present this date will be take into account before making a file published
+        public DateTime Date
+        {
+            get
+            {
+                if (_date != default)
+                    return _date;
+
+                return TypesHelper.ParseUniversalSortableDateTimeString(this.FrontMatter["date"], this.DateCreated);
+            }
+        }
+
         //The file paths of files the current file depends on, including itself (current file + fragments)
         internal List<string> Dependencies { get; private set; }
 
@@ -226,7 +240,8 @@ namespace MIISHandler
                 //Check if the File is published with the "Published" field
                 string isPublished = FieldValuesHelper.GetFieldValue("Published", this, "1").ToLower();
                 //For the sake of security, if it's not explicitly a "falsy" value, then is assumed true
-                return !TypesHelper.IsFalsy(isPublished);
+                //And the file date, if specified, should be greater or equal than the current date
+                return !TypesHelper.IsFalsy(isPublished) && DateTime.Now >= this.Date;
             }
         }
 

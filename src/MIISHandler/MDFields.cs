@@ -49,14 +49,17 @@ namespace MIISHandler
                 case "filename":
 					res = md.FileName;
 					break;
+                case "date":
+                    res = md.Date;
+                    break;
                 case "datecreated":
-                    res = md.DateCreated.ToString();
+                    res = md.DateCreated;
 					break;
                 case "datemodified":
-                    res = md.DateLastModified.ToString();
+                    res = md.DateLastModified;
 					break;
                 case "isauthenticated":
-                    res = ctx.User.Identity.IsAuthenticated.ToString();
+                    res = ctx.User.Identity.IsAuthenticated;
 					break;
                 case "authtype":
                     res = ctx.User.Identity.AuthenticationType;
@@ -71,10 +74,10 @@ namespace MIISHandler
                     res = $"{ctx.Request.Url.Scheme}{System.Uri.SchemeDelimiter}{ctx.Request.Url.Authority}";
 					break;
                 case "now":
-                    res = DateTime.Now.ToString();
+                    res = DateTime.Now;
 					break;
                 case "time":
-                    res = DateTime.Now.ToLongTimeString();
+                    res = DateTime.Now;
 					break;
                 case "url":
                     res = ctx.Request.Url.AbsolutePath;
