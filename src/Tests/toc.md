@@ -4,10 +4,12 @@ published: false
 #### Test files
 - [Basic Markdown & Custom fields](~/)
 - [Well-known Fields](~/well-known-fields.md)
-- [Include an external file](~/fpf.md)
+- [Include external file](~/insertfiles/fpf.md)
+- [Include external file with circular reference](~/insertfiles/fpf_circular_reference.md)
 - [Liquid Syntax in HTML](~/liquid.mdh){target="_blank"}
-- [Liquid Syntax in Markdown](~/liquid.md)
 - [Raw content (text/plain) from MDH](~/raw.mdh){target="_blank"}
+- [Custom filters](~/customfilters.md)
+- [Custom tags](~/customtags.md)
 - [Custom Front-Matter and Request params](~/customFMSrc.md?param1=1&s=Hi)
 
 ----

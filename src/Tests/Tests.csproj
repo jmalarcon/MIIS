@@ -132,15 +132,15 @@
       <Project>{80934ba3-4d14-4dd1-ab2c-6466fce8e791}</Project>
       <Name>MIISHandler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MIISRandomParamSample\MIISRandomParamSample.csproj">
+    <ProjectReference Include="..\SampleExtensions\MIISRandomParamSample\MIISRandomParamSample.csproj">
       <Project>{ddff0cae-3c6a-46b9-a3f5-da9b60361acb}</Project>
       <Name>MIISRandomParamSample</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MIISToTitleCaseFilter\MIISTitleCaseSampleFilter.csproj">
+    <ProjectReference Include="..\SampleExtensions\MIISToTitleCaseFilter\MIISTitleCaseSampleFilter.csproj">
       <Project>{a7db5b34-882a-422f-af62-42158a1e5049}</Project>
       <Name>MIISTitleCaseSampleFilter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MIISYouTubeTag\MIISYouTubeTag.csproj">
+    <ProjectReference Include="..\SampleExtensions\MIISYouTubeTag\MIISYouTubeTag.csproj">
       <Project>{da8c87f0-67ac-4e0f-a999-9b1089aac1e8}</Project>
       <Name>MIISYouTubeTag</Name>
     </ProjectReference>
