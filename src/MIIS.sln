@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISYouTubeTag", "MIISYouTubeTag\MIISYouTubeTag.csproj", "{DA8C87F0-67AC-4E0F-A999-9B1089AAC1E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISTitleCaseFilter", "MIISToTitleCaseFilter\MIISTitleCaseFilter.csproj", "{A7DB5B34-882A-422F-AF62-42158A1E5049}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISTitleCaseSampleFilter", "MIISToTitleCaseFilter\MIISTitleCaseSampleFilter.csproj", "{A7DB5B34-882A-422F-AF62-42158A1E5049}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISRandomParamSample", "MIISRandomParamSample\MIISRandomParamSample.csproj", "{DDFF0CAE-3C6A-46B9-A3F5-DA9B60361ACB}"
 EndProject
