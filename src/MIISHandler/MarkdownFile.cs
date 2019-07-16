@@ -272,6 +272,9 @@ namespace MIISHandler
             }
         }
 
+
+        #endregion
+
         #region caching
 
         //If false, then caching is not applied even if it's enabled in the settings.
@@ -346,8 +349,6 @@ namespace MIISHandler
                 return this.FilePath + "_FM";
             }
         }
-
-        #endregion
 
         #endregion
 
