@@ -49,5 +49,35 @@ namespace IISHelpers
 
             return ctx.Request.ServerVariables["REMOTE_ADDR"];
         }
+
+        /// <summary>
+        /// Returns the absolute path (from the web app's root folder) from the physical path of a file
+        /// The file should be one inside the app's folder
+        /// </summary>
+        /// <param name="physicalPath"></param>
+        /// <returns></returns>
+        public static string GetAbsolutePath(string physicalPath)
+        {
+            string baseAppPath = HttpContext.Current.Request.PhysicalApplicationPath;
+            return physicalPath.Replace(baseAppPath, "/").Replace(@"\", "/");
+        }
+
+        /// <summary>
+        /// Gets the containing directory for the current file specified by it's VirtualPath
+        /// </summary>
+        /// <param name="virtPath">The virtual path for the file</param>
+        /// <returns>The virtual path for the current file's container directory, with the ending slash</returns>
+        public static string GetContainingDir(string virtPath)
+        {
+            int slashPos = virtPath.LastIndexOf('/');
+            //If there's no directory
+            if (slashPos == -1)
+                return "/";    //Return the base folder
+                               //If it's a path ending with a slash, so already a directory
+            if (slashPos == virtPath.Length - 1)
+                return virtPath;    //Return the original path
+                                    //Else, remove the part from the last slash
+            return virtPath.Substring(0, slashPos + 1);
+        }
     }
 }

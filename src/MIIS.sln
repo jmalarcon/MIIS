@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParamSources", "ParamSources", "{7B6664D1-DC6A-4F0D-964A-B60416D761EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilesEnumeratorParam", "Extensions\ParamSouces\FilesEnumeratorParam\FilesEnumeratorParam.csproj", "{A02771B1-1155-4505-B6CA-662439A72AA0}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		IISHelpers\IISHelpers.projitems*{80934ba3-4d14-4dd1-ab2c-6466fce8e791}*SharedItemsImports = 4
@@ -51,6 +53,10 @@ Global
 		{DDFF0CAE-3C6A-46B9-A3F5-DA9B60361ACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDFF0CAE-3C6A-46B9-A3F5-DA9B60361ACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDFF0CAE-3C6A-46B9-A3F5-DA9B60361ACB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A02771B1-1155-4505-B6CA-662439A72AA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A02771B1-1155-4505-B6CA-662439A72AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A02771B1-1155-4505-B6CA-662439A72AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A02771B1-1155-4505-B6CA-662439A72AA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +66,7 @@ Global
 		{A7DB5B34-882A-422F-AF62-42158A1E5049} = {A298BCFB-49D7-4C95-9551-3D251390306D}
 		{DDFF0CAE-3C6A-46B9-A3F5-DA9B60361ACB} = {A298BCFB-49D7-4C95-9551-3D251390306D}
 		{7B6664D1-DC6A-4F0D-964A-B60416D761EB} = {A742ECB2-F6F0-4AC1-80CC-57124768BFE1}
+		{A02771B1-1155-4505-B6CA-662439A72AA0} = {7B6664D1-DC6A-4F0D-964A-B60416D761EB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B05C36B9-125C-4BE2-A730-AEF1D4150FDF}

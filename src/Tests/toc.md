@@ -11,6 +11,7 @@ published: false
 - [Custom filters](~/customfilters.md)
 - [Custom tags](~/customtags.md)
 - [Custom Front-Matter and Request params](~/customFMSrc.md?param1=1&s=Hi)
+- [Post list - FileFromFolder custom FMSource](~/posts/)
 
 ----
 - [Markdown Reference](https://guides.github.com/features/mastering-markdown/){target="_blank"}

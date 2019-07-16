@@ -65,6 +65,27 @@
     <Content Include="CSS\markdown5.css" />
     <Content Include="CSS\screen.css" />
     <Content Include="images\logo.png" />
+    <Content Include="posts\media\ConsolidateTab.png" />
+    <Content Include="posts\media\InstallPreviewDialog.png" />
+    <Content Include="posts\media\LongPathPolicy.png" />
+    <Content Include="posts\media\ManagePackagesSolutionUICommand.png" />
+    <Content Include="posts\media\ManagePackagesUICommand.png" />
+    <Content Include="posts\media\Options.png" />
+    <Content Include="posts\media\PackageManagerConsoleControls.png" />
+    <Content Include="posts\media\PackageManagerConsoleControls1.png" />
+    <Content Include="posts\media\PackageManagerConsoleControls2.png" />
+    <Content Include="posts\media\PackageManagerConsoleControls3.png" />
+    <Content Include="posts\media\PackageManagerConsoleInstall.png" />
+    <Content Include="posts\media\PackageManagerUIAutoReferenced.png" />
+    <Content Include="posts\media\PackageManagerUIOptions.png" />
+    <Content Include="posts\media\PackageSourceDropDown.png" />
+    <Content Include="posts\media\PackageSourceSettings.png" />
+    <Content Include="posts\media\References.png" />
+    <Content Include="posts\media\Register-TabExpansion-Example.png" />
+    <Content Include="posts\media\Search.png" />
+    <Content Include="posts\media\SolutionPackagesUI.png" />
+    <Content Include="posts\media\UninstallPackage.png" />
+    <Content Include="posts\media\UpdatePackages.png" />
     <Content Include="Templates\Barebones\main.html" />
     <Content Include="Templates\common.css" />
     <Content Include="Templates\common.js" />
@@ -119,6 +140,43 @@
     <Content Include="customtags.md" />
     <Content Include="customfilters.md" />
     <Content Include="customFMSrc.md" />
+    <Content Include="posts\cli-ref-add.md" />
+    <Content Include="posts\cli-ref-config.md" />
+    <Content Include="posts\cli-ref-delete.md" />
+    <Content Include="posts\cli-ref-environment-variables.md" />
+    <Content Include="posts\cli-ref-help.md" />
+    <Content Include="posts\cli-ref-init.md" />
+    <Content Include="posts\cli-ref-install.md" />
+    <Content Include="posts\cli-ref-list.md" />
+    <Content Include="posts\cli-ref-locals.md" />
+    <Content Include="posts\cli-ref-long-path.md" />
+    <Content Include="posts\cli-ref-mirror.md" />
+    <Content Include="posts\cli-ref-pack.md" />
+    <Content Include="posts\cli-ref-push.md" />
+    <Content Include="posts\cli-ref-restore.md" />
+    <Content Include="posts\cli-ref-setapikey.md" />
+    <Content Include="posts\cli-ref-sign.md" />
+    <Content Include="posts\cli-ref-sources.md" />
+    <Content Include="posts\cli-ref-spec.md" />
+    <Content Include="posts\cli-ref-trusted-signers.md" />
+    <Content Include="posts\cli-ref-update.md" />
+    <Content Include="posts\cli-ref-verify.md" />
+    <Content Include="posts\dotnet-Commands.md" />
+    <Content Include="posts\index.md" />
+    <Content Include="posts\nuget-exe-CLI-Reference.md" />
+    <Content Include="posts\Package-Manager-Console.md" />
+    <Content Include="posts\Package-Manager-UI.md" />
+    <Content Include="posts\PowerShell-Reference.md" />
+    <Content Include="posts\ps-ref-add-bindingredirect.md" />
+    <Content Include="posts\ps-ref-find-package.md" />
+    <Content Include="posts\ps-ref-get-package.md" />
+    <Content Include="posts\ps-ref-get-project.md" />
+    <Content Include="posts\ps-ref-install-package.md" />
+    <Content Include="posts\ps-ref-open-packagepage.md" />
+    <Content Include="posts\ps-ref-register-tabexpansion.md" />
+    <Content Include="posts\ps-ref-sync-package.md" />
+    <Content Include="posts\ps-ref-uninstall-package.md" />
+    <Content Include="posts\ps-ref-update-package.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -128,6 +186,10 @@
     <Content Include="well-known-fields.md" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Extensions\ParamSouces\FilesEnumeratorParam\FilesEnumeratorParam.csproj">
+      <Project>{a02771b1-1155-4505-b6ca-662439a72aa0}</Project>
+      <Name>FilesEnumeratorParam</Name>
+    </ProjectReference>
     <ProjectReference Include="..\MIISHandler\MIISHandler.csproj">
       <Project>{80934ba3-4d14-4dd1-ab2c-6466fce8e791}</Project>
       <Name>MIISHandler</Name>

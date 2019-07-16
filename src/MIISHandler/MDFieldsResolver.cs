@@ -32,6 +32,11 @@ namespace MIISHandler
             ctx = context;
         }
 
+        public MDFieldsResolver(MarkdownFile mdFile):this(mdFile, HttpContext.Current)
+        {
+            //Just to ease the initialization from extensions
+        }
+
         //Retrieves the value for the specified field or returns an empty string if it doesn't exist
         protected override object GetValue(string name)
         {
@@ -108,7 +113,7 @@ namespace MIISHandler
                         //First, Custom Dinamic Field Sources that provide values from external assemblies
                         if (rawValue.StartsWith(FRONT_MATTER_SOURCES_PREFIX))
                         {
-                            //Get the name of the source and it's params splitting the string (the first element would be the name of the surce, and the rest, the parameters, if any
+                            //Get the name of the source and it's params splitting the string (the first element would be the name of the source, and the rest, the parameters, if any
                             string[] srcelements = rawValue.Substring(FRONT_MATTER_SOURCES_PREFIX.Length).Trim().Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
                             if (srcelements.Length > 0)
                                 res = FieldValuesHelper.GetFieldValueFromFMSource(srcelements[0], mdProxy, srcelements.Skip(1).ToArray());

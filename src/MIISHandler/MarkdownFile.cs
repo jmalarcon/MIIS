@@ -19,7 +19,7 @@ namespace MIISHandler
 
         public const string MARKDOWN_DEF_EXT = ".md";   //Default extension for markdown files
         public const string HTML_EXT = ".mdh";  //File extension for HTML contents
-        private readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}" + Environment.NewLine, RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
+        private readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}[\r\n]{1,2}", RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
 
         #region private fields
         private string _content = "";
@@ -32,7 +32,7 @@ namespace MIISHandler
         private DateTime _date;
         private SimpleYAMLParser _FrontMatter;
         private bool _CachingEnabled = true;
-        private int _NumSecondsCacheIsValid = 0;
+        private double _NumSecondsCacheIsValid = 0;
         #endregion
 
         #region Constructor
@@ -225,7 +225,8 @@ namespace MIISHandler
                 if (_date != default)
                     return _date;
 
-                return TypesHelper.ParseUniversalSortableDateTimeString(this.FrontMatter["date"], this.DateCreated);
+                _date = TypesHelper.ParseUniversalSortableDateTimeString(this.FrontMatter["date"], this.DateCreated);
+                return _date;
             }
         }
 
@@ -233,7 +234,7 @@ namespace MIISHandler
         internal List<string> Dependencies { get; private set; }
 
         //If the file is published or is explicitly forbidden by the author using the "Published" field
-        internal bool IsPublished
+        public bool IsPublished
         {
             get
             {
@@ -289,7 +290,7 @@ namespace MIISHandler
         }
 
         //Set by custom tags or params. 0 means no time based expiration. Maximum value 1 day (24 hours)
-        internal int NumSecondsCacheIsValid
+        internal double NumSecondsCacheIsValid
         {
             get
             {
@@ -299,7 +300,7 @@ namespace MIISHandler
             {
                 _NumSecondsCacheIsValid = value;
                 if (value <= 0) _NumSecondsCacheIsValid = 0;
-                if (value > 86400) _NumSecondsCacheIsValid = 86400;    //24 hours in seconds
+                //if (value > 86400) _NumSecondsCacheIsValid = 86400;    //24 hours in seconds
             }
         }
 
@@ -312,7 +313,7 @@ namespace MIISHandler
                 {
                     //Cache invalidation when files change or after a certain time
                     HttpRuntime.Cache.Insert(CacheID, contents, new CacheDependency(this.Dependencies.ToArray()),
-                        DateTime.Now.AddSeconds(this.NumSecondsCacheIsValid), Cache.NoSlidingExpiration);
+                        DateTime.UtcNow.AddSeconds(this.NumSecondsCacheIsValid), Cache.NoSlidingExpiration);
                 }
                 else
                 {

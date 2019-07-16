@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 
 namespace MIISHandler
 {
@@ -37,6 +38,144 @@ namespace MIISHandler
             }
         }
 
+        /// <summary>
+        /// Current file's containing folder path from the root of the site
+        /// </summary>
+        public string Dir
+        {
+            get
+            {
+                return IISHelpers.WebHelper.GetContainingDir(this.URL);
+            }
+        }
+
+        /// <summary>
+        /// The current file URL from the root of the website
+        /// It DOESN'T WORK with files inside virtual folders. Must be physical folders.
+        /// i.e: /posts/post-file.name.md
+        /// </summary>
+        public string URL
+        {
+            get
+            {
+                return IISHelpers.WebHelper.GetAbsolutePath(this.FilePath);
+            }
+        }
+
+        /// <summary>
+        /// The current file URL from the root of the website, without the file extension
+        /// </summary>
+        public string URLNoExt
+        {
+            get
+            {
+                return IISHelpers.IOHelper.RemoveFileExtension(this.URL);
+            }
+        }
+
+        /// <summary>
+        /// The file's unique ID. It's equivalent to the URL property
+        /// </summary>
+        public string id
+        {
+            get
+            {
+                return this.URL;
+            }
+        }
+
+
+        /// <summary>
+        /// Indicates if the current post is published or not depending on the Published field and the date
+        /// </summary>
+        public bool Published
+        {
+            get
+            {
+                return md.IsPublished;
+            }
+        }
+
+        /// <summary>
+        /// Title of the page
+        /// </summary>
+        public string Title
+        {
+            get
+            {
+                return md.Title;
+            }
+        }
+
+        /// <summary>
+        /// Excerpt for the page if present in the Front-Matter. It looks for the fields: excerpt, summary & description, in that order of precedence
+        /// </summary>
+        public string Excerpt
+        {
+            get
+            {
+                string res = FieldValuesHelper.GetFieldValue("excerpt", md);
+                if (res == string.Empty)
+                    res = FieldValuesHelper.GetFieldValue("summary", md);
+                if (res == string.Empty)
+                    res = FieldValuesHelper.GetFieldValue("description", md);
+                return res;
+            }
+        }
+
+        /// <summary>
+        /// The rendered HTML content of the page
+        /// </summary>
+        public string HTML
+        {
+            get
+            {
+                return md.HTML;
+            }
+        }
+
+        /// <summary>
+        /// Returns the value of the Date field if present or the creation date if not
+        /// </summary>
+        public DateTime Date
+        {
+            get
+            {
+                return md.Date;
+            }
+        }
+
+        /// <summary>
+        /// Returns Categories for this file if the field is present. Otherwise, returns an empty string array
+        /// </summary>
+        public string[] Categories
+        {
+            get
+            {
+                string sCategs = FieldValuesHelper.GetFieldValue("categories", md);
+                return sCategs.Split(',').Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+            }
+        }
+
+        /// <summary>
+        /// Returns Categories for this file if the field is present. Otherwise, returns an empty string array
+        /// </summary>
+        public string[] Tags
+        {
+            get
+            {
+                string sTags = FieldValuesHelper.GetFieldValue("tags", md);
+                return sTags.Split(',').Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+            }
+        }
+
+        //TODO: FirstImage property
+
+        //To be set by external Front Matter sources
+        public MIISFile Previous { get; set; }
+        public MIISFile Next { get; set; }
+
+        #region Caching proxies
 
         /// <summary>
         /// Disables caching for the current file. 
@@ -65,9 +204,11 @@ namespace MIISHandler
         /// so that it can be fresh in reasonable spans of time
         /// </summary>
         /// <param name="seconds">The value must be between 1 second a 24 hours (86400 seconds). Will force this range.</param>
-        public void SetMaxCacheValidity(int seconds)
+        public void SetMaxCacheValidity(double seconds)
         {
             md.NumSecondsCacheIsValid = seconds;
         }
+
+        #endregion
     }
 }

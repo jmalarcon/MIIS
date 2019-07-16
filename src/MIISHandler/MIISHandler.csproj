@@ -70,7 +70,7 @@
     <Compile Include="Filters\IFilterFactory.cs" />
     <Compile Include="FMSources\IFMSource.cs" />
     <Compile Include="MarkdownFile.cs" />
-    <Compile Include="MDFields.cs" />
+    <Compile Include="MDFieldsResolver.cs" />
     <Compile Include="MIISFile.cs" />
     <Compile Include="MIISHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

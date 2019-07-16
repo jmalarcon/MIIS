@@ -56,11 +56,12 @@ namespace MIISHandler
         /// <summary>
         /// Calls the indicated custom Front-Matter field and returns the resulting value/object to be used into documents/templates
         /// </summary>
-        /// <param name="sourceName">The name of the FM source to call</param>
+        /// <param name="sourceName">The name of the FM source to call. Case insensitive.</param>
         /// <param name="srcParams">a list of params in test form</param>
         /// <returns></returns>
         public static object GetFieldValueFromFMSource(string sourceName, MIISFile file, params string[] srcParams)
         {
+            sourceName = sourceName.ToLower();
             if (_FMSources.ContainsKey(sourceName))
             {
                 //Instantiate a new class of this type

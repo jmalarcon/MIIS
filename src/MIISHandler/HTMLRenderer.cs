@@ -75,6 +75,7 @@ namespace MIISHandler
             RegisterCustomExtensions();   //Register custom MIIS Liquid Tags, Filters and Front-Matter sources
 
             //Process template + content + fields with DotLiquid
+            Template.NamingConvention = new DotLiquid.NamingConventions.CSharpNamingConvention();
             Template parser = Template.Parse(finalContent);
             Hash fieldsInfo = new MDFieldsResolver(md, ctx);
             finalContent = parser.Render(fieldsInfo);
