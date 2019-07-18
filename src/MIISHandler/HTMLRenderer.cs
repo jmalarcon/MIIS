@@ -31,8 +31,8 @@ namespace MIISHandler
 {{content}}
 </body>
 </html>";
-        private static string FILE_INCLUDES_PREFIX = "$";  //How to identify includes placeholders in layout files
-        private static string FILE_FRAGMENT_PREFIX = "*";  //How to identify fragments placeholders in content files
+        private static readonly string FILE_INCLUDES_PREFIX = "$";  //How to identify includes placeholders in layout files
+        private static readonly string FILE_FRAGMENT_PREFIX = "*";  //How to identify fragments placeholders in content files
         #endregion
 
         #region Main Method - Render
@@ -64,27 +64,29 @@ namespace MIISHandler
                 }
             }
 
-            //First process the "content" field with the main HTML content transformed from Markdown
-            //This allows to use other fields inside the content itself, not only in the templates
-            string finalContent = TemplatingHelper.ReplacePlaceHolder(template, "content", md.RawHTML);
+            //Dynamically setup and add to DotLiquid template processor all the new custom tags, filters and FM sources
+            RegisterCustomExtensions();   //It only makes work the first time is called
 
-            //Process fragments (other files inserted into the current one or template)
-            finalContent = ProcessFragments(finalContent, md, ctx);
-
-            //Dynamically setup and add to DotLiquid template processor all the new custom tags, TODO: and filters
-            RegisterCustomExtensions();   //Register custom MIIS Liquid Tags, Filters and Front-Matter sources
-
-            //Process template + content + fields with DotLiquid
+            //Configure DotLiquid
+            //TODO: select from configuration - new DotLiquid.NamingConventions.RubyNamingConvention();
             Template.NamingConvention = new DotLiquid.NamingConventions.CSharpNamingConvention();
-            Template parser = Template.Parse(finalContent);
             Hash fieldsInfo = new MDFieldsResolver(md, ctx);
-            finalContent = parser.Render(fieldsInfo);
 
-            //Transform virtual paths
-            finalContent = WebHelper.TransformVirtualPaths(finalContent);
+            //First process possible file fragments included in the content file to form the new content 
+            string tempContent = InjectFragments(md, ctx);
 
-            //Return the transformed file
-            return finalContent;
+            //Process the content of the file with DotLiquid
+            //We need to do this independently so that the conversion from Markdown to HTML won't interfere
+            Template parser = Template.Parse(tempContent);
+            md.Content = parser.Render(fieldsInfo); //Assign the final content of the file, rendered with DotLiquid
+
+            //Process the template with DotLiquid for this file
+            parser = Template.Parse(template);
+            tempContent = parser.Render(fieldsInfo);
+
+            //Finally Transform virtual paths
+            tempContent = WebHelper.TransformVirtualPaths(tempContent);
+            return tempContent;
         }
         #endregion
 
@@ -227,9 +229,10 @@ namespace MIISHandler
         }
 
         //Finds fragment placeholders and insert their contents
-        private static string ProcessFragments(string template, MarkdownFile md, HttpContext ctx)
+        private static string InjectFragments(MarkdownFile md, HttpContext ctx)
         {
-            string[] fragments = TemplatingHelper.GetAllPlaceHolderNames(template, phPrefix: FILE_FRAGMENT_PREFIX);
+            string tempContent = md.Content;
+            string[] fragments = TemplatingHelper.GetAllPlaceHolderNames(tempContent, phPrefix: FILE_FRAGMENT_PREFIX);
             foreach(string fragmentName in fragments)
             {
                 string fragmentContent = string.Empty;   //Default empty value
@@ -248,7 +251,7 @@ namespace MIISHandler
                     md.Dependencies.Add(fragmentFileName);
 
                     MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
-                    fragmentContent = mdFld.RawHTML;
+                    fragmentContent = mdFld.Content;
                 }
                 catch
                 {
@@ -257,10 +260,10 @@ namespace MIISHandler
                     fragmentContent = string.Empty;
                 }
                 //Replace the placeholder with the value
-                template = TemplatingHelper.ReplacePlaceHolder(template, fragmentName, fragmentContent);
+                tempContent = TemplatingHelper.ReplacePlaceHolder(tempContent, fragmentName, fragmentContent);
             }
 
-            return template;
+            return tempContent;
         }
 
 #region Reflection methods

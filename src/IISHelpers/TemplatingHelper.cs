@@ -6,9 +6,14 @@ namespace IISHelpers
 {
     internal static class TemplatingHelper
     {
-        internal static string PLACEHOLDER_PREFIX = "{{";   //Placeholders' prefix
-        internal static string PLACEHOLDER_SUFIX = "}}";    //Placeholders' suffix
-        internal static string PLACEHOLDER_NAME_REGEX = @"[0-9A-Z\/\.\-_]+?";  //Placeholders' name pattern (includes "/" for paths, "." for file names
+        internal static readonly string PLACEHOLDER_PREFIX = "{{";   //Placeholders' prefix
+        internal static readonly string PLACEHOLDER_SUFFIX = "}}";    //Placeholders' suffix
+        //Placeholders' prefix and suffix escaped acording to RFC 1738 (http://tools.ietf.org/html/rfc1738). 
+        //Used to revert the escaping made when converting from Markdown to HTML and allow tag substitution inside links
+        internal static readonly string PLACEHOLDER_PREFIX_URLESCAPED = "%7B%7B";   
+        internal static readonly string PLACEHOLDER_SUFFIX_URLESCAPED = "%7D%7D";    //Placeholders' suffix escaped
+        //Placeholders' name pattern (includes "/" for paths, "." for file names
+        internal static readonly string PLACEHOLDER_NAME_REGEX = @"[0-9A-Z\/\.\-_]+?";
 
 
         //Extension Method for strings that does a Case-Insensitive Replace()
@@ -37,7 +42,7 @@ namespace IISHelpers
             if (placeholderName != PLACEHOLDER_NAME_REGEX)
                 placeholderName = Regex.Escape(placeholderName);
 
-            return Regex.Escape(PLACEHOLDER_PREFIX) + @"\s*?" + Regex.Escape(phPrefix) + placeholderName + @"\s*?" + Regex.Escape(PLACEHOLDER_SUFIX);
+            return Regex.Escape(PLACEHOLDER_PREFIX) + @"\s*?" + Regex.Escape(phPrefix) + placeholderName + @"\s*?" + Regex.Escape(PLACEHOLDER_SUFFIX);
         }
 
         /// <summary>
@@ -92,7 +97,7 @@ namespace IISHelpers
         /// <returns>The name of the placeholder in lowercase</returns>
         internal static string GetFieldName(string placeholder)
         {
-            return placeholder.Substring(PLACEHOLDER_PREFIX.Length, placeholder.Length - (PLACEHOLDER_PREFIX.Length + PLACEHOLDER_SUFIX.Length)).Trim().ToLower();
+            return placeholder.Substring(PLACEHOLDER_PREFIX.Length, placeholder.Length - (PLACEHOLDER_PREFIX.Length + PLACEHOLDER_SUFFIX.Length)).Trim().ToLower();
         }
 
         /// <summary>
@@ -102,7 +107,24 @@ namespace IISHelpers
         /// <returns></returns>
         internal static string GetPlaceholderName(string name)
         {
-            return PLACEHOLDER_PREFIX + name + PLACEHOLDER_SUFIX;
+            return PLACEHOLDER_PREFIX + name + PLACEHOLDER_SUFFIX;
+        }
+
+        /// <summary>
+        /// Reverts the scaped placeholder prefixes and suffixes that could be inside the content
+        /// to be able to substitute them inside links, since Markding escapes them according to RFC 1738
+        /// </summary>
+        /// <param name="content">The content to unescape</param>
+        /// <returns>The content with the placeholders restored</returns>
+        internal static string UnescapePlaceholders(string originalContent)
+        {
+            //The Regexpr to find the escaped fields. By default: %7B%7B(\s*?[0-9A-Z\/\.\-_]+?\s*?)%7D%7D
+            var escapedFieldsRegex = Regex.Escape(PLACEHOLDER_PREFIX_URLESCAPED) + @"(\s*?" + 
+                                  PLACEHOLDER_NAME_REGEX + @"\s*?)" + Regex.Escape(PLACEHOLDER_SUFFIX_URLESCAPED);
+            return Regex.Replace(originalContent,
+                escapedFieldsRegex,
+                PLACEHOLDER_PREFIX + "$1" + PLACEHOLDER_SUFFIX,
+                RegexOptions.IgnoreCase);
         }
     }
 }

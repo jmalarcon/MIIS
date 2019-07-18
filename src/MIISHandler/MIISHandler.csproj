@@ -46,8 +46,8 @@
     <Reference Include="DotLiquid, Version=2.0.314.0, Culture=neutral, PublicKeyToken=82e46016ecf9f07c, processorArchitecture=MSIL">
       <HintPath>..\packages\DotLiquid.2.0.314\lib\net45\DotLiquid.dll</HintPath>
     </Reference>
-    <Reference Include="Markdig, Version=0.17.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Markdig.0.17.0\lib\net40\Markdig.dll</HintPath>
+    <Reference Include="Markdig, Version=0.17.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Markdig.0.17.1\lib\net40\Markdig.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />

@@ -67,6 +67,10 @@ namespace MIISHandler
                 EnsureContentAndFrontMatter();
                 return _content;
             }
+            internal set
+            {
+                _content = value;
+            }
         }
 
         //The raw HTML generated from the markdown contents

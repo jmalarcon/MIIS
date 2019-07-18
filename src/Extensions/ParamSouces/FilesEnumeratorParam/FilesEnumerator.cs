@@ -26,6 +26,11 @@ namespace FilesEnumeratorParam
         private static readonly string[] VALID_EXTS = new string[] { MarkdownFile.MARKDOWN_DEF_EXT, MarkdownFile.HTML_EXT };
         private static readonly string[] EXCLUDED_FILE_NAMES = new string[] { "index", "default" };
 
+        /// <summary>
+        /// Returns the path in the file system from the relative path of a url
+        /// </summary>
+        /// <param name="folderRelPath">Relative url path, such as "./", "/folder/" or "../posts/"</param>
+        /// <returns></returns>
         public static string GetFolderAbsPathFromName(string folderRelPath)
         {
             //Check if there's a folder specified
@@ -41,9 +46,9 @@ namespace FilesEnumeratorParam
         /// </summary>
         /// <param name="folderPath">The full path to the folder that contains the files</param>
         /// <param name="topFolderOnly">If true the results will include files into subfolders too</param>
-        /// <param name="sortorder">The sort direction ordering the files by date. Descending by default</param>
+        /// <param name="sortdirection">The sort direction ordering the files by date.</param>
         /// <returns></returns>
-        public static IEnumerable<MarkdownFile> GetAllFilesFromFolder(string folderPath, bool topFolderOnly = true)
+        public static IEnumerable<MarkdownFile> GetAllFilesFromFolder(string folderPath, bool topFolderOnly, SortDirection sortdirection)
         {
             if (!Directory.Exists(folderPath))
             {
@@ -58,10 +63,14 @@ namespace FilesEnumeratorParam
             var allFiles = (from file in di.EnumerateFiles("*.*", sfo)
                             //Include only MIIS files and exclude files that start with "_" or with a default name (index or default)
                             where !file.Name.StartsWith("_") && VALID_EXTS.Contains(file.Extension.ToLower()) && !EXCLUDED_FILE_NAMES.Contains(Path.GetFileNameWithoutExtension(file.Name).ToLower())
-                         select new MarkdownFile(file.FullName)
-                         );
+                            select new MarkdownFile(file.FullName)
+                           );
 
-            return allFiles;
+            var allFilesSorted = (sortdirection == SortDirection.desc) ? 
+                                 allFiles.OrderByDescending<MarkdownFile, DateTime>(f => f.Date) : //First the newest
+                                 allFiles.OrderBy<MarkdownFile, DateTime>(f => f.Date); //First the oldest
+
+            return allFilesSorted;
         }
     }
 }

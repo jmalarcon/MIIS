@@ -22,7 +22,7 @@ namespace MIISHandler
         private readonly HttpContext ctx;
 
         //This dictionary prevents custom field values to be retrieved more than once, at the cost of taking up a little bit more memory
-        private IDictionary<string, object> InternalFileFieldCache = new Dictionary<string, object>();
+        private readonly IDictionary<string, object> InternalFileFieldCache = new Dictionary<string, object>();
 
         //Constructor
         public MDFieldsResolver(MarkdownFile mdFile, HttpContext context)
@@ -47,6 +47,9 @@ namespace MIISHandler
                 case INTERNAL_REFERENCE_TO_CURRENT_FILE:
                     //This is intended to be used internally only, from custom tags or front-matter custom sources
                     res = mdProxy;
+                    break;
+                case "content":
+                    res = md.RawHTML;
                     break;
                 case "title":
                     res = md.Title;
@@ -131,16 +134,16 @@ namespace MIISHandler
                             }
                             catch (System.Security.SecurityException)
                             {
-                                res = String.Format("Can't access file for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX);
+                                res = String.Format("Can't access file for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFFIX);
                             }
                             catch (System.IO.FileNotFoundException)
                             {
-                                res = String.Format("File not found for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX);
+                                res = String.Format("File not found for {0}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFFIX);
                             }
                             catch (Exception ex)
                             {
                                 //This should only happen while testing, never in production, so I send the exception's message
-                                res = String.Format("Error loading {0}: {1}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFIX, ex.Message);
+                                res = String.Format("Error loading {0}: {1}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFFIX, ex.Message);
                             }
                         }
                         //Third, try to determine from the querystring or the form values

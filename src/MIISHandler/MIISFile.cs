@@ -108,17 +108,20 @@ namespace MIISHandler
         }
 
         /// <summary>
-        /// Excerpt for the page if present in the Front-Matter. It looks for the fields: excerpt, summary & description, in that order of precedence
+        /// Excerpt for the page if present in the Front-Matter. It looks for the fields: excerpt, description & summary, in that order of precedence
         /// </summary>
         public string Excerpt
         {
             get
             {
-                string res = FieldValuesHelper.GetFieldValue("excerpt", md);
+                string res = FieldValuesHelper.GetFieldValueFromFM("excerpt", md);
                 if (res == string.Empty)
-                    res = FieldValuesHelper.GetFieldValue("summary", md);
-                if (res == string.Empty)
-                    res = FieldValuesHelper.GetFieldValue("description", md);
+                    res = FieldValuesHelper.GetFieldValueFromFM("description", md);
+                else if (res == string.Empty)
+                    res = FieldValuesHelper.GetFieldValueFromFM("summary", md);
+                else if (res == string.Empty)
+                    res = "";
+
                 return res;
             }
         }
