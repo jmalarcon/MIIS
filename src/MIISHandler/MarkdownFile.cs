@@ -97,7 +97,7 @@ namespace MIISHandler
                         }
                         var pipeline = mdPipe.Build();
                         //Convert markdown to HTML
-                        _rawHtml = Markdig.Markdown.ToHtml(this.Content, pipeline); //Converto to HTML
+                        _rawHtml = Markdig.Markdown.ToHtml(this.Content, pipeline); //Convert to HTML
                     }
                 }
 
@@ -155,6 +155,26 @@ namespace MIISHandler
                 }
 
                 return _title;
+            }
+        }
+
+        //Excerpt for the page if present in the Front-Matter. It looks for the fields: excerpt, description & summary, in that order of precedence
+        public string Excerpt
+        {
+            get
+            {
+                string res = FieldValuesHelper.GetFieldValueFromFM("excerpt", this);
+                if (res == string.Empty)
+                {
+                    res = FieldValuesHelper.GetFieldValueFromFM("description", this);
+                    if (res == string.Empty)
+                    {
+                        res = FieldValuesHelper.GetFieldValueFromFM("summary", this);
+                        if (res == string.Empty)
+                            res = TemplatingHelper.GetFirstParagraphText(this.RawHTML);   //Get the first paragraph in the contents
+                    }
+                }
+                return res;
             }
         }
 

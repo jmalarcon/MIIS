@@ -114,15 +114,7 @@ namespace MIISHandler
         {
             get
             {
-                string res = FieldValuesHelper.GetFieldValueFromFM("excerpt", md);
-                if (res == string.Empty)
-                    res = FieldValuesHelper.GetFieldValueFromFM("description", md);
-                else if (res == string.Empty)
-                    res = FieldValuesHelper.GetFieldValueFromFM("summary", md);
-                else if (res == string.Empty)
-                    res = "";
-
-                return res;
+                return md.Excerpt;
             }
         }
 

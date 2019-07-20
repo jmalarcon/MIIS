@@ -105,5 +105,22 @@ namespace IISHelpers
         {
             return PLACEHOLDER_PREFIX + name + PLACEHOLDER_SUFFIX;
         }
+
+        /// <summary>
+        /// Gets the first paragraph in a content string. 
+        /// If it's HTML, first strips all the HTML tags
+        /// If it's plain text (i.e: Markdown), then gets the text up to the first new line.
+        /// </summary>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        internal static string GetFirstParagraphText(string content)
+        {
+            if (string.IsNullOrWhiteSpace(content))
+                return "";
+            //Strip HTML
+            string plainContent = Regex.Replace(content, @"<.*?>", string.Empty, RegexOptions.None, TimeSpan.FromSeconds(5));
+
+            return new Regex(@"(.*\S.*)(\r{0,1}\n|$)", RegexOptions.Multiline).Matches(plainContent)[0].Groups[1].Captures[0].Value.Trim(); ;
+        }
     }
 }

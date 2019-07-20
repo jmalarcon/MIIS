@@ -1,13 +1,12 @@
 ---
 title: NuGet CLI config command
-description: Reference for the nuget.exe config command
 author: karann-msft
 ms.author: karann
 date: 2018-01-18
 ms.topic: reference
 ---
 
-# config command (NuGet CLI)
+# config command (NuGet CLI) - Excerpt extracted directly from the content
 
 **Applies to:** all &bullet; **Supported versions**: all
 

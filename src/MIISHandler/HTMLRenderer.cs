@@ -89,7 +89,7 @@ namespace MIISHandler
 
             //Process the template with DotLiquid for this file
             parser = Template.Parse(template);
-            tempContent = parser.Render(fieldsInfo);
+            tempContent = parser.Render(fieldsInfo);    //The file contents get rendered into the template by the {{content}} placeholder
 
             //Finally Transform virtual paths
             tempContent = WebHelper.TransformVirtualPaths(tempContent);
