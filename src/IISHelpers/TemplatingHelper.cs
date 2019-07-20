@@ -8,10 +8,6 @@ namespace IISHelpers
     {
         internal static readonly string PLACEHOLDER_PREFIX = "{{";   //Placeholders' prefix
         internal static readonly string PLACEHOLDER_SUFFIX = "}}";    //Placeholders' suffix
-        //Placeholders' prefix and suffix escaped acording to RFC 1738 (http://tools.ietf.org/html/rfc1738). 
-        //Used to revert the escaping made when converting from Markdown to HTML and allow tag substitution inside links
-        internal static readonly string PLACEHOLDER_PREFIX_URLESCAPED = "%7B%7B";   
-        internal static readonly string PLACEHOLDER_SUFFIX_URLESCAPED = "%7D%7D";    //Placeholders' suffix escaped
         //Placeholders' name pattern (includes "/" for paths, "." for file names
         internal static readonly string PLACEHOLDER_NAME_REGEX = @"[0-9A-Z\/\.\-_]+?";
 
@@ -108,23 +104,6 @@ namespace IISHelpers
         internal static string GetPlaceholderName(string name)
         {
             return PLACEHOLDER_PREFIX + name + PLACEHOLDER_SUFFIX;
-        }
-
-        /// <summary>
-        /// Reverts the scaped placeholder prefixes and suffixes that could be inside the content
-        /// to be able to substitute them inside links, since Markding escapes them according to RFC 1738
-        /// </summary>
-        /// <param name="content">The content to unescape</param>
-        /// <returns>The content with the placeholders restored</returns>
-        internal static string UnescapePlaceholders(string originalContent)
-        {
-            //The Regexpr to find the escaped fields. By default: %7B%7B(\s*?[0-9A-Z\/\.\-_]+?\s*?)%7D%7D
-            var escapedFieldsRegex = Regex.Escape(PLACEHOLDER_PREFIX_URLESCAPED) + @"(\s*?" + 
-                                  PLACEHOLDER_NAME_REGEX + @"\s*?)" + Regex.Escape(PLACEHOLDER_SUFFIX_URLESCAPED);
-            return Regex.Replace(originalContent,
-                escapedFieldsRegex,
-                PLACEHOLDER_PREFIX + "$1" + PLACEHOLDER_SUFFIX,
-                RegexOptions.IgnoreCase);
         }
     }
 }
