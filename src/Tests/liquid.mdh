@@ -29,7 +29,7 @@ This is a comment. Shouldn't appear.
 
 
     {% if doesExist == "" %}
-		This does not exist
+		This does not exist. Remove the comment in the Front-Matter to change this section
     {% else %}
 		This should exist if you change the Front-Matter
 			{%- if doesExist == "Whatever" -%}
@@ -60,7 +60,7 @@ This is a comment. Shouldn't appear.
 
 		{% assign numbers = "1,5,4,3,2" | split: "," %}
 
-	I have {{ numbers | size }} numbers in the array
+	I have an array with {{ numbers | size }} elements in it: {{ numbers | join: " | " }}
         The first number is  {{ numbers.first }}
         Let's count them in reverse:
         {%- for num in numbers reversed -%}

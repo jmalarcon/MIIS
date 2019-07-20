@@ -1,8 +1,4 @@
 ---
-# Change the default naming convetion (Ruby) to foece the C# naming convention instead
-# In this case the property names are: PropertyOne instead of property_one
-# It affects filters and Liquid syntax in general too!
-Naming: CSharp
 title: Sample folder for Files custom Front-Matter field
 author: JM Alarcon
 posts: !!FilesFromFolder ./
@@ -10,8 +6,9 @@ posts: !!FilesFromFolder ./
 
 # Sample folder for Files obtained from a custom Front-Matter field
 
->**IMPORTANT**: this sample file uses the C# naming convention to render Liquid tags and to access element properties.
->Check [this other variant](_index-ruby.md) to see the same file with the most common Ruby convention.
+>**IMPORTANT**: this sample file uses the default Ruby naming convention to render Liquid tags and to access element properties.
+>Instead of `PropertyName` for an exposed object, it uses `property_name`, and the same thing happens with liquid tags and filters.
+>Check [this other variant](index.md) to see the same file with the C# naming convention.
 
 The sample files have been retrieved and minimally adapted from this repo: https://github.com/NuGet/docs.microsoft.com-nuget, just for testing purposes
 
@@ -20,7 +17,7 @@ This is a sample file to show all the contents of an specific folder. In this ca
 **{{ posts.size }}** posts:
 
 {% for post in posts %}
-- {{forloop.index}}: [{{post.Title}}]({{post.URL}}) - [{{ post.Date | Date: "dddd, dd MMMM, yyyy" }}]<br>{{post.Excerpt | StripNewlines | Truncate: 75 }}
+- {{forloop.index}}: [{{post.Title}}]({{post.URL}}) - [{{ post.Date | date: "dddd, dd MMMM, yyyy" }}]<br>{{post.excerpt | strip_newlines | truncate: 75 }}
 {% endfor %}
 
 ## Posts in reverse order, only the first 5 of them
@@ -29,6 +26,6 @@ In this case I've used the same `posts` parameter, but you could simply have use
 
 {%- for post in posts reversed -%}
 {%- if forloop.index <= 5 -%}
-- [{{ post.Title }}]({{post.URL}}) - [{{ post.Date | Date: "dddd, dd MMMM, yyyy" }}]<br>{{post.Excerpt | StripNewlines | Truncate: 75 }}
+- [{{ post.Title }}]({{post.URL}}) - [{{ post.Date | date: "dddd, dd MMMM, yyyy" }}]<br>{{post.Excerpt | strip_newlines | truncate: 75 }}
 {%- endif -%}
 {%- endfor -%}

@@ -3,7 +3,9 @@ Title: Well-Known Fields
 Description: This file shows all the well-known fields and tests different spaces and case combinations for field delimiters:
 ---
 
-## {{Description}}
+## {{title}}
+
+{{description}}
 
 - Title of the page: {{title}}
 - File name: {{ FileName}}
@@ -17,4 +19,4 @@ Description: This file shows all the well-known fields and tests different space
 - Current date and time: {{NOW}}
 - Current time: {{time}}
 - Current URL: {{url}}
-- Current URL withut file extension (if existant): {{NoExtUrl}}
+- Current URL without file extension (if existant): {{NoExtUrl}}

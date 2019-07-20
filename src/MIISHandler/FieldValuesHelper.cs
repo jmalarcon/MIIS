@@ -79,7 +79,7 @@ namespace MIISHandler
         /// In web.config it first tries to read them prefixed with "MIIS_" to prevent collision with other products, and then without the prefix.
         /// If it's not present neither in the Front Matter nor the Web.config, returns the default value.
         /// </summary>
-        /// <param name="name">The name of the field to retrieve</param>
+        /// <param name="name">The name of the field to retrieve. Case insensitive.</param>
         /// <param name="md">An optional Markdown file to check in its front matter</param>
         /// <param name="defValue">The default value to return if it's not present</param>
         /// <returns></returns>

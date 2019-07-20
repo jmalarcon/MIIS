@@ -24,9 +24,7 @@ We can use filters to change the rendered value, for example:
 
 `{{rnd}} / 4` : `{{ rnd | divided_by: 4 }}`
 
-Or use them in conditionals and other expressions (this fails, and I don't know why):
-
-This doesn't work and I don't know why :confounded::
+Or use them in conditionals and other expressions:
 
 {% if rnd > 500  %}
     {{rnd}} is greater than 500

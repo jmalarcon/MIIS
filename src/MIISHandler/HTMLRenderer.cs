@@ -67,13 +67,20 @@ namespace MIISHandler
             //Dynamically setup and add to DotLiquid template processor all the new custom tags, filters and FM sources
             RegisterCustomExtensions();   //It only makes work the first time is called
 
-            //Configure DotLiquid
-            //TODO: select from configuration - new DotLiquid.NamingConventions.RubyNamingConvention();
-            Template.NamingConvention = new DotLiquid.NamingConventions.CSharpNamingConvention();
-            Hash fieldsInfo = new MDFieldsResolver(md, ctx);
-
             //First process possible file fragments included in the content file to form the new content 
             string tempContent = InjectFragments(md, ctx);
+
+            //Configure DotLiquid
+
+            //Check if the CSharp Naming convention is to be used (RubyNamingConvention by default)
+            //naming: csharp in the Front-Matter or in the web.config
+            if (md.UseCSharpNamingConvention)
+                Template.NamingConvention = new DotLiquid.NamingConventions.CSharpNamingConvention();
+            else
+                Template.NamingConvention = new DotLiquid.NamingConventions.RubyNamingConvention();
+
+            //Configure the parameters' resolver
+            Hash fieldsInfo = new MDFieldsResolver(md, ctx);
 
             //Process the content of the file with DotLiquid
             //We need to do this independently so that the conversion from Markdown to HTML won't interfere

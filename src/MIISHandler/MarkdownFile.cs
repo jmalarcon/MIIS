@@ -276,6 +276,19 @@ namespace MIISHandler
             }
         }
 
+        //Determines if the CSharp naming convention should be used for Liquid template rendering
+        //instead of the deafult Liquid Ruby convention
+        //This is called just once per file, thus no interfal field has been used.
+        internal bool UseCSharpNamingConvention
+        {
+            get
+            {
+                string naming = FieldValuesHelper.GetFieldValue("naming", this, "ruby").ToLower();
+                //Check if it's csharp or not
+                return (naming == "csharp");
+            }
+        }
+
 
         #endregion
 
