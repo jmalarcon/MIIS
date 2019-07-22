@@ -31,7 +31,7 @@ namespace MIISHandler
         private DateTime _dateLastModified;
         private DateTime _date;
         private SimpleYAMLParser _FrontMatter;
-        private bool _CachingEnabled = true;
+        private bool _CachingEnabled = true;    //Should be default to allow for the expression shortcircuit in the CachingEnabled property
         private double _NumSecondsCacheIsValid = 0;
         #endregion
 
@@ -316,12 +316,19 @@ namespace MIISHandler
 
         //If false, then caching is not applied even if it's enabled in the settings.
         //This is used by custom tags and fields to keep the document fresh
+        //This is only checked to save the file in the cache, but not to retrieve it
+        //It works OK, because if you change the setting (in web.config or in the file) 
+        //the cache gets invalidated (the app domain restarts or the file is a cache dependency, respectively)
         internal bool CachingEnabled
         {
             get
             {
                 //Returns true if caching is enabled in the file or global settings, and if is not disabled by a custom tag or param
-                return TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("UseMDCaching", null, "1")) && _CachingEnabled;
+                //If any extension disables it, doesn't check the parameter value (logical shortciruit)
+                return _CachingEnabled && (
+                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("Caching", this, "1")) ||
+                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("UseMDCaching", this, "1"))
+                    );
             }
             set
             {
@@ -363,10 +370,14 @@ namespace MIISHandler
             }
         }
 
-        //Gets value from the cache if enabled and available
+        //Gets value from the cache if available
         private string GetFromCache(string CacheID)
         {
-            return this.CachingEnabled ? HttpRuntime.Cache[CacheID] as string : string.Empty;
+            return HttpRuntime.Cache[CacheID] as string;
+            //NOTE to self: doesn't check if caching is enabled because I want the setting to be available in the front-matter too
+            //and, at the point this method i called, the FM is not usually available yet, and I want to avoid reading the file 
+            //on each request (that's the main purpose of caching here).
+            //The original version of MIIS only allowed this setting to be global, in the web.config for the same reason.
         }
 
         //Returns the internal identifier to be used as the key for the caching entry of this document

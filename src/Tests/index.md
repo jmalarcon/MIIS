@@ -2,6 +2,7 @@
 Title: MIIS CMS Default page
 Author: Jose M. Alarcón
 InventedField: This is an invented field
+#Caching: true
 ---
 
 # MIIS - A Markdown File-based CMS for IIS and Azure Web Apps
