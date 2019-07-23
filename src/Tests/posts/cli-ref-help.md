@@ -2,9 +2,9 @@
 title: NuGet CLI help command
 description: Reference for the nuget.exe help command
 author: karann-msft
-ms.author: karann
+categories: karann
 date: 2018-01-18
-ms.topic: reference
+tags: reference
 ---
 
 # help or ? command (NuGet CLI)

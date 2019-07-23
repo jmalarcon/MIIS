@@ -6,6 +6,7 @@ Naming: CSharp
 title: Sample folder for Files custom Front-Matter field
 author: JM Alarcon
 posts: !!FilesFromFolder ./
+tags: !!TagsFromFolder ./
 #caching: true
 ---
 
@@ -33,3 +34,11 @@ In this case I've used the same `posts` parameter, but you could simply have use
 - [{{ post.Title }}]({{post.URL}}) - [{{ post.Date | Date: "dddd, dd MMMM, yyyy" }}]<br>{{post.Excerpt | StripNewlines | Truncate: 75 }}
 {%- endif -%}
 {%- endfor -%}
+
+## Tags available inside the files in this folder
+
+There's a `tag` parameter defined in this file's Front-Matter to get all the tags defined in the files. Here they are:
+
+{%- for tag in tags -%}
+1. [{{tag}}](./?Tag={{tag | url_encode}})
+{% endfor %}

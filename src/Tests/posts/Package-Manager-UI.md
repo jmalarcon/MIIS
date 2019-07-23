@@ -2,9 +2,9 @@
 title: Install and manage NuGet packages in Visual Studio
 description: Instructions for using the NuGet Package Manager UI in Visual Studio for working with NuGet packages.
 author: karann-msft
-ms.author: karann
+categories: karann
 date: 2017-12-08
-ms.topic: conceptual
+tags: conceptual
 f1_keywords: 
   - "vs.toolsoptionspages.nuget_package_manager"
   - "vs.toolsoptionspages.nuget_package_manager.general"

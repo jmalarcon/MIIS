@@ -2,9 +2,9 @@
 title: NuGet CLI verify command
 description: Reference for the nuget.exe verify command
 author: dtivel
-ms.author: dtivel
+categories: dtivel
 date: 2018-03-06
-ms.topic: reference
+tags: reference
 ms.reviewer: rmpablos
 ---
 

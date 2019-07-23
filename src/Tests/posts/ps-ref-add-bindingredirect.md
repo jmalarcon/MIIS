@@ -2,9 +2,9 @@
 title: NuGet Add-BindingRedirect PowerShell Reference
 description: Reference for Add-BindingRedirect PowerShell command in the NuGet Package Manager Console in Visual Studio.
 author: karann-msft
-ms.author: karann
+categories: karann
 date: 2017-12-07
-ms.topic: reference
+tags: reference
 ---
 
 # Add-BindingRedirect (Package Manager Console in Visual Studio)

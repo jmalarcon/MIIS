@@ -2,9 +2,9 @@
 title: NuGet CLI list command
 description: Reference for the nuget.exe list command
 author: karann-msft
-ms.author: karann
+categories: karann
 date: 2018-01-18
-ms.topic: reference
+tags: reference
 ---
 
 # list command (NuGet CLI)

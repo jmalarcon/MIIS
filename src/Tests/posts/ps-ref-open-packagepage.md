@@ -2,9 +2,9 @@
 title: NuGet Open-PackagePage PowerShell Reference
 description: Reference for Open-PackagePage PowerShell command in the NuGet Package Manager Console in Visual Studio.
 author: karann-msft
-ms.author: karann
+categories: karann
 date: 2017-12-07
-ms.topic: reference
+tags: reference
 ---
 
 # Open-PackagePage (Package Manager Console in Visual Studio)

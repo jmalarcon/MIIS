@@ -2,9 +2,9 @@
 title: NuGet CLI environment variables
 description: Reference for the nuget.exe environment variables
 author: karann-msft
-ms.author: karann
+categories: karann
 date: 2018-01-18
-ms.topic: reference
+tags: reference
 ---
 
 # NuGet CLI environment variables

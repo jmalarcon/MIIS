@@ -2,9 +2,9 @@
 title: dotnet CLI NuGet commands
 description: A short reference for NuGet-related commands using the dotnet command-line interface.
 author: karann-msft
-ms.author: karann
+categories: karann
 date: 2019-06-24
-ms.topic: conceptual
+tags: conceptual
 ---
 
 # dotnet CLI commands

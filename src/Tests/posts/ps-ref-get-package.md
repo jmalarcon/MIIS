@@ -2,9 +2,9 @@
 title: NuGet Get-Package PowerShell Reference
 description: Reference for Get-Package PowerShell command in the NuGet Package Manager Console in Visual Studio.
 author: karann-msft
-ms.author: karann
+categories: karann
 date: 2017-12-07
-ms.topic: reference
+tags: reference
 ---
 
 # Get-Package (Package Manager Console in Visual Studio)
