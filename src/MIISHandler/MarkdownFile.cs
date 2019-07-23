@@ -326,8 +326,8 @@ namespace MIISHandler
                 //Returns true if caching is enabled in the file or global settings, and if is not disabled by a custom tag or param
                 //If any extension disables it, doesn't check the parameter value (logical shortciruit)
                 return _CachingEnabled && (
-                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("Caching", this, "1")) ||
-                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("UseMDCaching", this, "1"))
+                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("Caching", this, "0")) ||
+                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("UseMDCaching", this, "0"))
                     );
             }
             set

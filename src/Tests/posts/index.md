@@ -6,6 +6,7 @@ Naming: CSharp
 title: Sample folder for Files custom Front-Matter field
 author: JM Alarcon
 posts: !!FilesFromFolder ./
+#caching: true
 ---
 
 # Sample folder for Files obtained from a custom Front-Matter field

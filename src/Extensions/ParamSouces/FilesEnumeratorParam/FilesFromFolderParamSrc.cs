@@ -36,7 +36,7 @@ namespace MIISHandler.FMSources
             //Check if there's a folder specified
             if (parameters.Length == 0)
                 throw new Exception("Folder not specified!!");
-            string folder = FilesEnumerator.GetFolderAbsPathFromName(parameters[0]);
+            string folderPath = FilesEnumerator.GetFolderAbsPathFromName(parameters[0]);
 
             //Include top folder only or all subfolders (second parameter)
             bool topOnly = true;
@@ -56,9 +56,15 @@ namespace MIISHandler.FMSources
             catch { }
 
             //Get al files in the folder (and subfolders if indicated), ordered by date desc
-            IEnumerable<MarkdownFile> allFiles = FilesEnumerator.GetAllFilesFromFolder(folder, topOnly, sd);
-            
-            //TODO: Establish caching options in the initial file and a custom cache for this component with the result
+            IEnumerable<MarkdownFile> allFiles = FilesEnumerator.GetAllFilesFromFolder(folderPath, topOnly, sd);
+
+            //FILE CACHING
+            //Establish the processed folder as a caching dependency for the current file this FM souce is working on
+            currentFile.AddFileDependency(folderPath);
+            //If any of the files has a (publishing) date later than now, then add that as a cache dependency to refresh the listings at that point
+            double maxDateSecs = ((from f in allFiles select f.Date).Max<DateTime>() - DateTime.Now).TotalSeconds;
+            if (maxDateSecs > 0)
+                currentFile.SetMaxCacheValidity(maxDateSecs);
 
             //Filter only those that are published
             var publishedFilesProxies = from file in allFiles

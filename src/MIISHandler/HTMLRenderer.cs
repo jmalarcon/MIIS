@@ -189,9 +189,8 @@ namespace MIISHandler
                     {
                         throw crex;
                     }
-                    catch   //If it fails, simply do nothing
+                    catch   //If it fails, simply do nothing and show the error
                     {
-                        //TODO: log in the system log
                         phValue = String.Format("<!-- Include file '{0}' not found  -->", includeFileName);
                     }
                     templateContents = TemplatingHelper.ReplacePlaceHolder(templateContents, include, phValue);

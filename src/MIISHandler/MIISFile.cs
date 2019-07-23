@@ -164,12 +164,6 @@ namespace MIISHandler
             }
         }
 
-        //TODO: FirstImage property
-
-        //To be set by external Front Matter sources
-        public MIISFile Previous { get; set; }
-        public MIISFile Next { get; set; }
-
         #region Caching proxies
 
         /// <summary>
@@ -184,13 +178,16 @@ namespace MIISHandler
         }
 
         /// <summary>
-        /// Allows a custom tag to add a new file dependency to the current MD or MDH file caching
+        /// Allows a custom tag or FM source to add a new file or folder dependency to the current MD or MDH file caching
         /// </summary>
-        /// <param name="filePath">The full path to the file that the current file depends on</param>
+        /// <param name="filePath">The full path to the file or folder that the current file depends on</param>
         public void AddFileDependency(string filePath)
         {
-            //If is a valid file and it's not already added to the dependencies, add it
-            if (File.Exists(filePath) && !md.Dependencies.Contains(filePath))
+            //If is a valid file or folder and it's not already added to the dependencies, add it
+            if ( 
+                (File.Exists(filePath) || Directory.Exists(filePath)) 
+                 && !md.Dependencies.Contains(filePath) 
+               )
                 md.Dependencies.Add(filePath);
         }
 
