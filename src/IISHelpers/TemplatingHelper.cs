@@ -93,7 +93,7 @@ namespace IISHelpers
         /// <returns>The name of the placeholder in lowercase</returns>
         internal static string GetFieldName(string placeholder)
         {
-            return placeholder.Substring(PLACEHOLDER_PREFIX.Length, placeholder.Length - (PLACEHOLDER_PREFIX.Length + PLACEHOLDER_SUFFIX.Length)).Trim().ToLower();
+            return placeholder.Substring(PLACEHOLDER_PREFIX.Length, placeholder.Length - (PLACEHOLDER_PREFIX.Length + PLACEHOLDER_SUFFIX.Length)).Trim().ToLowerInvariant();
         }
 
         /// <summary>

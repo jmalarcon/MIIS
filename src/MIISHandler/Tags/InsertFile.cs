@@ -43,7 +43,7 @@ namespace MIISHandler.Tags
 
             //Read the file contents if possible
             //Only .md, .mdh files allowed
-            if (fileName.ToLower().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || fileName.ToLower().EndsWith(MarkdownFile.HTML_EXT))
+            if (fileName.ToLowerInvariant().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || fileName.ToLowerInvariant().EndsWith(MarkdownFile.HTML_EXT))
             {
                 try
                 {

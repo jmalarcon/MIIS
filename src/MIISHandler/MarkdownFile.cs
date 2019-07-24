@@ -263,7 +263,7 @@ namespace MIISHandler
             get
             {
                 //Check if the File is published with the "Published" field
-                string isPublished = FieldValuesHelper.GetFieldValue("Published", this, "1").ToLower();
+                string isPublished = FieldValuesHelper.GetFieldValue("Published", this, "1").ToLowerInvariant();
                 //For the sake of security, if it's not explicitly a "falsy" value, then is assumed true
                 //And the file date, if specified, should be greater or equal than the current date
                 return !TypesHelper.IsFalsy(isPublished) && DateTime.Now >= this.Date;
@@ -277,7 +277,7 @@ namespace MIISHandler
             get
             {
                 //Check if the File has a status code that is not a 200 (default OK status code)
-                string statusCode = FieldValuesHelper.GetFieldValueFromFM("HttpStatusCode", this, "200").ToLower();
+                string statusCode = FieldValuesHelper.GetFieldValueFromFM("HttpStatusCode", this, "200").ToLowerInvariant();
                 bool isInt = int.TryParse(statusCode, out int nStatus);
                 if (!isInt) nStatus = 200;
                 return Math.Abs(nStatus);
@@ -290,7 +290,7 @@ namespace MIISHandler
             get
             {
                 //Check if the File has an special MIME type set in the Front Matter
-                string mimeType = FieldValuesHelper.GetFieldValueFromFM("MIME", this, "text/html").ToLower();
+                string mimeType = FieldValuesHelper.GetFieldValueFromFM("MIME", this, "text/html").ToLowerInvariant();
                 //It should contain a slash, but not in the first character
                  return mimeType.IndexOf("/") > 1 ? mimeType:  "text/html";
             }
@@ -303,7 +303,7 @@ namespace MIISHandler
         {
             get
             {
-                string naming = FieldValuesHelper.GetFieldValue("naming", this, "ruby").ToLower();
+                string naming = FieldValuesHelper.GetFieldValue("naming", this, "ruby").ToLowerInvariant();
                 //Check if it's csharp or not
                 return (naming == "csharp");
             }

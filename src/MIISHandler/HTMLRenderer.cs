@@ -106,10 +106,10 @@ namespace MIISHandler
         {
             //Get the template name that is going to be used (Front Matter or configuration), if any.
             string templateName = FieldValuesHelper.GetFieldValue("TemplateName", md);
-            if (string.IsNullOrEmpty(templateName) || templateName.ToLower() == "none")
+            if (string.IsNullOrEmpty(templateName) || templateName.ToLowerInvariant() == "none")
                 return string.Empty;    //Use the default basic HTML5 template
 
-            if (templateName.ToLower() == "raw")
+            if (templateName.ToLowerInvariant() == "raw")
                 return "raw";   //Use raw contents, without any wrapping HTML tags
 
             //The name (or sub-path) for the layout file (.html normaly) to be used
@@ -298,7 +298,7 @@ namespace MIISHandler
                 {
                     //This would be the normal, non-reflection way to do it: Template.RegisterTag<TagClass>("tagclassname");
                     MethodInfo registerTag = genericRegisterTag.MakeGenericMethod(tag);
-                    registerTag.Invoke(null, new object[] { tag.Name.ToLower() });
+                    registerTag.Invoke(null, new object[] { tag.Name.ToLowerInvariant() });
                 });
         }
 

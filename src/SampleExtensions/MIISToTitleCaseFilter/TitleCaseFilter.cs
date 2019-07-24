@@ -19,7 +19,7 @@ namespace MIISHandler.Filters
         public static string TitleCase(string input)
         {
             TextInfo ti = CultureInfo.CurrentCulture.TextInfo;
-            return ti.ToTitleCase(input.ToLower());
+            return ti.ToTitleCase(input.ToLowerInvariant());
         }
     }
 }

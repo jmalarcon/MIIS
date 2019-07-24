@@ -29,7 +29,7 @@ namespace IISHelpers
         /// <returns>true if is a truthy value according to the criteria</returns>
         internal static bool IsTruthy(string val)
         {
-            val = val.ToLower();
+            val = val.ToLowerInvariant();
             return (val == "1" || val == "true" || val == "yes");
         }
 

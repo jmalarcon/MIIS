@@ -41,7 +41,7 @@ namespace MIISHandler
         protected override object GetValue(string name)
         {
             object res = "";    //Default value (empty string)
-            switch (name.ToLower())
+            switch (name.ToLowerInvariant())
             {
                 //Check well Known fields first
                 case INTERNAL_REFERENCE_TO_CURRENT_FILE:
@@ -122,7 +122,7 @@ namespace MIISHandler
                                 res = FieldValuesHelper.GetFieldValueFromFMSource(srcelements[0], mdProxy, srcelements.Skip(1).ToArray());
                         }
                         //Second, File Processing Fields, thar inject the content of .md or .mdh files without proceesing their inner fields (for that you need to use the inject custom tag)
-                        else if (rawValue.ToLower().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || rawValue.ToLower().EndsWith(MarkdownFile.HTML_EXT))
+                        else if (rawValue.ToLowerInvariant().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || rawValue.ToLowerInvariant().EndsWith(MarkdownFile.HTML_EXT))
                         {
                             try
                             {

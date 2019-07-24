@@ -25,7 +25,7 @@ namespace MIISHandler
                 throw new ArgumentException("The Front-Matter Field Source must be a non empty string without spaces", sourceName);
 
             //Add it to the list of FM sources
-            _FMSources.Add(sourceName.ToLower(), classType);
+            _FMSources.Add(sourceName.ToLowerInvariant(), classType);
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace MIISHandler
         /// <returns></returns>
         public static object GetFieldValueFromFMSource(string sourceName, MIISFile file, params string[] srcParams)
         {
-            sourceName = sourceName.ToLower();
+            sourceName = sourceName.ToLowerInvariant();
             if (_FMSources.ContainsKey(sourceName))
             {
                 //Instantiate a new class of this type

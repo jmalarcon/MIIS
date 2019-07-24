@@ -148,7 +148,7 @@ namespace MIISHandler
             get
             {
                 string sCategs = FieldValuesHelper.GetFieldValue("categories", md);
-                return sCategs.Split(',').Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+                return sCategs.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
             }
         }
 
@@ -160,7 +160,7 @@ namespace MIISHandler
             get
             {
                 string sTags = FieldValuesHelper.GetFieldValue("tags", md);
-                return sTags.Split(',').Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+                return sTags.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
             }
         }
 
