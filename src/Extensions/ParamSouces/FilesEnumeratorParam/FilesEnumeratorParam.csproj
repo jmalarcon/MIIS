@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CategssFolderParamSrc.cs" />
     <Compile Include="TagsFolderParamSrc.cs" />
     <Compile Include="FilesFromFolderParamSrc.cs" />
     <Compile Include="FilesEnumerator.cs" />

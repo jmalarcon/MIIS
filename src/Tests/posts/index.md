@@ -7,6 +7,7 @@ title: Sample folder for Files custom Front-Matter field
 author: JM Alarcon
 posts: !!FilesFromFolder ./
 tags: !!TagsFromFolder ./
+categs: !!CategsFromFolder ./
 #caching: true
 ---
 
@@ -37,8 +38,16 @@ In this case I've used the same `posts` parameter, but you could simply have use
 
 ## Tags available inside the files in this folder
 
-There's a `tag` parameter defined in this file's Front-Matter to get all the tags defined in the files. Here they are:
+There's a `tags` parameter defined in this file's Front-Matter to get all the tags defined in the files inside this folder. Here they are:
 
 {%- for tag in tags -%}
 1. [{{tag}}](./?Tag={{tag | url_encode}})
+{% endfor %}
+
+## Categories available inside the files in this folder
+
+There's a `categs` parameter defined in this file's Front-Matter to get all the categories defined in the files inside this folder. Here they are:
+
+{%- for categ in categs -%}
+1. [{{categ}}](./?Category={{categ | url_encode}})
 {% endfor %}

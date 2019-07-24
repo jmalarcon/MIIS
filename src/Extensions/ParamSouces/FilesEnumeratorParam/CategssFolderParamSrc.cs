@@ -7,21 +7,21 @@ using FilesEnumeratorParam;
 
 namespace MIISHandler.FMSources
 {
-    public class TagsFolderParamSrc : IFMSource
+    public class CategssFolderParamSrc : IFMSource
     {
-        string IFMSource.SourceName => "TagsFromFolder";
+        string IFMSource.SourceName => "CategsFromFolder";
 
         /// <summary>
-        /// Returns an array with all the distinct tags available in the files of the specified folder ordered by tag name (ascending).
+        /// Returns an array with all the distinct categories available in the files of the specified folder ordered by category name (ascending).
         /// Includes only .md or .mdh files
         /// Excludes files with a name starting with "_", with the name "index" or "default".
         /// By default includes only the files directly inside the folder, not in subfolders
         /// 
-        /// Syntax: TagsFromFolder folderName topFolderOnly(true*/false or 1/0)
+        /// Syntax: CategsFromFolder folderName topFolderOnly(true*/false or 1/0)
         ///
         /// Examples: 
-        /// TagsFromFolder folderName
-        /// TagsFromFolder folderName false
+        /// CategsFromFolder folderName
+        /// CategsFromFolder folderName false
         /// </summary>
         /// <param name="currentFile"></param>
         /// <param name="parameters"></param>
@@ -53,18 +53,18 @@ namespace MIISHandler.FMSources
             //Filter only those that are published
             var publishedFilesProxies = FilesEnumeratorHelper.OnlyPublished(allFiles);
 
-            //Get all the tags in the published files (if any)
-            HashSet<string> hTags = new HashSet<string>();
+            //Get all the categories in the published files (if any)
+            HashSet<string> hCategs = new HashSet<string>();
             foreach (MIISFile mf in publishedFilesProxies)
             {
-                hTags.UnionWith(mf.Tags);
+                hCategs.UnionWith(mf.Categories);
             }
 
             //FILE CACHING
             FilesEnumeratorHelper.AddCacheDependencies(currentFile, folderPath, allFiles);
 
             //Return tags
-            return hTags.ToArray<string>();
+            return hCategs.ToArray<string>();
 
         }
     }
