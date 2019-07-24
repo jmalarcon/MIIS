@@ -18,3 +18,59 @@ It supports:
 - [Math/Latex extension](https://talk.commonmark.org/t/ignore-latex-like-math-mode-or-parse-it/1926)
 
 You can check all the supported Markdown features details in the [Markdig github page](https://github.com/lunet-io/markdig){target=_blank}.
+
+# Quick overview of markdown syntax
+
+Some syntax rules are only available when extensions are enabled.
+
+## Links
+
+Links can be created via ```[Link text](http://www.url.com)```
+
+Page anchor links on a page can also be created:
+
+```## My header {#anchor1}```
+
+and use it in a regular markdown link:
+
+```[Link to page anchor](#anchor1)```
+
+## Images
+
+A simple image can be added like this:
+```![My Image](./foo/bar.png)```
+
+When you want to generate a figure html element with figcaption can you use:
+
+```
+^^^
+optional text here
+![My Image](./foo/bar.png)
+^^^ the caption of figure here
+```
+
+## Lists
+
+Unordered lists:
+
+```
+* List item 
+* another List item
+  * tab for sub list item
+* foo
+```
+produces this output:
+* List item 
+* another List item
+  * tab for sub list item
+* foo
+
+Ordered lists:
+
+```
+1. First item
+1. Second item
+  a. sub item
+1. Third item
+  i. new sub item
+```
