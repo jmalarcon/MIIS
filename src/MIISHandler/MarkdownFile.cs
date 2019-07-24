@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web;
 using System.Web.Caching;
 using System.IO;
@@ -16,9 +17,10 @@ namespace MIISHandler
     /// </summary>
     public class MarkdownFile
     {
+        public static string[] _CachingQueryStringFields = new string[] { };
 
         public const string MARKDOWN_DEF_EXT = ".md";   //Default extension for markdown files
-        public const string HTML_EXT = ".mdh";  //File extension for HTML contents
+        public const string HTML_EXT = ".mdh";  //File extension for HTML content
         private readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}[\r\n]{1,2}", RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
 
         #region private fields
@@ -33,6 +35,7 @@ namespace MIISHandler
         private SimpleYAMLParser _FrontMatter;
         private bool _CachingEnabled = true;    //Should be default to allow for the expression shortcircuit in the CachingEnabled property
         private double _NumSecondsCacheIsValid = 0;
+        private bool _CacheWithQueryString = false;
         #endregion
 
         #region Constructor
@@ -59,7 +62,7 @@ namespace MIISHandler
         //Complex properties
         public string FilePath { get; private set; } //The full path to the file
         
-        //The raw file contents, read from disk
+        //The raw file content, read from disk
         public string Content
         {
             get
@@ -73,7 +76,7 @@ namespace MIISHandler
             }
         }
 
-        //The raw HTML generated from the markdown contents
+        //The raw HTML generated from the markdown content
         public string RawHTML
         {
             get
@@ -105,7 +108,7 @@ namespace MIISHandler
             }
         }
 
-        //The final HTML generated from the markdown contents and the current template
+        //The final HTML generated from the markdown content and the current template
         public string HTML
         {
             get
@@ -113,11 +116,11 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_html))    //If it's not processed yet
                 {
                     //Try to read from cache
-                    _html = GetFromCache(this.CachingIDHTML);
+                    _html = GetRenderedHtmlFromCache();
                     if (string.IsNullOrEmpty(_html)) //If it's not in the cache, process the file
                     {
                         _html = HTMLRenderer.RenderMarkdown(this);
-                        AddToCache(this.CachingIDHTML, _html);  //Add to cache (if enabled)
+                        AddHtmlToCache(_html);  //Add to cache (if enabled)
                     }
                 }
                 return _html;
@@ -144,7 +147,7 @@ namespace MIISHandler
                     }
                     else
                     {
-                        //Try to get the default title from the file the contents (find the first H1 if there's any)
+                        //Try to get the default title from the file the content (find the first H1 if there's any)
                         //Quick and dirty with RegExp and only with "#".
                         Regex re = new Regex(@"^\s*?#\s(.*)$", RegexOptions.Multiline);
                         if (re.IsMatch(this.Content))
@@ -171,7 +174,7 @@ namespace MIISHandler
                     {
                         res = FieldValuesHelper.GetFieldValueFromFM("summary", this);
                         if (res == string.Empty)
-                            res = TemplatingHelper.GetFirstParagraphText(this.RawHTML);   //Get the first paragraph in the contents
+                            res = TemplatingHelper.GetFirstParagraphText(this.RawHTML);   //Get the first paragraph in the content
                     }
                 }
                 return res;
@@ -351,23 +354,63 @@ namespace MIISHandler
             }
         }
 
+        //Adds one or more field names to the global list of fields that will be used for caching variants of the page
+        //This is only called when extensions that implement IQueryStringDependent are registered in the system
+        internal static void AddCachingQueryStringFields(string[] flds)
+        {
+            Regex validnames = new Regex(@"^[a-z\d\-_\.]+$"); //per https://tools.ietf.org/html/rfc3986
+            //Save only valid names, in lowercase (case insensitive) and in alphabetical order
+            _CachingQueryStringFields = _CachingQueryStringFields
+                .Union<string>(flds
+                        .Select(s => s.Trim().ToLowerInvariant())
+                        .Where(s => validnames.IsMatch(s))
+                    )
+                .OrderBy(s => s).ToArray();
+        }
+
+        //Gets the unique query string to be used as a suffix for caching the contents of the page
+        internal string GetQueryStringCachingSuffix()
+        {
+            if (string.IsNullOrWhiteSpace(HttpContext.Current.Request.Url.Query))
+                return string.Empty;
+
+            var qsFlds = HttpContext.Current.Request.QueryString;
+            //Get all fields that have values in the current qs joined in the form field=value&field2=value2...
+            string res = string.Join("&",
+                            (from f in _CachingQueryStringFields
+                            where !string.IsNullOrWhiteSpace(qsFlds[f])
+                            select string.Format("{0}={1}", f, qsFlds[f]))
+                            .ToArray<string>()
+                        );
+            return string.IsNullOrEmpty(res) ? res : "?" + res; ;
+        }
+
         //Adds the specified value to the cache with the specified key, if it's enabled
-        private void AddToCache(string CacheID, string contents)
+        private void AddToCache(string CacheID, string content)
         {
             if (this.CachingEnabled)
             {
                 if (this.NumSecondsCacheIsValid > 0)
                 {
                     //Cache invalidation when files change or after a certain time
-                    HttpRuntime.Cache.Insert(CacheID, contents, new CacheDependency(this.Dependencies.ToArray()),
+                    HttpRuntime.Cache.Insert(CacheID, content, new CacheDependency(this.Dependencies.ToArray()),
                         DateTime.UtcNow.AddSeconds(this.NumSecondsCacheIsValid), Cache.NoSlidingExpiration);
                 }
                 else
                 {
                     //Cache invalidation just when files change
-                    HttpRuntime.Cache.Insert(CacheID, contents, new CacheDependency(this.Dependencies.ToArray())); //Add result to cache with dependency on the file
+                    HttpRuntime.Cache.Insert(CacheID, content, new CacheDependency(this.Dependencies.ToArray())); //Add result to cache with dependency on the file
                 }
             }
+        }
+
+        //Adds the specified content to the cache (if enabled) using the correct id 
+        //depending on if the query string should be used or not
+        private void AddHtmlToCache(string content)
+        {
+            if (!CachingEnabled) return;
+
+            AddToCache(CachingIDHTML + GetQueryStringCachingSuffix(), content);
         }
 
         //Gets value from the cache if available
@@ -378,6 +421,15 @@ namespace MIISHandler
             //and, at the point this method i called, the FM is not usually available yet, and I want to avoid reading the file 
             //on each request (that's the main purpose of caching here).
             //The original version of MIIS only allowed this setting to be global, in the web.config for the same reason.
+        }
+
+        //Gets the rendered HTML from cache, if available, trying to get it with the query string
+        //or just from the default ID (no query string)
+        private string GetRenderedHtmlFromCache()
+        {
+            string CacheID = this.CachingIDHTML + GetQueryStringCachingSuffix();
+            string res = "";
+            return GetFromCache(CacheID);
         }
 
         //Returns the internal identifier to be used as the key for the caching entry of this document
@@ -437,7 +489,7 @@ namespace MIISHandler
                 strFM = "---\r\n---";
             }
 
-            //If cache is not enabled or the FM is not currently cached, read it from the file contents
+            //If cache is not enabled or the FM is not currently cached, read it from the file content
             //Default value (empty FM, but no empty string), prevents the Content property from processing Front-Matter twice if it's not read yet
             _FrontMatter = new SimpleYAMLParser(strFM);
 
@@ -451,11 +503,11 @@ namespace MIISHandler
                 _FrontMatter = new SimpleYAMLParser(strFM);
             }
 
-            //Cache the final FM contents (if caching is enabled)
+            //Cache the final FM content (if caching is enabled)
             AddToCache(this.CachingIDFrontMatter, strFM);
         }
 
-        //Removes the front matter, if any, from the actual contents of the file
+        //Removes the front matter, if any, from the actual content of the file
         private void RemoveFrontMatter()
         {
             _content = FRONT_MATTER_RE.Replace(_content, "");

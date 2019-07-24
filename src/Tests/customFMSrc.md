@@ -14,6 +14,12 @@ Param1: {{param1}}
 
 s: {{s}}
 
+And you can also retrieve by name  cookies, or even [server variables](https://docs.microsoft.com/en-us/previous-versions/iis/6.0-sdk/ms524602(v=vs.90)){target=_blank} too!:
+
+`HTTP_USER_AGENT`: {{ HTTP_USER_AGENT }}
+
+>Please, take into account that if you use any query string, form fields, cookie data or server variables, you can't cache the results of the file, that will be generated again on each new request
+
 ----
 
 This is a random value: `{{rnd}}` - Should change in every execution if cache is disabled

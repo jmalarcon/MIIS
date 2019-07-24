@@ -25,7 +25,11 @@ namespace MIISHandler
                 throw new ArgumentException("The Front-Matter Field Source must be a non empty string without spaces", sourceName);
 
             //Add it to the list of FM sources
+            try
+            {
             _FMSources.Add(sourceName.ToLowerInvariant(), classType);
+            }
+            catch { }
         }
 
         /// <summary>

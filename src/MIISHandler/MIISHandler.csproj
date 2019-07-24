@@ -69,6 +69,7 @@
     <Compile Include="FieldValuesHelper.cs" />
     <Compile Include="Filters\IFilterFactory.cs" />
     <Compile Include="FMSources\IFMSource.cs" />
+    <Compile Include="FMSources\IQueryStringDependent.cs" />
     <Compile Include="MarkdownFile.cs" />
     <Compile Include="MDFieldsResolver.cs" />
     <Compile Include="MIISFile.cs" />

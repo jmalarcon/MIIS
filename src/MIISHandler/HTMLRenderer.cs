@@ -327,7 +327,16 @@ namespace MIISHandler
             //Register each FMSource globally using its factory method (GetFilterType)
             fmSources.ToList().ForEach(fmSourceClass =>
             {
-                IFMSource fms = (IFMSource)Activator.CreateInstance(fmSourceClass);
+            IFMSource fms = (IFMSource)Activator.CreateInstance(fmSourceClass);
+
+                //Register possible fields that will define different caches for the file
+                if (fms is IQueryStringDependent)
+                {
+                    MarkdownFile.AddCachingQueryStringFields(
+                            (fms as IQueryStringDependent).GetCachingQueryStringFields()
+                        );
+                }
+
                 FieldValuesHelper.AddFrontMatterSource(fms.SourceName, fms.GetType());
             });
         }

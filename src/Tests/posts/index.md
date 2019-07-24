@@ -8,7 +8,7 @@ author: JM Alarcon
 posts: !!FilesFromFolder ./
 tags: !!TagsFromFolder ./
 categs: !!CategsFromFolder ./
-#caching: true
+caching: true
 ---
 
 # Sample folder for Files obtained from a custom Front-Matter field

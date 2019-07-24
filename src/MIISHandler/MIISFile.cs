@@ -5,7 +5,7 @@ using System.Linq;
 namespace MIISHandler
 {
     /// <summary>
-    /// Proxy class to an underlying processed file to expose oly a few features through a DotLiquid context
+    /// Proxy class to an underlying processed file to expose oly a few features through a DotLiquid context or to extensions
     /// </summary>
     public class MIISFile : DotLiquid.Drop  //Implements Drop to be able to be used in templates (by custom tags)
     {

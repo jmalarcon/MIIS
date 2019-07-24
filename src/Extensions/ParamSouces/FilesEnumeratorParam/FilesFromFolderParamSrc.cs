@@ -7,9 +7,14 @@ using FilesEnumeratorParam;
 
 namespace MIISHandler.FMSources
 {
-    public class FilesFromFolderParamSrc : IFMSource
+    public class FilesFromFolderParamSrc : IFMSource, IQueryStringDependent
     {
         string IFMSource.SourceName => "FilesFromFolder";
+
+        string[] IQueryStringDependent.GetCachingQueryStringFields()
+        {
+            return new string[] { "tag", "categ"};
+        }
 
         /// <summary>
         /// Returns all the files in the specified folder order by descending date.
@@ -58,7 +63,7 @@ namespace MIISHandler.FMSources
             //Get al files in the folder (and subfolders if indicated), ordered by date desc
             IEnumerable<MarkdownFile> allFiles = FilesEnumeratorHelper.GetAllFilesFromFolder(folderPath, topOnly, sd);
 
-            //FILE CACHING
+            //File caching dependencies
             FilesEnumeratorHelper.AddCacheDependencies(currentFile, folderPath, allFiles);
 
             //Filter only those that are published
@@ -82,7 +87,6 @@ namespace MIISHandler.FMSources
             }
 
             //TODO: Add support for paging
-            //TODO: manage caching with params
 
             return publishedFilesProxies.ToList<MIISFile>();
         }
