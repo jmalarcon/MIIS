@@ -22,9 +22,13 @@ This is a sample file to show all the contents of an specific folder. In this ca
 
 **{{ posts.size }}** posts:
 
-{% for post in posts %}
+{%- if posts.size == 0 -%}
+Nothing to show here!
+{%- endif -%}
+
+{%- for post in posts -%}
 - {{forloop.index}}: [{{post.Title}}]({{post.URL}}) - [{{ post.Date | Date: "dddd, dd MMMM, yyyy" }}]<br>{{post.Excerpt | StripNewlines | Truncate: 75 }}
-{% endfor %}
+{%- endfor -%}
 
 ## Posts in reverse order, only the first 5 of them
 

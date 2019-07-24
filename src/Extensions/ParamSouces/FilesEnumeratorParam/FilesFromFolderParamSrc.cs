@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 using FilesEnumeratorParam;
 
 namespace MIISHandler.FMSources
@@ -42,7 +42,7 @@ namespace MIISHandler.FMSources
             bool topOnly = true;
             try
             {
-                string sTopOnly = parameters[1].ToLower();
+                string sTopOnly = parameters[1].ToLowerInvariant();
                 topOnly = FilesEnumeratorHelper.IsTruthy(sTopOnly); //If the second parameter is "false" or "0", then use topOnly files
             }
             catch { }
@@ -62,9 +62,27 @@ namespace MIISHandler.FMSources
             FilesEnumeratorHelper.AddCacheDependencies(currentFile, folderPath, allFiles);
 
             //Filter only those that are published
-            var publishedFilesProxies = FilesEnumeratorHelper.OnlyPublished(allFiles);
+            IEnumerable<MIISFile> publishedFilesProxies = FilesEnumeratorHelper.OnlyPublished(allFiles);
 
-            //TODO: Filter by tag and category from QueryString params
+            //Filter by tag or category from QueryString params
+            NameValueCollection qs = HttpContext.Current.Request.QueryString;
+            if (!string.IsNullOrWhiteSpace(qs["tag"]))  //More specific, takes precedence
+            {
+                string tag = qs["tag"].ToLowerInvariant();
+                publishedFilesProxies = from file in publishedFilesProxies
+                                        where file.Tags.Contains<string>(tag)
+                                        select file;
+            }
+            else if (!string.IsNullOrWhiteSpace(qs["categ"]))
+            {
+                string categ = qs["categ"].ToLowerInvariant();
+                publishedFilesProxies = from file in publishedFilesProxies
+                                        where file.Categories.Contains<string>(categ)
+                                        select file;
+            }
+
+            //TODO: Add support for paging
+            //TODO: manage caching with params
 
             return publishedFilesProxies.ToList<MIISFile>();
         }

@@ -62,7 +62,7 @@ namespace FilesEnumeratorParam
 
             var allFiles = (from file in di.EnumerateFiles("*.*", sfo)
                                 //Include only MIIS files and exclude files that start with "_" or with a default name (index or default)
-                            where !file.Name.StartsWith("_") && VALID_EXTS.Contains(file.Extension.ToLower()) && !EXCLUDED_FILE_NAMES.Contains(Path.GetFileNameWithoutExtension(file.Name).ToLower())
+                            where !file.Name.StartsWith("_") && VALID_EXTS.Contains(file.Extension.ToLowerInvariant()) && !EXCLUDED_FILE_NAMES.Contains(Path.GetFileNameWithoutExtension(file.Name).ToLowerInvariant())
                             select new MarkdownFile(file.FullName)
                            );
 
@@ -121,7 +121,7 @@ namespace FilesEnumeratorParam
         /// <returns>true if is a truthy value according to the criteria</returns>
         internal static bool IsTruthy(string val)
         {
-            val = val.ToLower();
+            val = val.ToLowerInvariant();
             return (val == "1" || val == "true" || val == "yes");
         }
 

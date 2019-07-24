@@ -41,7 +41,7 @@ namespace MIISHandler.FMSources
             bool topOnly = true;
             try
             {
-                string sTopOnly = parameters[1].ToLower();
+                string sTopOnly = parameters[1].ToLowerInvariant();
                 topOnly = topOnly = FilesEnumeratorHelper.IsTruthy(sTopOnly);   //If the second parameter is "false" or "0", then use topOnly files
             }
             catch { }
