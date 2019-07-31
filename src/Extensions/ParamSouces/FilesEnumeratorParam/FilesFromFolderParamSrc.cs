@@ -29,7 +29,7 @@ namespace MIISHandler.FMSources
         /// FilesFromFolder folderName false
         /// FilesFromFolder folderName true asc
         /// 
-        /// It can automatically detect the tag or categ params to filter bu tag or category if available
+        /// It can automatically detect the tag or categ params to filter by tag or category if available
         /// </summary>
         /// <param name="currentFile"></param>
         /// <param name="parameters"></param>
