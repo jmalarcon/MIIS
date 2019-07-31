@@ -13,7 +13,7 @@ namespace MIISHandler.FMSources
 
         string[] IQueryStringDependent.GetCachingQueryStringFields()
         {
-            return new string[] { "tag", "categ"};
+            return new string[] { "tag", "categ", "page"};
         }
 
         /// <summary>

@@ -18,7 +18,7 @@ And you can also retrieve by name  cookies, or even [server variables](https://d
 
 `HTTP_USER_AGENT`: {{ HTTP_USER_AGENT }}
 
->Please, take into account that if you use any query string, form fields, cookie data or server variables, you can't cache the results of the file, that will be generated again on each new request
+>Please, take into account that if you use any query string, form fields, cookie data or server variables in your content, **you can't cache the rendered file**, that will be generated again on each new request. This is automatic and can't be disabled unless you're using a declaed query parameter from a Front Matter source (check documentation on creating custom Front-Matter sources).
 
 ----
 
@@ -33,13 +33,13 @@ We can use filters to change the rendered value, for example:
 Or use them in conditionals and other expressions:
 
 {% if rnd > 500  %}
-    {{rnd}} is greater than 500
+{{rnd}} is greater than 500
 {% else %}
-    {{rnd}} is less or equal than 500
+{{rnd}} is less or equal than 500
 {% endif %}
 
 {% if num > 5  %}
-    {{num}} is greater than 5
+{{num}} is greater than 5
 {% else %}
-    {{num}} is less or equal than 5
+{{num}} is less or equal than 5
 {% endif %}

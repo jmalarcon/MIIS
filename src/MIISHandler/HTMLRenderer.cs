@@ -365,7 +365,7 @@ namespace MIISHandler
                     }
                 }
                 catch (FileLoadException)
-                { } // The Assembly has already been loaded.
+                { } // The Assembly has already been loaded. This really shouldn't happen due to the lock, but sometimes happens apparently during development.
                 catch (BadImageFormatException)
                 { } // If a BadImageFormatException exception is thrown, the file is not an assembly.
             }

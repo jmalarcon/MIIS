@@ -177,6 +177,7 @@
     <Content Include="posts\ps-ref-sync-package.md" />
     <Content Include="posts\ps-ref-uninstall-package.md" />
     <Content Include="posts\ps-ref-update-package.md" />
+    <Content Include="posts\_index-ruby.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

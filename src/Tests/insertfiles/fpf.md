@@ -7,7 +7,7 @@ extFilePath: ../raw
 ---
 # This is a file that includes an external file (File Processing Fields)
 
-This content is taken from the `toc.md` file using a file with an `.md` or `.mdh` extension in a Front-Matter field. It's shown as a code block but could have been rendered as HTML in the fnal page by removing the code fence:
+This content is taken from the `toc.md` file using a file with an `.md` or `.mdh` extension in a Front-Matter field. It's shown as a code block but could have been rendered as HTML in the final page by removing the code fence:
 
 ```
 {{extFile}}
