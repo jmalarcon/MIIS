@@ -13,11 +13,11 @@ namespace MIISHandler.FMSources
 
         string[] IQueryStringDependent.GetCachingQueryStringFields()
         {
-            return new string[] { "tag", "categ", "page"};
+            return new string[] { "tag", "categ"};
         }
 
         /// <summary>
-        /// Returns all the files in the specified folder order by descending date.
+        /// Returns the files in the specified folder ordered by descending date by default.
         /// Includes only .md or .mdh files
         /// Excludes files with a name starting with "_", with the name "index" or "default".
         /// By default includes only the files directly inside the folder, not in subfolders
@@ -28,6 +28,8 @@ namespace MIISHandler.FMSources
         /// FilesFromFolder folderName
         /// FilesFromFolder folderName false
         /// FilesFromFolder folderName true asc
+        /// 
+        /// It can automatically detect the tag or categ params to filter bu tag or category if available
         /// </summary>
         /// <param name="currentFile"></param>
         /// <param name="parameters"></param>
