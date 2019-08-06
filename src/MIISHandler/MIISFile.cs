@@ -16,6 +16,15 @@ namespace MIISHandler
             md = mdFile;
         }
 
+
+        public string Author
+        {
+            get
+            {
+                return GetFMValue("author", "");
+            }
+        }
+
         /// <summary>
         /// Current file's name
         /// </summary>

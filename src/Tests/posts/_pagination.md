@@ -24,9 +24,23 @@ Page {{ paginator.Page }} of {{ paginator.TotalPages }} with {{ paginator.PerPag
 {%- endfor -%}
 
 {%- if paginator.PreviousPage -%}
+**[Previous page](./{{paginator.PreviousPage}})** 
+{%- endif -%} ////&nbsp;{%- if paginator.NextPage -%}**[Next page](./{{paginator.NextPage}})**
+{%- endif -%} 
+
+Direct links to pages: {% for np in (1..paginator.TotalPages) %} **[{{np}}](./{{np}})** {% endfor%}
+
+It works with Tags and Categories too. For example, **[page 2 filtered by Tag](?Tag=reference)**.
+
+In this case I've setup a URL Rewrite rule to use friendly URLs (please, notice the URL in your browser), but the default way to do it is using Query String parameters, for example:
+
+```markdown
+{%- raw -%}
+{%- if paginator.PreviousPage -%}
 **[Previous page](?page={{paginator.PreviousPage}})** ////// 
-{%- endif -%} {%- if paginator.NextPage -%}
+{%- endif -%} 
+{%- if paginator.NextPage -%}
 **[Next page](?page={{paginator.NextPage}})**
 {%- endif -%}
-
-It works with Tags and Categories too. For example, **[page 2 filtered by Tag](?Tag=reference&page=2)**.
+{%- endraw -%}
+```

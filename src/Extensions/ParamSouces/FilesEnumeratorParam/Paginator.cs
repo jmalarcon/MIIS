@@ -15,7 +15,7 @@ namespace FilesEnumeratorParam
             //Number of files
             this.TotalFiles = allFiles.Count();
             //Number of pages
-            this.TotalPages = (this.TotalFiles / pageSize) + 1;
+            this.TotalPages = (this.TotalFiles / pageSize) + ((this.TotalFiles % pageSize == 0) ? 0 : 1);
             //Current page
             currentPage = (currentPage <= 0) ? 1 : currentPage;
             this.Page = (currentPage > this.TotalPages) ? this.TotalPages : currentPage;

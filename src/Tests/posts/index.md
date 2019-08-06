@@ -30,7 +30,7 @@ Nothing to show here!
 - {{forloop.index}}: [{{post.Title}}]({{post.URL}}) - [{{ post.Date | Date: "dddd, dd MMMM, yyyy" }}]<br>{{post.Excerpt | StripNewlines | Truncate: 75 }}
 {%- endfor -%}
 
-**[Try the paginated page](_pagination.md)** and examine the contents to see how it's been done
+**[Try the paginated page](page/1)** and examine the contents to see how it's been done
 
 ## Posts in reverse order, only the first 5 of them
 

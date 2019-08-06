@@ -1,0 +1,27 @@
+﻿---
+Title: Sample ATOM feed created with MIIS
+TemplateName: raw
+mime: application/atom+xml
+posts: !!FilesFromFolder ./
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xml:lang="en-US">
+  <id>{{baseurl}}{{url}}</id>
+  <link type="text/html" rel="alternate" href="{{baseurl}}{{url}}"/>
+  <link type="application/atom+xml" rel="self" href="{{baseurl}}{{url}}"/>
+  <title>{{title}}</title>
+  <updated>{{now}}</updated>
+{%- for post in posts limit:10 -%}
+  <entry>
+    <id>{{baseurl}}{{post.url}}</id>
+    <updated>{{post.date}}</updated>
+    <link rel="alternate" type="text/html" href="{{baseurl}}{{post.url}}"/>
+    <title>{{post.title}}</title>
+    <content type="html">{{post.excerpt}}</content>
+    <author>
+      <name>{{post.author}}</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="TODO!"/>
+  </entry>
+{%- endfor -%}
+</feed>

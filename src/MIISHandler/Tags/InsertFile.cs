@@ -95,6 +95,7 @@ namespace MIISHandler.Tags
             }
 
             //Render the subfile contents in the same context as the parent
+            //TODO: Allow rendering in the file's own context
             Template partial = Template.Parse(subRenderedContent);
             partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
             crd.Reset();
