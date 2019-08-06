@@ -30,6 +30,8 @@ Nothing to show here!
 - {{forloop.index}}: [{{post.Title}}]({{post.URL}}) - [{{ post.Date | Date: "dddd, dd MMMM, yyyy" }}]<br>{{post.Excerpt | StripNewlines | Truncate: 75 }}
 {%- endfor -%}
 
+**[Try the paginated page](_pagination.md)** and examine the contents to see how it's been done
+
 ## Posts in reverse order, only the first 5 of them
 
 In this case I've used the same `posts` parameter, but you could simply have used a Front-Matter parameter such as `revposts: !!FileFromFolder ./ true asc` and have them reversed form the source:

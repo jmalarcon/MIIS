@@ -29,4 +29,4 @@ Page {{ paginator.Page }} of {{ paginator.TotalPages }} with {{ paginator.PerPag
 **[Next page](?page={{paginator.NextPage}})**
 {%- endif -%}
 
-It works with Tags and Categories too:
+It works with Tags and Categories too. For example, **[page 2 filtered by Tag](?Tag=reference&page=2)**.
