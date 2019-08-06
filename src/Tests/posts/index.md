@@ -1,5 +1,5 @@
 ---
-# Change the default naming convention (Ruby) to foece the C# naming convention instead
+# Change the default naming convention (Ruby) to force the C# naming convention instead
 # In this case the property names are: PropertyOne instead of property_one
 # It affects filters and Liquid syntax in general too!
 Naming: CSharp

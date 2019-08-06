@@ -9,11 +9,13 @@ namespace MIISHandler.FMSources
 {
     public class FilesFromFolderParamSrc : IFMSource, IQueryStringDependent
     {
+        //Declared as static string[] to reuse them in other FM Sources in this assembly
+        internal static readonly string[] QSParams = new string[] { "tag", "categ" };
         string IFMSource.SourceName => "FilesFromFolder";
 
         string[] IQueryStringDependent.GetCachingQueryStringFields()
         {
-            return new string[] { "tag", "categ"};
+            return QSParams;
         }
 
         /// <summary>
@@ -36,6 +38,16 @@ namespace MIISHandler.FMSources
         /// <returns>A List of file information objects that can be used in Liquid tags</MIISFile></returns>
         object IFMSource.GetValue(MIISFile currentFile, params string[] parameters)
         {
+            //Get all published files with the current parameters
+            return GetFilesFromParameters(currentFile, parameters).ToList<MIISFile>();
+        }
+
+        //Ugly method to have in one place all the code common to various FM Sources that are in this assembly
+        //DRY, you know ;-)
+        internal static IEnumerable<MIISFile> GetFilesFromParameters(MIISFile currentFile, params string[] parameters)
+        {
+            //TODO: cache results to avoid going to disk for very long folders
+
             //Expects these parameters (* indicates the default value):
             //- Folder path relative to the current file or to the root of the site
             //- Top folder files only (true*/false, could be 1*/0) 
@@ -88,9 +100,7 @@ namespace MIISHandler.FMSources
                                         select file;
             }
 
-            //TODO: Add support for paging
-
-            return publishedFilesProxies.ToList<MIISFile>();
+            return publishedFilesProxies;
         }
     }
 }

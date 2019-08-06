@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Web;
 using System.Linq;
@@ -22,26 +23,13 @@ namespace FilesEnumeratorParam
     /// </summary>
     internal static class FilesEnumeratorHelper
     {
+        #region constants and private members
         //Valid file extensions - Only MIIS files (.md or .mdh)
         private static readonly string[] VALID_EXTS = new string[] { MarkdownFile.MARKDOWN_DEF_EXT, MarkdownFile.HTML_EXT };
         private static readonly string[] EXCLUDED_FILE_NAMES = new string[] { "index", "default" };
+        #endregion
 
-        /// <summary>
-        /// Returns the path in the file system from the relative path of a url
-        /// </summary>
-        /// <param name="folderRelPath">Relative url path, such as "./", "/folder/" or "../posts/"</param>
-        /// <returns></returns>
-        public static string GetFolderAbsPathFromName(string folderRelPath)
-        {
-            //Check if there's a folder specified
-            string folder = folderRelPath.Trim();
-            HttpContext ctx = HttpContext.Current;
-            //Return absolute path for folder
-            string folderAbsPath = ctx.Server.MapPath(folder);
-            return folderAbsPath;
-        }
-
-
+        #region File management methods
         /// <summary>
         /// Returns all the files in an specific folder, excluding files begining with "_" and including only .md or .mdh files.
         /// </summary>
@@ -87,6 +75,11 @@ namespace FilesEnumeratorParam
             return allFilesSorted;
         }
 
+        /// <summary>
+        /// Returns an IEnumerable list of MIISFiles which only includes published files
+        /// </summary>
+        /// <param name="allFiles">A full lst of files</param>
+        /// <returns></returns>
         public static IEnumerable<MIISFile> OnlyPublished(IEnumerable<MarkdownFile> allFiles)
         {
             return from file in allFiles
@@ -94,6 +87,9 @@ namespace FilesEnumeratorParam
                    select new MIISFile(file);
         }
 
+        #endregion
+
+        #region Caching
         /// <summary>
         /// Adds cache dependencies for the source file depending on the current files being processed
         /// </summary>
@@ -109,8 +105,23 @@ namespace FilesEnumeratorParam
             if (maxDateSecs > 0)
                 currentFile.SetMaxCacheValidity(maxDateSecs);
         }
+        #endregion
 
-        //Other generic aux methods
+        #region Other generic aux methods
+        /// <summary>
+        /// Returns the path in the file system from the relative path of a url
+        /// </summary>
+        /// <param name="folderRelPath">Relative url path, such as "./", "/folder/" or "../posts/"</param>
+        /// <returns></returns>
+        public static string GetFolderAbsPathFromName(string folderRelPath)
+        {
+            //Check if there's a folder specified
+            string folder = folderRelPath.Trim();
+            HttpContext ctx = HttpContext.Current;
+            //Return absolute path for folder
+            string folderAbsPath = ctx.Server.MapPath(folder);
+            return folderAbsPath;
+        }
 
         /// <summary>
         /// Determines if a string value (normally got from params or Front-Matter)
@@ -136,5 +147,7 @@ namespace FilesEnumeratorParam
         {
             return (val == "0" || val == "false" || val == "no");
         }
+
+        #endregion
     }
 }

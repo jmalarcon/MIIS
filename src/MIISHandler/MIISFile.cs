@@ -164,6 +164,18 @@ namespace MIISHandler
             }
         }
 
+        /// <summary>
+        /// Returns the value of the indicated parameter or the default value
+        /// </summary>
+        /// <param name="name">The name of the parameter that we want to get. Checks</param>
+        /// <param name="defvalue">The default value for the parameter if it's not present</param>
+        /// <returns>A string with the value for the parameter. Get's it first from the Front Matter and if it's not present, 
+        /// from the global values in web.config</returns>
+        public string GetFMValue(string name, string defvalue)
+        {
+            return FieldValuesHelper.GetFieldValue(name, this.md, defvalue);
+        }
+
         #region Caching proxies
 
         /// <summary>

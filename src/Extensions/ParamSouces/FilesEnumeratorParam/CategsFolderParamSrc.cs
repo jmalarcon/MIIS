@@ -7,7 +7,7 @@ using FilesEnumeratorParam;
 
 namespace MIISHandler.FMSources
 {
-    public class CategssFolderParamSrc : IFMSource
+    public class CategsFolderParamSrc : IFMSource
     {
         string IFMSource.SourceName => "CategsFromFolder";
 
