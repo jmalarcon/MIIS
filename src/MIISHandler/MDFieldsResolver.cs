@@ -57,6 +57,9 @@ namespace MIISHandler
                 case "filename":
 					res = _md.FileName;
 					break;
+                case "dir":
+                    res = _mdProxy.Dir;
+                    break;
                 case "date":
                     res = _md.Date;
                     break;
