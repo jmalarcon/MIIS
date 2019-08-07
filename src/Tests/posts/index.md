@@ -18,6 +18,8 @@ caching: false
 
 The sample files have been retrieved and minimally adapted from this repo: https://github.com/NuGet/docs.microsoft.com-nuget, just for testing purposes
 
+Check this folder file's RSS in Atom format: [![Atom Feed](media/rss.png)](./feed){target="_blank"}
+
 This is a sample file to show all the contents of an specific folder. In this case I'm using `"./"` as the folder param for `FilesFromFolder` FM custom param. In the parent folder you should use the name of the folder. This `index.md` file shouldn't be in the listing:
 
 **{{ posts.size }}** posts {% if tag != "" %}&nbsp;with Tag '{{tag}}'{% elseif categ != "" %}&nbsp;with Category '{{categ}}'{% else %}(all){% endif %}:

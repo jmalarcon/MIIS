@@ -128,13 +128,25 @@ namespace MIISHandler
         }
 
         /// <summary>
-        /// The rendered HTML content of the page
+        /// Returns the value of the "Image" property from the FM of the file, or a default value if it's specified globally in the web.config. 
+        /// If it's not specified, returns an empty string
+        /// </summary>
+        public string Image
+        {
+            get
+            {
+                return GetFMValue("image", "");
+            }
+        }
+
+        /// <summary>
+        /// The rendered HTML content of the page, without the template (just raw html)
         /// </summary>
         public string HTML
         {
             get
             {
-                return md.HTML;
+                return md.RawHTML;
             }
         }
 

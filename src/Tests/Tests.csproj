@@ -82,6 +82,7 @@
     <Content Include="posts\media\PackageSourceSettings.png" />
     <Content Include="posts\media\References.png" />
     <Content Include="posts\media\Register-TabExpansion-Example.png" />
+    <Content Include="posts\media\rss.png" />
     <Content Include="posts\media\Search.png" />
     <Content Include="posts\media\SolutionPackagesUI.png" />
     <Content Include="posts\media\UninstallPackage.png" />

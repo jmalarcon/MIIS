@@ -2,7 +2,10 @@
 Title: Sample ATOM feed created with MIIS
 TemplateName: raw
 mime: application/atom+xml
-posts: !!FilesFromFolder ./
+# Change it or comment it to have a text excerpt in the content instead of the full HTML contents of each file
+UseHTML: 1
+posts: !!FilesFromFolder ./ true desc
+caching: true
 ---
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xml:lang="en-US">
@@ -14,14 +17,16 @@ posts: !!FilesFromFolder ./
 {%- for post in posts limit:10 -%}
   <entry>
     <id>{{baseurl}}{{post.url}}</id>
-    <updated>{{post.date}}</updated>
-    <link rel="alternate" type="text/html" href="{{baseurl}}{{post.url}}"/>
-    <title>{{post.title}}</title>
-    <content type="html">{{post.excerpt}}</content>
+    <updated>{{post.Date}}</updated>
+    <link rel="alternate" type="text/html" href="{{baseurl}}{{post.URL}}"/>
+    <title>{{post.Title}}</title>
+    <content type="html">{% if UseHtml == "1" %}{{post.HTML | escape}}{% else %}{{post.Excerpt}}{% endif %}</content>
     <author>
-      <name>{{post.author}}</name>
+      <name>{{post.Author}}</name>
     </author>
-    <media:thumbnail height="30" width="30" url="TODO!"/>
+{%- if post.Image != "" -%}
+    <media:thumbnail url="{{baseurl}}{{post.Dir}}{{post.Image}}"/>
+{%- endif -%}
   </entry>
 {%- endfor -%}
 </feed>
