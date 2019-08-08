@@ -24,9 +24,11 @@ namespace MIISHandler
         private readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}[\r\n]{1,2}", RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
 
         #region private fields
-        private string _content = "";
-        private string _rawHtml;
-        private string _html;
+        private string _rawContent = string.Empty;
+        private string _processedContent = string.Empty;
+        private string _rawHtmlContent = string.Empty;
+        private string _rawFinalHtml = string.Empty;
+        private string _finalHtml;
         private string _title;
         private string _filename;
         private DateTime _dateCreated;
@@ -60,33 +62,47 @@ namespace MIISHandler
         #region Properties
         //Complex properties
         public string FilePath { get; private set; } //The full path to the file
-        
-        //The raw file content, read from disk
-        public string Content
+
+        /// <summary>
+        /// The raw file content, read from disk, without any further processing: as is
+        /// </summary>
+        public string RawContent
         {
             get
             {
                 EnsureContentAndFrontMatter();
-                return _content;
-            }
-            internal set
-            {
-                _content = value;
+                return _rawContent;
             }
         }
 
-        //The raw HTML generated from the markdown content
-        public string RawHTML
+        //The raw file content (Markdown or HTML) after being processed by dotLiquid
+        public string ProcessedContent
         {
             get
             {
-                if (string.IsNullOrEmpty(_rawHtml))
+                //If the content has not been processed yet, then return the raw content (for example in File Processing Fields, that don't process the content at all)
+                return string.IsNullOrEmpty(_processedContent) ? this.RawContent : _processedContent;
+            }
+            internal set
+            {
+                _processedContent = value;
+            }
+        }
+
+        /// <summary>
+        /// The file content transformed into HTML from the markdown content, WITHOUT the template anf WITHOUT the liquid tags procesed
+        /// </summary>
+        public string RawHtmlContent
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_rawHtmlContent))
                 {
                     //Check if its a pure HTML file (.mdh extension)
                     if (this.FileExt == HTML_EXT)  //It's HTML
                     {
                         //No transformation required --> It's an HTML file processed by the handler to mix with the current template
-                        _rawHtml = this.Content;
+                        _rawHtmlContent = this.RawContent;
                     }
                     else  //Is markdown: transform into HTML
                     {
@@ -99,30 +115,47 @@ namespace MIISHandler
                         }
                         var pipeline = mdPipe.Build();
                         //Convert markdown to HTML
-                        _rawHtml = Markdig.Markdown.ToHtml(this.Content, pipeline); //Convert to HTML
+                        _rawHtmlContent = Markdig.Markdown.ToHtml(this.ProcessedContent, pipeline); //Convert to HTML
                     }
                 }
 
-                return _rawHtml;
+                return _rawHtmlContent;
             }
         }
 
-        //The final HTML generated from the markdown content and the current template
-        public string HTML
+        /// <summary>
+        /// The HTML content of the file, WITHOUT the template, and WITH the liquid tags processed
+        /// </summary>
+        public string RawFinalHtml
         {
             get
             {
-                if (string.IsNullOrEmpty(_html))    //If it's not processed yet
+                if (string.IsNullOrEmpty(_rawFinalHtml))
+                {
+                    _rawFinalHtml = HTMLRenderer.RenderMarkdown(this, true);
+                }
+                return _rawFinalHtml;
+            }
+        }
+
+        /// <summary>
+        /// The final HTML generated from the markdown content and the current template
+        /// </summary>
+        public string FinalHtml
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_finalHtml))    //If it's not processed yet
                 {
                     //Try to read from cache
-                    _html = GetRenderedHtmlFromCache();
-                    if (string.IsNullOrEmpty(_html)) //If it's not in the cache, process the file
+                    _finalHtml = GetRenderedHtmlFromCache();
+                    if (string.IsNullOrEmpty(_finalHtml)) //If it's not in the cache, process the file
                     {
-                        _html = HTMLRenderer.RenderMarkdown(this);
-                        AddHtmlToCache(_html);  //Add to cache (if enabled)
+                        _finalHtml = HTMLRenderer.RenderMarkdown(this);
+                        AddHtmlToCache(_finalHtml);  //Add to cache (if enabled)
                     }
                 }
-                return _html;
+                return _finalHtml;
             }
         }
 
@@ -149,8 +182,8 @@ namespace MIISHandler
                         //Try to get the default title from the file the content (find the first H1 if there's any)
                         //Quick and dirty with RegExp and only with "#".
                         Regex re = new Regex(@"^\s*?#\s(.*)$", RegexOptions.Multiline);
-                        if (re.IsMatch(this.Content))
-                            _title = re.Matches(this.Content)[0].Groups[1].Captures[0].Value;
+                        if (re.IsMatch(this.RawContent))
+                            _title = re.Matches(this.RawContent)[0].Groups[1].Captures[0].Value;
                         else
                             _title = Path.GetFileNameWithoutExtension(this.FileName);
                     }
@@ -173,7 +206,7 @@ namespace MIISHandler
                     {
                         res = FieldValuesHelper.GetFieldValueFromFM("summary", this);
                         if (res == string.Empty)
-                            res = TemplatingHelper.GetFirstParagraphText(this.RawHTML);   //Get the first paragraph in the content
+                            res = TemplatingHelper.GetFirstParagraphText(this.RawFinalHtml);   //Get the first paragraph in the content
                     }
                 }
                 return res;
@@ -455,9 +488,9 @@ namespace MIISHandler
         //Ensures that the content of the file is loaded from disk
         private void EnsureContent()
         {
-            if (string.IsNullOrEmpty(_content))
+            if (string.IsNullOrEmpty(_rawContent))
             {
-                _content = IOHelper.ReadTextFromFile(this.FilePath);
+                _rawContent = IOHelper.ReadTextFromFile(this.FilePath);
             }
         }
         //Ensures that the content of the file is loaded from disk and the Front Matter processed & removed from it
@@ -494,7 +527,7 @@ namespace MIISHandler
 
             //Extract and remove YAML Front Matter
             EnsureContent();
-            Match fm = FRONT_MATTER_RE.Match(this._content);
+            Match fm = FRONT_MATTER_RE.Match(this._rawContent);
             if (fm.Length > 0) //If there's front matter available
             {
                 strFM = fm.Groups[0].Value;
@@ -509,7 +542,7 @@ namespace MIISHandler
         //Removes the front matter, if any, from the actual content of the file
         private void RemoveFrontMatter()
         {
-            _content = FRONT_MATTER_RE.Replace(_content, "");
+            _rawContent = FRONT_MATTER_RE.Replace(_rawContent, "");
         }
         #endregion
     }

@@ -150,8 +150,8 @@ namespace MIISHandler
         {
             get
             {
-                //TODO: Interpret placeholders (this is without chaging placeholders and ligquid tags!!)
-                return md.RawHTML;
+                //TODO: Interpret placeholders (this is without chaging placeholders and liquid tags!!)
+                return md.RawFinalHtml;
             }
         }
 

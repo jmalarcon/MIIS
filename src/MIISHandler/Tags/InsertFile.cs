@@ -65,7 +65,7 @@ namespace MIISHandler.Tags
                     if (crd.CheckCircularReference(fp2File) == false)
                     {
                         MarkdownFile mdFld = new MarkdownFile(fp2File);
-                        subRenderedContent = mdFld.RawHTML; //Use the raw HTML, not the processed HTML (this last one includes the template too)
+                        subRenderedContent = mdFld.RawHtmlContent; //Use the raw HTML (whithout the template)
                         //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
                         currentMDF.AddFileDependency(fp2File);
                     }

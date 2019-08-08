@@ -41,18 +41,21 @@ namespace MIISHandler
         /// and processing the templates
         /// </summary>
         /// <param name="md">The markdown file information</param>
+        /// <param name="raw">If true will force the raw template: only te content, without any extra HTML. 
+        /// This is useful for getting the pure, fully processed content of the file, without any extra HTML</param>
         /// <returns>The final HTML to return to the client</returns>
-        public static string RenderMarkdown(MarkdownFile md)
+        public static string RenderMarkdown(MarkdownFile md, bool raw = false)
         {
             HttpContext ctx = HttpContext.Current;
             string template = DEFAULT_TEMPLATE; //The default template for the final HTML
-            string templateFile = GetCurrentTemplateFile(md);
+            string templateFile = raw ? "raw" : GetCurrentTemplateFile(md); //If it's not forced to "raw" then get the curent template path
             if (!string.IsNullOrEmpty(templateFile))
             {
                 //If the specified template is "raw" then just return the raw HTML without any wrapping HTML code 
                 //(no html, head or body tags). Useful to return special pages with raw content.
                 if (templateFile == "raw")
                 {
+                    raw = true;
                     template = "{{content}}";
                 }
                 else
@@ -69,6 +72,12 @@ namespace MIISHandler
 
             //First process possible file fragments included in the content file to form the new content 
             string tempContent = InjectFragments(md, ctx);
+
+            //The content placeholder can't only be used in templates, not inside files, so check if there are any and remove them
+            if (TemplatingHelper.IsPlaceHolderPresent(tempContent ,"content"))
+            {
+                tempContent = TemplatingHelper.ReplacePlaceHolder(tempContent, "content", string.Empty);
+            }
 
             //Configure DotLiquid
 
@@ -87,11 +96,17 @@ namespace MIISHandler
             //Process the content of the file with DotLiquid
             //We need to do this independently so that the conversion from Markdown to HTML won't interfere
             Template parser = Template.Parse(tempContent);
-            md.Content = parser.Render(fieldsInfo); //Assign the final content of the file, rendered with DotLiquid
+            tempContent = parser.Render(fieldsInfo); //Assign the final content of the file, rendered with DotLiquid, without the template
+            md.ProcessedContent = tempContent;
 
-            //Process the template with DotLiquid for this file
-            parser = Template.Parse(template);
-            tempContent = parser.Render(fieldsInfo);    //The file contents get rendered into the template by the {{content}} placeholder
+            if (!raw)
+            {
+                //Asign the raw final Html to be able to substitute the {{content}} placeholder
+                //(it can't be a recursive call because the whe one calls the RawFinalHtml getter it always uses "raw"
+                //Process the template with DotLiquid for this file, with the content already processed
+                parser = Template.Parse(template);
+                tempContent = parser.Render(fieldsInfo);    //The file contents get rendered into the template by the {{content}} placeholder
+            }
 
             //Finally Transform virtual paths
             tempContent = WebHelper.TransformVirtualPaths(tempContent);
@@ -239,7 +254,7 @@ namespace MIISHandler
         //Finds fragment placeholders and insert their contents
         private static string InjectFragments(MarkdownFile md, HttpContext ctx)
         {
-            string tempContent = md.Content;
+            string tempContent = md.RawContent;
             string[] fragments = TemplatingHelper.GetAllPlaceHolderNames(tempContent, phPrefix: FILE_FRAGMENT_PREFIX);
             foreach(string fragmentName in fragments)
             {
@@ -259,7 +274,7 @@ namespace MIISHandler
                     md.Dependencies.Add(fragmentFileName);
 
                     MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
-                    fragmentContent = mdFld.Content;
+                    fragmentContent = mdFld.RawContent;
                 }
                 catch
                 {

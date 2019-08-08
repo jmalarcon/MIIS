@@ -41,7 +41,7 @@ namespace MIISHandler
 
                     //Send the rendered content for the file
                     ctx.Response.ContentType = mdFile.MimeType; //text/html by default
-                    ctx.Response.Write(mdFile.HTML);
+                    ctx.Response.Write(mdFile.FinalHtml);
                 }
                 else
                 {

@@ -49,7 +49,7 @@ namespace MIISHandler
                     res = _mdProxy;
                     break;
                 case "content":
-                    res = _md.RawHTML;
+                    res = _md.RawHtmlContent;
                     break;
                 case "title":
                     res = _md.Title;
@@ -131,7 +131,7 @@ namespace MIISHandler
                             {
                                 string fpfPath = _ctx.Server.MapPath(rawValue);    //The File-Processing Field path
                                 MarkdownFile mdFld = new MarkdownFile(fpfPath);
-                                res = mdFld.RawHTML; //Use the raw HTML, not the processed HTML (this last one includes the template too)
+                                res = mdFld.RawHtmlContent; //Use the raw HTML (without the template and without processing the fields)
                                                      //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
                                 _md.Dependencies.Add(fpfPath);
                             }
