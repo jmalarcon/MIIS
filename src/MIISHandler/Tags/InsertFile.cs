@@ -53,7 +53,7 @@ namespace MIISHandler.Tags
                     object crdObj = context[CRD_CONTEXT_VAR_NAME];    //Try to get a CR Detector from context
                     if (crdObj.GetType() == typeof(string) && crdObj.ToString() == "")
                     {
-                        //If there's no detector (first inserfile) then add one to the context
+                        //If there's no detector (first insertfile) then add one to the context
                         crd.CheckCircularReference(currentMDF.FilePath);    //Add current initial file as a reference
                         context[CRD_CONTEXT_VAR_NAME] = crd;
                     }

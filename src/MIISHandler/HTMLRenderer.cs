@@ -79,6 +79,8 @@ namespace MIISHandler
             else
                 Template.NamingConvention = new DotLiquid.NamingConventions.RubyNamingConvention();
 
+            //TODO: Add parameter for date formatting (Ruby/strftime or C#, C# by default)
+
             //Configure the parameters' resolver
             Hash fieldsInfo = new MDFieldsResolver(md, ctx);
 
