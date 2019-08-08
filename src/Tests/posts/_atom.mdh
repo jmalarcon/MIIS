@@ -13,11 +13,11 @@ caching: true
   <link type="text/html" rel="alternate" href="{{baseurl}}{{url}}"/>
   <link type="application/atom+xml" rel="self" href="{{baseurl}}{{url}}"/>
   <title>{{title}}</title>
-  <updated>{{now}}</updated>
+  <updated>{{now | date: "yyyy-MM-ddThh:mm:sszzz"}}</updated>
 {%- for post in posts limit:10 -%}
   <entry>
     <id>{{baseurl}}{{post.url}}</id>
-    <updated>{{post.Date}}</updated>
+    <updated>{{post.Date | date: "yyyy-MM-ddThh:mm:sszzz"}}</updated>
     <link rel="alternate" type="text/html" href="{{baseurl}}{{post.URL}}"/>
     <title>{{post.Title}}</title>
     <content type="html">{% if UseHtml == "1" %}{{post.HTML | escape}}{% else %}{{post.Excerpt}}{% endif %}</content>
