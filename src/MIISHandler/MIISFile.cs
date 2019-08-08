@@ -11,6 +11,10 @@ namespace MIISHandler
     {
         //Reference to the internal MD or MDF file
         private MarkdownFile md;
+        //Tags and categories
+        private string[] _tags = null;
+        private string[] _categories = null;
+
         public  MIISFile(MarkdownFile mdFile)
         {
             md = mdFile;
@@ -140,12 +144,13 @@ namespace MIISHandler
         }
 
         /// <summary>
-        /// The rendered HTML content of the page, without the template (just raw html)
+        /// The rendered HTML content of the page, without the template (just raw html, processed)
         /// </summary>
         public string HTML
         {
             get
             {
+                //TODO: Interpret placeholders (this is without chaging placeholders and ligquid tags!!)
                 return md.RawHTML;
             }
         }
@@ -168,8 +173,12 @@ namespace MIISHandler
         {
             get
             {
+                if (_categories == null)
+                {
                 string sCategs = FieldValuesHelper.GetFieldValue("categories", md);
-                return sCategs.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+                _categories = sCategs.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+                }
+                return _categories;
             }
         }
 
@@ -180,8 +189,12 @@ namespace MIISHandler
         {
             get
             {
-                string sTags = FieldValuesHelper.GetFieldValue("tags", md);
-                return sTags.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+                if (_tags == null)
+                {
+                    string sTags = FieldValuesHelper.GetFieldValue("tags", md);
+                    _tags = sTags.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+                }
+                return _tags;
             }
         }
 

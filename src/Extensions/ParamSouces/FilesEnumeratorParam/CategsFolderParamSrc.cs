@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
+using System.Web.Caching;
 using FilesEnumeratorParam;
 
 namespace MIISHandler.FMSources
@@ -46,25 +46,38 @@ namespace MIISHandler.FMSources
             }
             catch { }
 
+            string cacheKey = folderPath + "_categs" + "_" + topOnly;
+            //Check if tags are already cached
+            string[] arrCategs = HttpRuntime.Cache[cacheKey] as string[];
 
-            //Get al files in the folder (and subfolders if indicated), without specific ordering (we don't need it and it'll save some processing time)
-            IEnumerable<MarkdownFile> allFiles = FilesEnumeratorHelper.GetAllFilesFromFolder(folderPath, topOnly);
-
-            //Filter only those that are published
-            var publishedFilesProxies = FilesEnumeratorHelper.OnlyPublished(allFiles);
-
-            //Get all the categories in the published files (if any)
-            HashSet<string> hCategs = new HashSet<string>();
-            foreach (MIISFile mf in publishedFilesProxies)
+            if (arrCategs == null)    //Get tags from disk
             {
-                hCategs.UnionWith(mf.Categories);
+                //Get al files in the folder (and subfolders if indicated), without specific ordering (we don't need it and it'll save some processing time)
+                IEnumerable<MarkdownFile> allFiles = FilesEnumeratorHelper.GetAllFilesFromFolder(folderPath, topOnly);
+
+                //Filter only those that are published
+                var publishedFilesProxies = FilesEnumeratorHelper.OnlyPublished(allFiles);
+
+                //Get all the categories in the published files (if any)
+                HashSet<string> hCategs = new HashSet<string>();
+                foreach (MIISFile mf in publishedFilesProxies)
+                {
+                    hCategs.UnionWith(mf.Categories);
+                }
+
+                //FILE CACHING
+                FilesEnumeratorHelper.AddCacheDependencies(currentFile, folderPath, allFiles);
+
+                //Return categories
+                arrCategs = hCategs.ToArray<string>();
+
+                //Add categories to cache depending on the folder and the time until the next published file
+                FilesEnumeratorHelper.CacheResults(folderPath, cacheKey,
+                                                   FilesEnumeratorHelper.NumSecondsToNextFilePubDate(allFiles), 
+                                                   arrCategs);
             }
 
-            //FILE CACHING
-            FilesEnumeratorHelper.AddCacheDependencies(currentFile, folderPath, allFiles);
-
-            //Return tags
-            return hCategs.ToArray<string>();
+            return arrCategs;
 
         }
     }

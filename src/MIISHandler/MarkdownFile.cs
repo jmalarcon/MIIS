@@ -35,7 +35,6 @@ namespace MIISHandler
         private SimpleYAMLParser _FrontMatter;
         private bool _CachingEnabled = true;    //Should be default to allow for the expression shortcircuit in the CachingEnabled property
         private double _NumSecondsCacheIsValid = 0;
-        private bool _CacheWithQueryString = false;
         #endregion
 
         #region Constructor

@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Web;
+using System.Web.Caching;
 using System.Linq;
 using MIISHandler;
 
@@ -66,13 +65,21 @@ namespace FilesEnumeratorParam
         /// <returns></returns>
         public static IEnumerable<MarkdownFile> GetAllFilesFromFolder(string folderPath, bool topFolderOnly, SortDirection sortdirection)
         {
-            var allFiles = GetAllFilesFromFolder(folderPath, topFolderOnly);
+            //Try to read from the results cache
+            string cacheKey = folderPath + "_files" + "_" + topFolderOnly;
+            IEnumerable<MarkdownFile> allFiles = HttpRuntime.Cache[cacheKey] as IEnumerable<MarkdownFile>;
 
-            var allFilesSorted = (sortdirection == SortDirection.desc) ? 
-                                 allFiles.OrderByDescending<MarkdownFile, DateTime>(f => f.Date) : //First the newest
-                                 allFiles.OrderBy<MarkdownFile, DateTime>(f => f.Date); //First the oldest
+            if (allFiles == null)   //Read files from disk if not in the cache
+            {
+                allFiles = GetAllFilesFromFolder(folderPath, topFolderOnly).OrderByDescending<MarkdownFile, DateTime>(f => f.Date);   //Oldest file first (this is the most common way to use them)
+                //Add sorted files to cache depending on the folder and the time until the next published file
+                CacheResults(folderPath, cacheKey, NumSecondsToNextFilePubDate(allFiles), allFiles);
+            }
 
-            return allFilesSorted;
+            //Return the correct order (they are already ordered in descending direction
+            return (sortdirection == SortDirection.asc) ?
+                                 allFiles.Reverse<MarkdownFile>() : //Oldest first
+                                 allFiles;  //Newest first
         }
 
         /// <summary>
@@ -100,10 +107,47 @@ namespace FilesEnumeratorParam
         {
             //Establish the processed folder as a caching dependency for the current file this FM souce is working on
             currentFile.AddFileDependency(folderPath);
-            //If any of the files has a (publishing) date later than now, then add that as a cache dependency to refresh the listings at that point
-            double maxDateSecs = ((from f in allFiles select f.Date).Max<DateTime>() - DateTime.Now).TotalSeconds;
+            //If any of the files has a (publishing) date later than now, then add the first one as a cache dependency to refresh the listings at that point
+            double maxDateSecs = NumSecondsToNextFilePubDate(allFiles);
             if (maxDateSecs > 0)
                 currentFile.SetMaxCacheValidity(maxDateSecs);
+        }
+
+        /// <summary>
+        /// Returns the number of seconds from now to the publish date for the next file not published yet
+        /// checking all files publishing dates (if any).
+        /// </summary>
+        /// <param name="allFiles">An IEnumerable list of files</param>
+        /// <returns>Returns 0 if there is no file scheduled to be published in the future</returns>
+        public static double NumSecondsToNextFilePubDate(IEnumerable<MarkdownFile> allFiles)
+        {
+            double maxDateSecs = 0;
+            var futureFilesDates = from f in allFiles
+                                   where f.Date > DateTime.Now
+                                   select f.Date;
+            if (futureFilesDates.Count() > 0)
+            {
+                maxDateSecs = ((futureFilesDates).Min<DateTime>() - DateTime.Now).TotalSeconds;
+            }
+
+            return maxDateSecs;
+        }
+
+        /// <summary>
+        /// Adds the object to the cache
+        /// </summary>
+        /// <param name="folderPath">The folder to monitor for changes to invalidate the cache</param>
+        /// <param name="cacheKey">The cache identifer</param>
+        /// <param name="maxDateSecs">Maximum number of seconds to keep the cache alive</param>
+        /// <param name="result">The result to cache</param>
+        public static void CacheResults(string folderPath, string cacheKey, double maxDateSecs, object result)
+        {
+            //If any of the files has a (publishing) date later than now, then add the first one as a cache dependency to refresh the cache at that point
+            if (maxDateSecs > 0)    //Add dependency with a maximum period of validity
+                HttpRuntime.Cache.Insert(cacheKey, result, new CacheDependency(folderPath),
+                    DateTime.UtcNow.AddSeconds(maxDateSecs), Cache.NoSlidingExpiration);
+            else  //Just add the folder as a dependency
+                HttpRuntime.Cache.Insert(cacheKey, result, new CacheDependency(folderPath));
         }
         #endregion
 

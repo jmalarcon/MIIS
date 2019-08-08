@@ -46,8 +46,6 @@ namespace MIISHandler.FMSources
         //DRY, you know ;-)
         internal static IEnumerable<MIISFile> GetFilesFromParameters(MIISFile currentFile, params string[] parameters)
         {
-            //TODO: cache results to avoid going to disk for very long folders
-
             //Expects these parameters (* indicates the default value):
             //- Folder path relative to the current file or to the root of the site
             //- Top folder files only (true*/false, could be 1*/0) 

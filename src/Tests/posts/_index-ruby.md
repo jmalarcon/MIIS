@@ -2,6 +2,8 @@
 title: Sample folder for Files custom Front-Matter field
 author: JM Alarcon
 posts: !!FilesFromFolder ./
+tags: !!TagsFromFolder ./
+categs: !!CategsFromFolder ./
 caching: false
 ---
 
@@ -30,3 +32,19 @@ In this case I've used the same `posts` parameter, but you could simply have use
 - [{{ post.Title }}]({{post.URL}}) - [{{ post.Date | date: "dddd, dd MMMM, yyyy" }}]<br>{{post.Excerpt | strip_newlines | truncate: 75 }}
 {%- endif -%}
 {%- endfor -%}
+
+## Tags available inside the files in this folder
+
+There's a `tags` parameter defined in this file's Front-Matter to get all the tags defined in the files inside this folder. Here they are:
+
+{%- for tag in tags -%}
+1. [{{tag | capitalize}}](./?Tag={{tag | url_encode}})
+{% endfor %}
+
+## Categories available inside the files in this folder
+
+There's a `categs` parameter defined in this file's Front-Matter to get all the categories defined in the files inside this folder. Here they are:
+
+{%- for categ in categs -%}
+1. [{{categ | capitalize}}](./?Categ={{categ | url_encode}})
+{% endfor %}
