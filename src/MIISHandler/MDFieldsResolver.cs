@@ -122,7 +122,7 @@ namespace MIISHandler
                             //Get the name of the source and it's params splitting the string (the first element would be the name of the source, and the rest, the parameters, if any
                             string[] srcelements = rawValue.Substring(FRONT_MATTER_SOURCES_PREFIX.Length).Trim().Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
                             if (srcelements.Length > 0)
-                                res = FieldValuesHelper.GetFieldValueFromFMSource(srcelements[0], _mdProxy, srcelements.Skip(1).ToArray());
+                                    res = FieldValuesHelper.GetFieldValueFromFMSource(srcelements[0], _mdProxy, srcelements.Skip(1).ToArray());
                         }
                         //Second, File Processing Fields, thar inject the content of .md or .mdh files without proceesing their inner fields (for that you need to use the inject custom tag)
                         else if (rawValue.ToLowerInvariant().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || rawValue.ToLowerInvariant().EndsWith(MarkdownFile.HTML_EXT))

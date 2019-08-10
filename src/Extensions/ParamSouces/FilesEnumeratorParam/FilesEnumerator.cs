@@ -35,11 +35,12 @@ namespace FilesEnumeratorParam
         /// <param name="folderPath">The full path to the folder that contains the files</param>
         /// <param name="topFolderOnly">If true the results will include files into subfolders too</param>
         /// <returns>Returns files in the dafult order they have in disk. NO further ordering is done</returns>
-        public static IEnumerable<MarkdownFile> GetAllFilesFromFolder(string folderPath, bool topFolderOnly)
+        private static IEnumerable<MarkdownFile> GetAllFilesFromFolderInternal(string folderPath, bool topFolderOnly)
         {
             if (!Directory.Exists(folderPath))
             {
-                return null;
+                //throw new DirectoryNotFoundException("Folder does not exist!!");
+                return new List<MarkdownFile>();
             }
 
             //Search top directory only or all subdirectories too
@@ -63,7 +64,7 @@ namespace FilesEnumeratorParam
         /// <param name="topFolderOnly">If true the results will include files into subfolders too</param>
         /// <param name="sortdirection">The sort direction ordering the files by date.</param>
         /// <returns></returns>
-        public static IEnumerable<MarkdownFile> GetAllFilesFromFolder(string folderPath, bool topFolderOnly, SortDirection sortdirection)
+        public static IEnumerable<MarkdownFile> GetAllFilesFromFolder(string folderPath, bool topFolderOnly, SortDirection sortdirection = SortDirection.desc)
         {
             //Try to read from the results cache
             string cacheKey = folderPath + "_files" + "_" + topFolderOnly;
@@ -71,7 +72,7 @@ namespace FilesEnumeratorParam
 
             if (allFiles == null)   //Read files from disk if not in the cache
             {
-                allFiles = GetAllFilesFromFolder(folderPath, topFolderOnly).OrderByDescending<MarkdownFile, DateTime>(f => f.Date);   //Oldest file first (this is the most common way to use them)
+                allFiles = GetAllFilesFromFolderInternal(folderPath, topFolderOnly).OrderByDescending<MarkdownFile, DateTime>(f => f.Date);   //Oldest file first (this is the most common way to use them)
                 //Add sorted files to cache depending on the folder and the time until the next published file
                 CacheResults(folderPath, cacheKey, NumSecondsToNextFilePubDate(allFiles), allFiles);
             }
