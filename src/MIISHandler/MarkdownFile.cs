@@ -342,9 +342,11 @@ namespace MIISHandler
             }
         }
 
-        //Determines if the CSharp naming convention should be used for Liquid template rendering
-        //instead of the deafult Liquid Ruby convention
-        //This is called just once per file, thus no interfal field has been used.
+        /// <summary>
+        /// Determines if the CSharp naming convention should be used for Liquid template rendering
+        /// instead of the deafult Liquid Ruby convention
+        /// This is called just once per file, thus no interfal field has been used.
+        /// </summary>
         internal bool UseCSharpNamingConvention
         {
             get
@@ -352,6 +354,19 @@ namespace MIISHandler
                 string naming = FieldValuesHelper.GetFieldValue("naming", this, "ruby").ToLowerInvariant();
                 //Check if it's csharp or not
                 return (naming == "csharp");
+            }
+        }
+
+        /// <summary>
+        /// Checks if the ruby date formatting (C's strftime) should be used instead of the default CSharp formatting
+        /// </summary>
+        internal bool UseRubyDateFormatting
+        {
+            get
+            {
+                string naming = FieldValuesHelper.GetFieldValue("dateformat", this, "csharp").ToLowerInvariant();
+                //Check if it's csharp or not
+                return (naming == "ruby");
             }
         }
 
