@@ -21,7 +21,7 @@ namespace MIISHandler
 
         public const string MARKDOWN_DEF_EXT = ".md";   //Default extension for markdown files
         public const string HTML_EXT = ".mdh";  //File extension for HTML content
-        private readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}[\r\n]{1,2}", RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
+        private readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}\s*?[\r\n]{1,2}", RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
 
         #region private fields
         private string _rawContent = string.Empty;
@@ -246,7 +246,7 @@ namespace MIISHandler
         public string FileExt
         {
             get {
-                return Path.GetExtension(this.FileName);
+                return Path.GetExtension(this.FileName).ToLowerInvariant();
             }
         }
 

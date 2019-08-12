@@ -87,29 +87,20 @@
     <Content Include="posts\media\SolutionPackagesUI.png" />
     <Content Include="posts\media\UninstallPackage.png" />
     <Content Include="posts\media\UpdatePackages.png" />
-    <Content Include="Templates\Barebones\main.html" />
     <Content Include="Templates\common.css" />
     <Content Include="Templates\common.js" />
-    <Content Include="Templates\Material\assets\fonts\icon.svg" />
-    <Content Include="Templates\Material\assets\javascripts\application.js" />
-    <Content Include="Templates\Material\assets\javascripts\modernizr.js" />
-    <Content Include="Templates\Material\assets\javascripts\theme_extra.js" />
-    <Content Include="Templates\Material\assets\javascripts\zoomify.min.js" />
-    <Content Include="Templates\Material\assets\stylesheets\application.css" />
-    <Content Include="Templates\Material\assets\stylesheets\palettes.css" />
-    <Content Include="Templates\Material\assets\stylesheets\theme_extra.css" />
-    <Content Include="Templates\Material\assets\stylesheets\zoomify.min.css" />
-    <Content Include="Templates\Material\main.html" />
     <Content Include="Templates\readthedocs\css\highlight.css" />
     <Content Include="Templates\readthedocs\css\theme.css" />
     <Content Include="Templates\readthedocs\css\theme_extra.css" />
     <Content Include="Templates\readthedocs\fonts\fontawesome-webfont.svg" />
+    <Content Include="Templates\readthedocs\includes\beginning-fragment-test.html" />
     <Content Include="Templates\readthedocs\includes\beginning.html" />
     <Content Include="Templates\readthedocs\includes\end.html" />
     <Content Include="Templates\readthedocs\includes\forkme.html" />
     <Content Include="Templates\readthedocs\js\highlight.pack.js" />
     <Content Include="Templates\readthedocs\js\modernizr-2.8.3.min.js" />
     <Content Include="Templates\readthedocs\js\theme.js" />
+    <Content Include="Templates\readthedocs\main-with-fragment.html" />
     <Content Include="Templates\readthedocs\main.html" />
     <Content Include="Templates\readthedocs\main_forkme.html" />
     <Content Include="Templates\_common\GA.html" />
@@ -123,9 +114,6 @@
     <Content Include="Templates\_common_fonts\fontawesome-webfont.eot" />
     <Content Include="Templates\_common_fonts\fontawesome-webfont.ttf" />
     <Content Include="Templates\_common_fonts\fontawesome-webfont.woff" />
-    <Content Include="Templates\Material\assets\fonts\icon.eot" />
-    <Content Include="Templates\Material\assets\fonts\icon.ttf" />
-    <Content Include="Templates\Material\assets\fonts\icon.woff" />
     <Content Include="Templates\readthedocs\fonts\fontawesome-webfont.eot" />
     <Content Include="Templates\readthedocs\fonts\fontawesome-webfont.ttf" />
     <Content Include="Templates\readthedocs\fonts\fontawesome-webfont.woff" />
@@ -182,6 +170,8 @@
     <Content Include="posts\_pagination.md" />
     <Content Include="posts\Web.config" />
     <Content Include="posts\_atom.mdh" />
+    <Content Include="insertfiles\fragments.md" />
+    <Content Include="insertfiles\fragments-toc.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

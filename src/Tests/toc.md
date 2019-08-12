@@ -4,8 +4,10 @@ published: false
 #### Test files
 - [Basic Markdown & Custom fields](~/)
 - [Well-known Fields](~/well-known-fields.md)
-- [Include external file](~/insertfiles/fpf.md)
-- [Include external file with circular reference](~/insertfiles/fpf_circular_reference.md)
+- Injecting files
+  - [File Processing Fields and Injecting files](~/insertfiles/fpf.md)
+  - [Injecting file with circular reference](~/insertfiles/fpf_circular_reference.md)
+  - [Fragments in layouts](~/insertfiles/fragments.md)
 - [Liquid Syntax in HTML](~/liquid.mdh){target="_blank"}
 - [Raw content (text/plain) from MDH](~/raw.mdh){target="_blank"}
 - [Custom filters](~/customfilters.md)

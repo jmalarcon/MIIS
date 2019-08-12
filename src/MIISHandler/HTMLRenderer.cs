@@ -71,7 +71,7 @@ namespace MIISHandler
             RegisterCustomExtensions();   //It only makes work the first time is called
 
             //First process possible file fragments included in the content file to form the new content 
-            string tempContent = InjectFragments(md, ctx);
+            string tempContent = md.RawContent; //The initial content, read from the file
 
             //The content placeholder can't only be used in templates, not inside files, so check if there are any and remove them
             if (TemplatingHelper.IsPlaceHolderPresent(tempContent ,"content"))
@@ -99,8 +99,10 @@ namespace MIISHandler
             tempContent = parser.Render(fieldsInfo); //Assign the final content of the file, rendered with DotLiquid, without the template
             md.ProcessedContent = tempContent;
 
-            if (!raw)
+            if (!raw)   //Process the template
             {
+                //Check if tehre're fragments in the layout and process them
+                template = InjectFragments(template, md, ctx);
                 //Asign the raw final Html to be able to substitute the {{content}} placeholder
                 //(it can't be a recursive call because the whe one calls the RawFinalHtml getter it always uses "raw"
                 //Process the template with DotLiquid for this file, with the content already processed
@@ -251,22 +253,26 @@ namespace MIISHandler
             }
         }
 
-        //Finds fragment placeholders and insert their contents
-        private static string InjectFragments(MarkdownFile md, HttpContext ctx)
+        //Finds fragment placeholders in the template and insert their contents
+        //Fragments are placeholders that start with an asterisk("*") to indicate that instead of finding the value we should
+        //look for a file with the same name as the current one and with the indicated suffix in their name.
+        //If two (.md and .mdh) files exist with that name, the one with the same extension as the current file gets precedence
+        //They allow to insert "fragments" of the same resulting file in the template positions we want.
+        //The playholders that they contain will be later parsed and processed as normal fields in the file
+        private static string InjectFragments(string layoutHtml, MarkdownFile md, HttpContext ctx)
         {
-            string tempContent = md.RawContent;
+            string tempContent = layoutHtml;
             string[] fragments = TemplatingHelper.GetAllPlaceHolderNames(tempContent, phPrefix: FILE_FRAGMENT_PREFIX);
             foreach(string fragmentName in fragments)
             {
                 string fragmentContent = string.Empty;   //Default empty value
-                string fragmentFileName = ctx.Server.MapPath(Path.GetFileNameWithoutExtension(md.FileName) + fragmentName.Substring(FILE_FRAGMENT_PREFIX.Length));  //Removing the "*" at the beggining
+                string fragmentFileName = ctx.Server.MapPath(Path.GetFileNameWithoutExtension(md.FileName) + fragmentName.Substring(FILE_FRAGMENT_PREFIX.Length));  //Removing the "*" at the beginning
+
                 //Test if a file the same file extension exists
                 if (File.Exists(fragmentFileName + md.FileExt))
                     fragmentFileName += md.FileExt;
-                else if (File.Exists(fragmentFileName + MarkdownFile.MARKDOWN_DEF_EXT)) //Try with .md extension
-                    fragmentFileName += MarkdownFile.MARKDOWN_DEF_EXT;
-                else
-                    fragmentFileName += MarkdownFile.HTML_EXT; //Try with .mdh
+                else  //Try with the other file extension (.md or .mdh depending of the current file's extension)
+                    fragmentFileName += (md.FileExt == MarkdownFile.MARKDOWN_DEF_EXT) ? MarkdownFile.HTML_EXT : MarkdownFile.MARKDOWN_DEF_EXT;
 
                 //Try to read the file with fragment
                 try
@@ -274,7 +280,7 @@ namespace MIISHandler
                     md.Dependencies.Add(fragmentFileName);
 
                     MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
-                    fragmentContent = mdFld.RawContent;
+                    fragmentContent = mdFld.RawHtmlContent;
                 }
                 catch
                 {

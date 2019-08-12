@@ -105,18 +105,22 @@ namespace MIISHandler
                     {
                         res = string.Empty;   //Default value
                         /*
-                         * There are 4 types of fields:
+                         * There are 4 types of custom fields:
                          * - Value fields: {{name}} -> Get a value from the Front-Matter or from web.config -> Simply replace them (default assumption)
-                         * - File processing fields (FPF), ending in .md or .mdh. ej: myfile.md -> The file is read and it's contents transformed into HTML take the place of the placeholder
-                         *   Useful for menus, and other independet parts in custom templates and parts of the same page.
+                         * - File processing fields (FPF), whose value ends in .md or .mdh. ej: myfile.md -> if available the file is read and it's contents transformed into HTML take the place of the placeholder
+                         *   Useful for menus, and other independent parts in custom templates and parts of the same page.
                          * - Custom Dinamic Field Sources, that start with !! and use a custom class to populate the field with an object. Ej: !!customSource param1 param2
                          * - Querystring or Form fields, retrieved from the current request
                         */
 
-                        //Simple value fields
+                        //////////////////////////////
+                        //Simple value fields (default value if present)
+                        //////////////////////////////
                         string rawValue = FieldValuesHelper.GetFieldValue(name, _md);
 
+                        //////////////////////////////
                         //First, Custom Dinamic Field Sources that provide values from external assemblies
+                        //////////////////////////////
                         if (rawValue.StartsWith(FRONT_MATTER_SOURCES_PREFIX))
                         {
                             //Get the name of the source and it's params splitting the string (the first element would be the name of the source, and the rest, the parameters, if any
@@ -124,7 +128,9 @@ namespace MIISHandler
                             if (srcelements.Length > 0)
                                     res = FieldValuesHelper.GetFieldValueFromFMSource(srcelements[0], _mdProxy, srcelements.Skip(1).ToArray());
                         }
-                        //Second, File Processing Fields, thar inject the content of .md or .mdh files without proceesing their inner fields (for that you need to use the inject custom tag)
+                        //////////////////////////////
+                        //Second, File Processing Fields, thar inject the content of .md or .mdh files without processing their inner fields (for that, you need to use the 'injectfile' custom tag, if installed)
+                        //////////////////////////////
                         else if (rawValue.ToLowerInvariant().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || rawValue.ToLowerInvariant().EndsWith(MarkdownFile.HTML_EXT))
                         {
                             try
@@ -149,7 +155,9 @@ namespace MIISHandler
                                 res = String.Format("Error loading {0}: {1}", TemplatingHelper.PLACEHOLDER_PREFIX + name + TemplatingHelper.PLACEHOLDER_SUFFIX, ex.Message);
                             }
                         }
-                        //Third, try to determine param value from the querystring or the form values
+                        //////////////////////////////
+                        //Third, try to determine the param value from the querystring or the form values
+                        //////////////////////////////
                         else if (!string.IsNullOrWhiteSpace(_ctx.Request.Params[name]))
                         {
                             //TODO: Allow disabling this kind of param from web.config
@@ -157,7 +165,9 @@ namespace MIISHandler
                             //Disable caching if a param is used
                             _md.CachingEnabled = false;
                         }
+                        //////////////////////////////
                         //Finally, if it's not a custom source, or a FPF or a request parameter, then is a normal raw value
+                        //////////////////////////////
                         else
                         {
                             res = rawValue;
