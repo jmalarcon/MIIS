@@ -8,7 +8,7 @@ namespace MIISHandler.Tags
 {
     /// <summary>
     /// This defines a new renderfile Tag for liquid syntax to include any .MD or .MDH file inside other
-    /// rendering the fileds in the same context as the mother file
+    /// rendering the fields in the same context as the mother file
     /// </summary>
     public class InsertFile  : DotLiquid.Tag
     {
@@ -95,7 +95,6 @@ namespace MIISHandler.Tags
             }
 
             //Render the subfile contents in the same context as the parent
-            //TODO: Allow rendering in the file's own context
             Template partial = Template.Parse(subRenderedContent);
             partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
             crd.Reset();

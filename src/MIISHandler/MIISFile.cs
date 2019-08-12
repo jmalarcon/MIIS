@@ -122,6 +122,9 @@ namespace MIISHandler
 
         /// <summary>
         /// Excerpt for the page if present in the Front-Matter. It looks for the fields: excerpt, description & summary, in that order of precedence
+        /// If none is found, then gets the first paragraph in the contents (Markdown or HTML)
+        /// IMPORTANT: since this last option will trigger reading the file contents from disk and process all tags is highly recommended to add one
+        /// of the valid fields to files whose excerpt porperty we plan to use in other files, i.e, posts from a blog or other similar files.
         /// </summary>
         public string Excerpt
         {
@@ -150,7 +153,6 @@ namespace MIISHandler
         {
             get
             {
-                //TODO: Interpret placeholders (this is without chaging placeholders and liquid tags!!)
                 return md.RawFinalHtml;
             }
         }

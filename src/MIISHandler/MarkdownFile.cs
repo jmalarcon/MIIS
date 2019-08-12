@@ -75,13 +75,19 @@ namespace MIISHandler
             }
         }
 
-        //The raw file content (Markdown or HTML) after being processed by dotLiquid
+        /// <summary>
+        /// The raw file content (Markdown or HTML) WITHOUT the template and WITH liquid tags processed
+        /// </summary>
         public string ProcessedContent
         {
             get
             {
-                //If the content has not been processed yet, then return the raw content (for example in File Processing Fields, that don't process the content at all)
-                return string.IsNullOrEmpty(_processedContent) ? this.RawContent : _processedContent;
+                //If the content has not been processed yet...
+                if (string.IsNullOrEmpty(_processedContent))
+                    _ = this.RawFinalHtml;  //...force the rendering of the HTML and fields
+
+                //then return the raw content
+                return  _processedContent;
             }
             internal set
             {
@@ -90,7 +96,7 @@ namespace MIISHandler
         }
 
         /// <summary>
-        /// The file content transformed into HTML from the markdown content, WITHOUT the template anf WITHOUT the liquid tags procesed
+        /// The file content transformed into HTML from the raw content, WITHOUT the template and WITHOUT the liquid tags procesed
         /// </summary>
         public string RawHtmlContent
         {
@@ -139,7 +145,7 @@ namespace MIISHandler
         }
 
         /// <summary>
-        /// The final HTML generated from the markdown content and the current template
+        /// The final HTML generated from the markdown content and the current template, so WITH the template applied and WITH the liquid tags processed
         /// </summary>
         public string FinalHtml
         {
@@ -193,7 +199,12 @@ namespace MIISHandler
             }
         }
 
-        //Excerpt for the page if present in the Front-Matter. It looks for the fields: excerpt, description & summary, in that order of precedence
+        /// <summary>
+        /// Excerpt for the page if present in the Front-Matter. It looks for the fields: excerpt, description & summary, in that order of precedence
+        /// If none is found, then gets the first paragraph in the contents (Markdown or HTML)
+        /// IMPORTANT: since this last option will trigger reading the file contents from disk and process all tags is highly recommended to add one
+        /// of the valid fields to files whose excerpt porperty we plan to use in other files, i.e, posts from a blog or other similar files.
+        /// </summary>
         public string Excerpt
         {
             get
@@ -206,7 +217,7 @@ namespace MIISHandler
                     {
                         res = FieldValuesHelper.GetFieldValueFromFM("summary", this);
                         if (res == string.Empty)
-                            res = TemplatingHelper.GetFirstParagraphText(this.RawFinalHtml);   //Get the first paragraph in the content
+                            res = TemplatingHelper.GetFirstParagraphText(this.ProcessedContent);   //Get the first paragraph in the content
                     }
                 }
                 return res;
