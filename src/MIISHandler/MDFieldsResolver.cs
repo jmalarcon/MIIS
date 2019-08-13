@@ -48,8 +48,8 @@ namespace MIISHandler
                     //This is intended to be used internally only, from custom tags or front-matter custom sources
                     res = _mdProxy;
                     break;
-                case "content":
-                    res = _md.RawHtmlContent;
+                case "content": //The final HTML content, WITHOUT the template and WITH liquid tags processed
+                    res = _md.RawFinalHtml;
                     break;
                 case "title":
                     res = _md.Title;

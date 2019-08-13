@@ -38,7 +38,7 @@ namespace MIISHandler.Tags
             Template paramsTemplate = Template.Parse(fileName);
             fileName = paramsTemplate.Render(RenderParameters.FromContext(context, result.FormatProvider));
 
-            string subRenderedContent = "";
+            string subRenderedContent;
             CircularReferencesDetector crd = new CircularReferencesDetector(); ; //Circular references detector
 
             //Read the file contents if possible
@@ -65,7 +65,7 @@ namespace MIISHandler.Tags
                     if (crd.CheckCircularReference(fp2File) == false)
                     {
                         MarkdownFile mdFld = new MarkdownFile(fp2File);
-                        subRenderedContent = mdFld.RawHtmlContent; //Use the raw HTML (whithout the template)
+                        subRenderedContent = mdFld.RawHtmlContent; //Use the raw HTML (whithout the template and without the tags processed)
                         //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
                         currentMDF.AddFileDependency(fp2File);
                     }
