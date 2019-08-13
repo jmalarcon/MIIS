@@ -35,7 +35,41 @@ namespace MIISHandler
         private static readonly string FILE_FRAGMENT_PREFIX = "*";  //How to identify fragments placeholders in content files
         #endregion
 
-        #region Main Method - Render
+        #region Constructor
+        static HTMLRenderer()
+        {
+            //Dynamically setup and add to DotLiquid template processor all the new custom tags, filters and FM sources
+            RegisterCustomExtensions();
+
+            //Configure DotLiquid (once)
+
+            //Check if the CSharp Naming convention is to be used (RubyNamingConvention by default)
+            //naming: csharp in the root web.config 
+            //(this is only set once for the whole application because it's an static property 
+            //of the DotLiquid template rendering engine)
+            if (FieldValuesHelper.GetFieldValue("naming", null, "ruby") == "csharp")
+                Template.NamingConvention = new DotLiquid.NamingConventions.CSharpNamingConvention();
+            else
+                Template.NamingConvention = new DotLiquid.NamingConventions.RubyNamingConvention();
+
+            //Check which date formatting to use (Ruby/strftime or C#, C# by default)
+            //DateFormat parameter
+            Liquid.UseRubyDateFormat = (FieldValuesHelper.GetFieldValue("dateformat", null, "csharp") == "ruby");
+        }
+        #endregion
+
+        #region Main Methods - Rendering
+
+        public static string RenderLiquidTags(string rawContent, MarkdownFile contextFile)
+        {
+            //Get the parameters' resolver
+            Hash fieldsInfo = new MDFieldsResolver(contextFile);
+
+            //Process the content tags (if any) with DotLiquid
+            Template parser = Template.Parse(rawContent);
+            return parser.Render(fieldsInfo);
+        }
+
         /// <summary>
         /// Renders the HTML from the markdown using the templates and parameters specified in web.config
         /// and processing the templates
@@ -44,72 +78,40 @@ namespace MIISHandler
         /// <param name="raw">If true will force the raw template: only te content, without any extra HTML. 
         /// This is useful for getting the pure, fully processed content of the file, without any extra HTML</param>
         /// <returns>The final HTML to return to the client</returns>
-        public static string RenderMarkdown(MarkdownFile md, bool raw = false)
+        public static string RenderMarkdown(MarkdownFile md)
         {
+            //Get current template and layout
             HttpContext ctx = HttpContext.Current;
+
             string template = DEFAULT_TEMPLATE; //The default template for the final HTML
-            string templateFile = raw ? "raw" : GetCurrentTemplateFile(md); //If it's not forced to "raw" then get the curent template path
+            string templateFile = GetCurrentTemplateFile(md); //Get the curent template layout path
             if (!string.IsNullOrEmpty(templateFile))
             {
                 //If the specified template is "raw" then just return the raw HTML without any wrapping HTML code 
                 //(no html, head or body tags). Useful to return special pages with raw content.
                 if (templateFile == "raw")
                 {
-                    raw = true;
                     template = "{{content}}";
                 }
                 else
                 {
                     List<string> templateDependencies = new List<string>();
                     template = ReadTemplate(templateFile, ctx, templateDependencies);    //Read, transform and cache template
+                    //TODO: Check if the template has one and only one {{content}} placeholder (in other case it won't render the file contents)
                     //Add template file's dependences as dependences for the Markdown file cache too
                     md.Dependencies.AddRange(templateDependencies);
                 }
             }
 
-            //Dynamically setup and add to DotLiquid template processor all the new custom tags, filters and FM sources
-            RegisterCustomExtensions();   //It only makes work the first time is called
+            //Check if there're fragments in the layout and process them
+            template = InjectFragments(template, md, ctx);
 
-            //First process possible file fragments included in the content file to form the new content 
-            string tempContent = md.RawContent; //The initial content, read from the file
-
-            //The content placeholder can't only be used in templates, not inside files, so check if there are any and remove them
-            if (TemplatingHelper.IsPlaceHolderPresent(tempContent ,"content"))
-            {
-                tempContent = TemplatingHelper.ReplacePlaceHolder(tempContent, "content", string.Empty);
-            }
-
-            //Configure DotLiquid
-
-            //Check if the CSharp Naming convention is to be used (RubyNamingConvention by default)
-            //naming: csharp in the Front-Matter or in the web.config
-            if (md.UseCSharpNamingConvention)
-                Template.NamingConvention = new DotLiquid.NamingConventions.CSharpNamingConvention();
-            else
-                Template.NamingConvention = new DotLiquid.NamingConventions.RubyNamingConvention();
-
-            //Check which date formatting to use (Ruby/strftime or C#, C# by default)
-            Liquid.UseRubyDateFormat = md.UseRubyDateFormatting;
-
-            //Configure the parameters' resolver
+            //Get the parameters' resolver
             Hash fieldsInfo = new MDFieldsResolver(md, ctx);
 
-            //Process the content of the file with DotLiquid
-            //We need to do this independently so that the conversion from Markdown to HTML won't interfere
-            Template parser = Template.Parse(tempContent);
-            tempContent = parser.Render(fieldsInfo); //Assign the final content of the file, rendered with DotLiquid, without the template
-            md.ProcessedContent = tempContent;
-
-            if (!raw)   //Process the template
-            {
-                //Check if tehre're fragments in the layout and process them
-                template = InjectFragments(template, md, ctx);
-                //Asign the raw final Html to be able to substitute the {{content}} placeholder
-                //(it can't be a recursive call because the whe one calls the RawFinalHtml getter it always uses "raw"
-                //Process the template with DotLiquid for this file, with the content already processed
-                parser = Template.Parse(template);
-                tempContent = parser.Render(fieldsInfo);    //The file contents get rendered into the template by the {{content}} placeholder
-            }
+            //Process the template with DotLiquid for this file (the {{content}} placeholder is resolved in the MDFieldsResolver
+            Template parser = Template.Parse(template);
+            string tempContent = parser.Render(fieldsInfo);    //The file contents get rendered into the template by the {{content}} placeholder
 
             //Finally Transform virtual paths
             tempContent = WebHelper.TransformVirtualPaths(tempContent);
@@ -144,7 +146,7 @@ namespace MIISHandler
         }
 
         /// <summary>
-        /// Reads a template from cache if available. If not, reads it frm disk.
+        /// Reads a template from cache if available. If not, reads it from disk.
         /// Substitutes the template fields such as {basefolder}, before caching the result
         /// </summary>
         /// <param name="filePath">Path to the template</param>

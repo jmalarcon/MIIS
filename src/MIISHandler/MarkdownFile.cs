@@ -64,7 +64,7 @@ namespace MIISHandler
         public string FilePath { get; private set; } //The full path to the file
 
         /// <summary>
-        /// The raw file content, read from disk, without any further processing: as is
+        /// The raw file content, read from disk, without any further processing, without the Front-Matter
         /// </summary>
         public string RawContent
         {
@@ -84,14 +84,10 @@ namespace MIISHandler
             {
                 //If the content has not been processed yet...
                 if (string.IsNullOrEmpty(_processedContent))
-                    _ = this.RawFinalHtml;  //...force the rendering of the HTML and fields
+                    _processedContent = HTMLRenderer.RenderLiquidTags(this.RawContent, this);
 
                 //then return the raw content
                 return  _processedContent;
-            }
-            internal set
-            {
-                _processedContent = value;
             }
         }
 
@@ -121,7 +117,7 @@ namespace MIISHandler
                         }
                         var pipeline = mdPipe.Build();
                         //Convert markdown to HTML
-                        _rawHtmlContent = Markdig.Markdown.ToHtml(this.ProcessedContent, pipeline); //Convert to HTML
+                        _rawHtmlContent = Markdig.Markdown.ToHtml(this.RawContent, pipeline); //Convert to HTML
                     }
                 }
 
@@ -138,7 +134,7 @@ namespace MIISHandler
             {
                 if (string.IsNullOrEmpty(_rawFinalHtml))
                 {
-                    _rawFinalHtml = HTMLRenderer.RenderMarkdown(this, true);
+                    _rawFinalHtml = HTMLRenderer.RenderLiquidTags(this.RawHtmlContent, this);
                 }
                 return _rawFinalHtml;
             }
@@ -188,8 +184,8 @@ namespace MIISHandler
                         //Try to get the default title from the file the content (find the first H1 if there's any)
                         //Quick and dirty with RegExp and only with "#".
                         Regex re = new Regex(@"^\s*?#\s(.*)$", RegexOptions.Multiline);
-                        if (re.IsMatch(this.RawContent))
-                            _title = re.Matches(this.RawContent)[0].Groups[1].Captures[0].Value;
+                        if (re.IsMatch(this.ProcessedContent))
+                            _title = re.Matches(this.ProcessedContent)[0].Groups[1].Captures[0].Value;
                         else
                             _title = Path.GetFileNameWithoutExtension(this.FileName);
                     }
@@ -342,35 +338,6 @@ namespace MIISHandler
             }
         }
 
-        /// <summary>
-        /// Determines if the CSharp naming convention should be used for Liquid template rendering
-        /// instead of the deafult Liquid Ruby convention
-        /// This is called just once per file, thus no interfal field has been used.
-        /// </summary>
-        internal bool UseCSharpNamingConvention
-        {
-            get
-            {
-                string naming = FieldValuesHelper.GetFieldValue("naming", this, "ruby").ToLowerInvariant();
-                //Check if it's csharp or not
-                return (naming == "csharp");
-            }
-        }
-
-        /// <summary>
-        /// Checks if the ruby date formatting (C's strftime) should be used instead of the default CSharp formatting
-        /// </summary>
-        internal bool UseRubyDateFormatting
-        {
-            get
-            {
-                string naming = FieldValuesHelper.GetFieldValue("dateformat", this, "csharp").ToLowerInvariant();
-                //Check if it's csharp or not
-                return (naming == "ruby");
-            }
-        }
-
-
         #endregion
 
         #region caching
@@ -511,20 +478,27 @@ namespace MIISHandler
         #endregion
 
         #region Aux methods
-        //Ensures that the content of the file is loaded from disk
-        private void EnsureContent()
-        {
-            if (string.IsNullOrEmpty(_rawContent))
-            {
-                _rawContent = IOHelper.ReadTextFromFile(this.FilePath);
-            }
-        }
         //Ensures that the content of the file is loaded from disk and the Front Matter processed & removed from it
         private void EnsureContentAndFrontMatter()
         {
             EnsureContent();
             ProcessFrontMatter();   //Make sure the FM is processed
             RemoveFrontMatter();    //This is a separate step because FM can be cached and it's only dependent of the current file
+        }
+
+        //Ensures that the content of the file is loaded from disk
+        private void EnsureContent()
+        {
+            //TODO: get from cache
+            if (string.IsNullOrEmpty(_rawContent))
+            {
+                _rawContent = IOHelper.ReadTextFromFile(this.FilePath);
+                //Remove {{Content}} tag if present, since this tag is exclusive of layout templates and can't be included in raw content
+                if (TemplatingHelper.IsPlaceHolderPresent(_rawContent, "content"))
+                {
+                    _rawContent = TemplatingHelper.ReplacePlaceHolder(_rawContent, "content", string.Empty);
+                }
+            }
         }
 
         //Extracts Front-Matter from current file
