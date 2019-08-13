@@ -8,7 +8,7 @@ namespace MIISHandler.Tags
 {
     /// <summary>
     /// This defines a new renderfile Tag for liquid syntax to include any .MD or .MDH file inside other
-    /// rendering the fields in the same context as the mother file
+    /// rendering the fields in the same context as the parent file
     /// </summary>
     public class InsertFile  : DotLiquid.Tag
     {

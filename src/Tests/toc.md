@@ -1,7 +1,11 @@
 ﻿---
 published: false
+CustomField: This is from a custom field in the Front Matter
 ---
 #### Test files
+
+_{{customfield}}_
+
 - [Basic Markdown & Custom fields](~/)
 - [Well-known Fields](~/well-known-fields.md)
 - Injecting files

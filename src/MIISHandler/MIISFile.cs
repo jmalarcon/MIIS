@@ -149,8 +149,8 @@ namespace MIISHandler
         /// <summary>
         /// The rendered HTML content of the page, without the template (just raw html, processed)
         /// </summary>
-        public string HTML
-        {//TODO: Change the name of this property to Html (and similar properties)
+        public string Html
+        {
             get
             {
                 return md.RawFinalHtml;

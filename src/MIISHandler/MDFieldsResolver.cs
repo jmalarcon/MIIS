@@ -137,8 +137,11 @@ namespace MIISHandler
                             {
                                 string fpfPath = _ctx.Server.MapPath(rawValue);    //The File-Processing Field path
                                 MarkdownFile mdFld = new MarkdownFile(fpfPath);
-                                res = mdFld.RawHtmlContent; //Use the raw HTML (without the template and without processing the fields)
-                                                     //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
+                                res = mdFld.RawFinalHtml; //Use the raw HTML (WITHOUT the template (obviously) and WITH the liquid tags processed in its own context)
+
+                                //Add the processed file to the dependencies of the currently processed content file, 
+                                //so that the file is invalidated when the FPF changes (if caching is enabled)
+                                //The FPF is already cached too if caching is enabled
                                 _md.Dependencies.Add(fpfPath);
                             }
                             catch (System.Security.SecurityException)

@@ -134,7 +134,13 @@ namespace MIISHandler
             {
                 if (string.IsNullOrEmpty(_rawFinalHtml))
                 {
-                    _rawFinalHtml = HTMLRenderer.RenderLiquidTags(this.RawHtmlContent, this);
+                    //Try to read it from the cache
+                    _rawFinalHtml = GetRawHtmlFromCache();
+                    if (string.IsNullOrEmpty(_rawFinalHtml))    //If it's not in the cache, process the raw content
+                    {
+                        _rawFinalHtml = HTMLRenderer.RenderLiquidTags(this.RawHtmlContent, this);
+                        AddRawHtmlToCache();
+                    }
                 }
                 return _rawFinalHtml;
             }
@@ -150,11 +156,11 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_finalHtml))    //If it's not processed yet
                 {
                     //Try to read from cache
-                    _finalHtml = GetRenderedHtmlFromCache();
+                    _finalHtml = GetFinalHtmlFromCache();
                     if (string.IsNullOrEmpty(_finalHtml)) //If it's not in the cache, process the file
                     {
                         _finalHtml = HTMLRenderer.RenderMarkdown(this);
-                        AddHtmlToCache(_finalHtml);  //Add to cache (if enabled)
+                        AddFinalHtmlToCache();  //Add to cache (if enabled)
                     }
                 }
                 return _finalHtml;
@@ -429,13 +435,22 @@ namespace MIISHandler
             }
         }
 
-        //Adds the specified content to the cache (if enabled) using the correct id 
+        //Adds the specified content to the FinalHtml cache (if enabled) using the correct id 
         //depending on if the query string should be used or not
-        private void AddHtmlToCache(string content)
+        private void AddFinalHtmlToCache()
         {
             if (!CachingEnabled) return;
 
-            AddToCache(CachingIDHTML + GetQueryStringCachingSuffix(), content);
+            AddToCache(CachingIdHtml + GetQueryStringCachingSuffix(), _finalHtml);
+        }
+
+        //Adds the specified content to the RawHtml cache (if enabled) using the correct id 
+        //depending on if the query string should be used or not
+        private void AddRawHtmlToCache()
+        {
+            if (!CachingEnabled) return;
+
+            AddToCache(CachingIdRawHtml, _rawFinalHtml);
         }
 
         //Gets value from the cache if available
@@ -443,26 +458,40 @@ namespace MIISHandler
         {
             return HttpRuntime.Cache[CacheID] as string;
             //NOTE to self: doesn't check if caching is enabled because I want the setting to be available in the front-matter too
-            //and, at the point this method i called, the FM is not usually available yet, and I want to avoid reading the file 
+            //and, at the point this method is called, the FM is not usually available yet, and I want to avoid reading the file 
             //on each request (that's the main purpose of caching here).
             //The original version of MIIS only allowed this setting to be global, in the web.config for the same reason.
         }
 
         //Gets the rendered HTML from cache, if available, trying to get it with the query string
         //or just from the default ID (no query string)
-        private string GetRenderedHtmlFromCache()
+        private string GetFinalHtmlFromCache()
         {
-            string CacheID = this.CachingIDHTML + GetQueryStringCachingSuffix();
-            string res = "";
-            return GetFromCache(CacheID);
+            return GetFromCache(this.CachingIdHtml + GetQueryStringCachingSuffix());
         }
 
-        //Returns the internal identifier to be used as the key for the caching entry of this document
-        private string CachingIDHTML
+        //Gets the rendered HTML from cache, if available, trying to get it with the query string
+        //or just from the default ID (no query string)
+        private string GetRawHtmlFromCache()
+        {
+            return GetFromCache(this.CachingIdRawHtml);
+        }
+
+        //Returns the internal identifier to be used as the key for the FinalHtml caching entry of this document
+        private string CachingIdHtml
         {
             get
             {
                 return this.FilePath + "_HTML";
+            }
+        }
+
+        //Returns the internal identifier to be used as the key for the RawHtml caching entry of this document
+        private string CachingIdRawHtml
+        {
+            get
+            {
+                return this.FilePath + "_RawHTML";
             }
         }
 
@@ -489,7 +518,6 @@ namespace MIISHandler
         //Ensures that the content of the file is loaded from disk
         private void EnsureContent()
         {
-            //TODO: get from cache
             if (string.IsNullOrEmpty(_rawContent))
             {
                 _rawContent = IOHelper.ReadTextFromFile(this.FilePath);
