@@ -1,38 +1,40 @@
 ---
-# Change the default naming convention (Ruby) to force the C# naming convention instead
-# In this case the property names are: PropertyOne instead of property_one
-# It affects filters and Liquid syntax in general too!
-Naming: CSharp
 title: Sample folder for Files custom Front-Matter field
 author: JM Alarcon
 posts: !!FilesFromFolder ./
 tags: !!TagsFromFolder ./
 categs: !!CategsFromFolder ./
-caching: false
+#caching: false
 ---
 
 # Sample folder for Files obtained from a custom Front-Matter field
-
->**IMPORTANT**: this sample file uses the C# naming convention to render Liquid tags and to access element properties.
->Check [this other variant](_index-ruby.md) to see the same file with the most common Ruby convention.
 
 The sample files have been retrieved and minimally adapted from this repo: https://github.com/NuGet/docs.microsoft.com-nuget, just for testing purposes
 
 Check this folder file's RSS in Atom format: [![Atom Feed](media/rss.png)](./feed){target="_blank"}
 
-This is a sample file to show all the contents of an specific folder. In this case I'm using `"./"` as the folder param for `FilesFromFolder` FM custom param. In the parent folder you should use the name of the folder. This `index.md` file shouldn't be in the listing:
+This is a sample file to show all the contents of an specific folder. In this case I'm using `"./"` as the folder param for `FilesFromFolder` FM custom param. In the parent folder you should use the name of the folder. This `index.md` file won't be in the listing and no other file whose name starts with "_":
 
-**{{ posts.size }}** posts {% if tag != "" %}&nbsp;with Tag '{{tag}}'{% elseif categ != "" %}&nbsp;with Category '{{categ}}'{% else %}(all){% endif %}:
+**{{ posts.size }}** posts {% if tag != '' %}&nbsp;with Tag '{{tag}}'{% elseif categ != '' %}&nbsp;with Category '{{categ}}'{% else %}(all){% endif %}:
+
+{%- comment -%}
+IMPORTANT: Normally this kind of structure will be created in the template, directly in HTML, not in markdown. Although I've done my best to prevent this, in general, using Liquid tags for iteration or conditional intertwined with Markdown can be pretty tricky and can lead to weird results because of unexpected paragraphs generated around liquid tags, etc.
+By default, dates are formated using the .NET format, much more simple and intuitive than the Ruby one. If you want to use something from Shopify or Jekyll you can switch globally to the Ruby format for dates (see docs)
+{%- endcomment -%}
 
 {%- if posts.size == 0 -%}
 Nothing to show here!
 {%- endif -%}
+{% for post in posts %}
+- {{forloop.index}}: [{{post.Title}}]({{post.URL}}) - [{{ post.Date | date: "dddd, dd MMMM, yyyy" }}]<br>{{post.excerpt | strip_newlines | truncate: 75 }}
+{% endfor %}
 
-{%- for post in posts -%}
-- {{forloop.index}}: [{{post.Title}}]({{post.URL}}) - [{{ post.Date | Date: "dddd, dd MMMM, yyyy" }}]<br>{{post.Excerpt | StripNewlines | Truncate: 75 }}
-{%- endfor -%}
+{%- comment -%}
+Important: emojis must be preceded by a space in order to be rendered!
+See: https://github.com/lunet-io/markdig/blob/master/src/Markdig.Tests/Specs/EmojiSpecs.md#emoji
+{%- endcomment -%}
 
-**[Try the paginated page](page/1)** and examine the contents to see how it's been done
+> :warning: **[Try the paginated page](page/1)** and examine the contents to see how it's been done
 
 ## Posts in reverse order, only the first 5 of them
 
@@ -40,7 +42,7 @@ In this case I've used the same `posts` parameter, but you could simply have use
 
 {%- for post in posts reversed -%}
 {%- if forloop.index <= 5 -%}
-- [{{ post.Title }}]({{post.URL}}) - [{{ post.Date | Date: "dddd, dd MMMM, yyyy" }}]<br>{{post.Excerpt | StripNewlines | Truncate: 75 }}
+- [{{ post.Title }}]({{post.URL}}) - [{{ post.Date | date: "dddd, dd MMMM, yyyy" }}]<br>{{post.Excerpt | strip_newlines | truncate: 75 }}
 {%- endif -%}
 {%- endfor -%}
 

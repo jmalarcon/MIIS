@@ -84,7 +84,15 @@ namespace MIISHandler
             {
                 //If the content has not been processed yet...
                 if (string.IsNullOrEmpty(_processedContent))
-                    _processedContent = HTMLRenderer.RenderLiquidTags(this.RawContent, this);
+                {
+                    //This hack is to take into account the double proessing of rawcontent tags 
+                    //(once here and another time when processing the template)
+                    //This is a very sloppy way, duplicating the tags, but it works
+                    //Regex reRawTag = new Regex(@"({%\s*?raw\s*?%})(.*?)({\s*?%endraw\s*?%})", RegexOptions.Multiline);
+                    //string rc = reRawTag.Replace(this.RawContent, "$1{%raw%}$2{%endraw%}$3");
+                    //Process liquid tags
+                    _processedContent = Renderer.RenderLiquidTags(this.RawContent, this);
+                }
 
                 //then return the raw content
                 return  _processedContent;
@@ -103,21 +111,13 @@ namespace MIISHandler
                     //Check if its a pure HTML file (.mdh extension)
                     if (this.FileExt == HTML_EXT)  //It's HTML
                     {
-                        //No transformation required --> It's an HTML file processed by the handler to mix with the current template
+                        //No transformation required --> It's already an HTML file
                         _rawHtmlContent = this.RawContent;
                     }
                     else  //Is markdown: transform into HTML
                     {
-                        //Configure markdown conversion
-                        MarkdownPipelineBuilder mdPipe = new MarkdownPipelineBuilder().UseAdvancedExtensions();
-                        //Check if we must generate emojis
-                        if (FieldValuesHelper.GetFieldValue("UseEmoji", this, "1") != "0")
-                        {
-                            mdPipe = mdPipe.UseEmojiAndSmiley();
-                        }
-                        var pipeline = mdPipe.Build();
                         //Convert markdown to HTML
-                        _rawHtmlContent = Markdig.Markdown.ToHtml(this.RawContent, pipeline); //Convert to HTML
+                        _rawHtmlContent = Renderer.ConvertMarkdown2Html(this.RawContent, this.UseEmoji);
                     }
                 }
 
@@ -138,8 +138,18 @@ namespace MIISHandler
                     _rawFinalHtml = GetRawHtmlFromCache();
                     if (string.IsNullOrEmpty(_rawFinalHtml))    //If it's not in the cache, process the raw content
                     {
-                        _rawFinalHtml = HTMLRenderer.RenderLiquidTags(this.RawHtmlContent, this);
-                        AddRawHtmlToCache();
+                        //Check if its a pure HTML file (.mdh extension)
+                        if (this.FileExt == HTML_EXT)  //It's HTML
+                        {
+                            //No transformation required --> It's already an HTML file
+                            _rawFinalHtml = this.ProcessedContent;
+                        }
+                        else  //Is markdown: transform into HTML
+                        {
+                            //Convert markdown to HTML
+                            _rawFinalHtml = Renderer.ConvertMarkdown2Html(this.ProcessedContent, this.UseEmoji);
+                            AddRawHtmlToCache();
+                        }
                     }
                 }
                 return _rawFinalHtml;
@@ -159,7 +169,7 @@ namespace MIISHandler
                     _finalHtml = GetFinalHtmlFromCache();
                     if (string.IsNullOrEmpty(_finalHtml)) //If it's not in the cache, process the file
                     {
-                        _finalHtml = HTMLRenderer.RenderMarkdown(this);
+                        _finalHtml = Renderer.RenderMarkdownFile(this);
                         AddFinalHtmlToCache();  //Add to cache (if enabled)
                     }
                 }
@@ -304,6 +314,15 @@ namespace MIISHandler
 
         //The file paths of files the current file depends on, including itself (current file + fragments)
         internal List<string> Dependencies { get; private set; }
+
+        public bool UseEmoji
+        {
+            get
+            {
+                //Check if we must generate emojis
+                return TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("UseEmoji", this, "1"));
+            }
+        }
 
         //If the file is published or is explicitly forbidden by the author using the "Published" field
         public bool IsPublished

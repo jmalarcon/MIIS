@@ -166,7 +166,6 @@
     <Content Include="posts\ps-ref-sync-package.md" />
     <Content Include="posts\ps-ref-uninstall-package.md" />
     <Content Include="posts\ps-ref-update-package.md" />
-    <Content Include="posts\_index-ruby.md" />
     <Content Include="posts\_pagination.md" />
     <Content Include="posts\Web.config" />
     <Content Include="posts\_atom.mdh" />

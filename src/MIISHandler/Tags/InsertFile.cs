@@ -41,6 +41,8 @@ namespace MIISHandler.Tags
             string subRenderedContent;
             CircularReferencesDetector crd = new CircularReferencesDetector(); ; //Circular references detector
 
+            MarkdownFile mdFld = null;
+
             //Read the file contents if possible
             //Only .md, .mdh files allowed
             if (fileName.ToLowerInvariant().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || fileName.ToLowerInvariant().EndsWith(MarkdownFile.HTML_EXT))
@@ -64,8 +66,8 @@ namespace MIISHandler.Tags
 
                     if (crd.CheckCircularReference(fp2File) == false)
                     {
-                        MarkdownFile mdFld = new MarkdownFile(fp2File);
-                        subRenderedContent = mdFld.RawHtmlContent; //Use the raw HTML (whithout the template and without the tags processed)
+                        mdFld = new MarkdownFile(fp2File);
+                        subRenderedContent = mdFld.RawContent;  //Use the raw content. Later we'll further process it
                         //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
                         currentMDF.AddFileDependency(fp2File);
                     }
@@ -94,9 +96,15 @@ namespace MIISHandler.Tags
                 subRenderedContent = string.Format("Forbidden file type: \"{0}\"", fileName);
             }
 
-            //Render the subfile contents in the same context as the parent
+            //Render the raw subfile content *in the same context as the parent file*
+            //Liquid fields processing must always be done in the raw format to prevent problems with 
+            //unexpected HTML inserted by HTML conversion and not present in the original file, when the liquid tags were written
             Template partial = Template.Parse(subRenderedContent);
-            partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
+            subRenderedContent = partial.Render(RenderParameters.FromContext(context, result.FormatProvider));
+            //Further process it into HTML if its a Markdown file
+            if (mdFld?.FileExt == MarkdownFile.MARKDOWN_DEF_EXT)
+                subRenderedContent = Renderer.ConvertMarkdown2Html(subRenderedContent, mdFld.UseEmoji);
+            result.Write(subRenderedContent);
             crd.Reset();
         }
     }

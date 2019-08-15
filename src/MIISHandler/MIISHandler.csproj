@@ -75,7 +75,7 @@
     <Compile Include="MIISFile.cs" />
     <Compile Include="MIISHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="HTMLRenderer.cs" />
+    <Compile Include="Renderer.cs" />
     <Compile Include="Tags\InsertFile.cs" />
   </ItemGroup>
   <ItemGroup>

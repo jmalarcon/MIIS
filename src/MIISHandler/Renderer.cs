@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Web;
 using System.Web.Caching;
 using IISHelpers;
+using Markdig;
 using DotLiquid;
 using MIISHandler.Filters;
 using MIISHandler.FMSources;
@@ -15,7 +16,7 @@ namespace MIISHandler
     /// <summary>
     /// Renders the final HTML from Markdown using the spcified template or CSS file
     /// </summary>
-    public static class HTMLRenderer
+    public static class Renderer
     {
         #region Constants
         //This is simply a plain HTML5 file to show the contents inside if there's no template specified, 
@@ -36,7 +37,7 @@ namespace MIISHandler
         #endregion
 
         #region Constructor
-        static HTMLRenderer()
+        static Renderer()
         {
             //Dynamically setup and add to DotLiquid template processor all the new custom tags, filters and FM sources
             RegisterCustomExtensions();
@@ -71,6 +72,28 @@ namespace MIISHandler
         }
 
         /// <summary>
+        /// Renders a source Markdown string to HTML
+        /// </summary>
+        /// <param name="srcMarkdown">The markdown to convert to HTML</param>
+        /// <param name="useEmoji">Wwther to transform or not :emoji: into UTF-8 emojis</param>
+        /// <returns>The resulting HTML</returns>
+        public static string ConvertMarkdown2Html(string srcMarkdown, bool useEmoji)
+        {
+            //Configure markdown conversion
+            MarkdownPipelineBuilder mdPipe = new MarkdownPipelineBuilder().UseAdvancedExtensions();
+            //Check if we must generate emojis
+            if (useEmoji)
+            {
+                mdPipe = mdPipe.UseEmojiAndSmiley();
+            }
+            var pipeline = mdPipe.Build();
+            //Convert markdown to HTML
+            return Markdig.Markdown.ToHtml(srcMarkdown, pipeline); //Convert to HTML
+        }
+
+
+
+        /// <summary>
         /// Renders the HTML from the markdown using the templates and parameters specified in web.config
         /// and processing the templates
         /// </summary>
@@ -78,7 +101,7 @@ namespace MIISHandler
         /// <param name="raw">If true will force the raw template: only te content, without any extra HTML. 
         /// This is useful for getting the pure, fully processed content of the file, without any extra HTML</param>
         /// <returns>The final HTML to return to the client</returns>
-        public static string RenderMarkdown(MarkdownFile md)
+        public static string RenderMarkdownFile(MarkdownFile md)
         {
             //Get current template and layout
             HttpContext ctx = HttpContext.Current;
@@ -117,6 +140,7 @@ namespace MIISHandler
             tempContent = WebHelper.TransformVirtualPaths(tempContent);
             return tempContent;
         }
+
         #endregion
 
         #region Aux methods
@@ -261,7 +285,7 @@ namespace MIISHandler
         //look for a file with the same name as the current one and with the indicated suffix in their name.
         //If two (.md and .mdh) files exist with that name, the one with the same extension as the current file gets precedence
         //They allow to insert "fragments" of the same resulting file in the template positions we want.
-        //The playholders that they contain will be later parsed and processed as normal fields in the file
+        //The placeholders that they contain will be later parsed and processed as normal fields in the file
         private static string InjectFragments(string layoutHtml, MarkdownFile md, HttpContext ctx)
         {
             string tempContent = layoutHtml;
@@ -283,7 +307,11 @@ namespace MIISHandler
                     md.Dependencies.Add(fragmentFileName);
 
                     MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
-                    fragmentContent = mdFld.RawHtmlContent;
+                    //Render the file in the context of the parent file, no its own
+                    fragmentContent = RenderLiquidTags(mdFld.RawContent, md);   //Render tags in raw content (Markdown or HTML)
+                    //If it's Markdown, convert to HTML before substitution
+                    if (md.FileExt == MarkdownFile.MARKDOWN_DEF_EXT)
+                        fragmentContent = ConvertMarkdown2Html(fragmentContent, md.UseEmoji);
                 }
                 catch
                 {
