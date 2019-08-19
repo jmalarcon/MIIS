@@ -49,7 +49,7 @@ namespace MIISHandler
                     res = _mdProxy;
                     break;
                 case "content": //The final HTML content, WITHOUT the template and WITH liquid tags processed
-                    res = _md.RawFinalHtml;
+                    res = _md.RawFinalHtml; //This is needed to avoid that the Markdown conversion messes up with the liquid tags (loops, conditionals...)
                     break;
                 case "title":
                     res = _md.Title;
@@ -163,7 +163,6 @@ namespace MIISHandler
                         //////////////////////////////
                         else if (!string.IsNullOrWhiteSpace(_ctx.Request.Params[name]))
                         {
-                            //TODO: Allow disabling this kind of param from web.config
                             res = _ctx.Request.Params[name]; //Result (checks qs, form data, cookies and sv, in that order)
                             //Disable caching if a param is used
                             _md.CachingEnabled = false;
@@ -179,7 +178,7 @@ namespace MIISHandler
                         //Cache the retrieved value
                         InternalFileFieldCache[name] = res;
                     }
-                    //Get out of the switch
+                    //Get out of the switch construction
                     break;
             }
             //Return retrieved value

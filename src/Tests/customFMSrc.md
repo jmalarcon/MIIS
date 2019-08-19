@@ -18,7 +18,7 @@ And you can also retrieve by name  cookies, or even [server variables](https://d
 
 `HTTP_USER_AGENT`: {{ HTTP_USER_AGENT }}
 
->Please, take into account that if you use any query string, form fields, cookie data or server variables in your content, **you can't cache the rendered file**, that will be generated again on each new request. This is automatic and can't be disabled unless you're using a declaed query parameter from a Front Matter source (check documentation on creating custom Front-Matter sources).
+>Please, take into account that if you use any query string, form fields, cookie data or server variables in your content, **you can't cache the rendered file**, that will be generated again on each new request. This is automatic and can't be disabled unless you're using a declared query parameter from a Front Matter source (check documentation on creating custom Front-Matter sources).
 
 ----
 

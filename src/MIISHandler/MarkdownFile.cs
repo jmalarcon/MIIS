@@ -35,7 +35,7 @@ namespace MIISHandler
         private DateTime _dateLastModified;
         private DateTime _date;
         private SimpleYAMLParser _FrontMatter;
-        private bool _CachingEnabled = true;    //Should be default to allow for the expression shortcircuit in the CachingEnabled property
+        private bool? _CachingEnabled = null;    //Should be default to allow for the expression shortcircuit in the CachingEnabled property
         private double _NumSecondsCacheIsValid = 0;
         #endregion
 
@@ -377,11 +377,15 @@ namespace MIISHandler
             get
             {
                 //Returns true if caching is enabled in the file or global settings, and if is not disabled by a custom tag or param
-                //If any extension disables it, doesn't check the parameter value (logical shortciruit)
-                return _CachingEnabled && (
+                if (_CachingEnabled == null)
+                {
+                    _CachingEnabled = (
                         TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("Caching", this, "0")) ||
-                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("UseMDCaching", this, "0"))
+                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("UseMDCaching", this, "0") //Compatibility with 2.x
+                        )
                     );
+                }
+                return _CachingEnabled.Value;
             }
             set
             {

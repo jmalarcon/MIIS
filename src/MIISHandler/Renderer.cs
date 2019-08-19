@@ -120,7 +120,6 @@ namespace MIISHandler
                 {
                     List<string> templateDependencies = new List<string>();
                     template = ReadTemplate(templateFile, ctx, templateDependencies);    //Read, transform and cache template
-                    //TODO: Check if the template has one and only one {{content}} placeholder (in other case it won't render the file contents)
                     //Add template file's dependences as dependences for the Markdown file cache too
                     md.Dependencies.AddRange(templateDependencies);
                 }
