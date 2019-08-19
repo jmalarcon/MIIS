@@ -103,7 +103,7 @@ namespace MIISHandler.Tags
             subRenderedContent = partial.Render(RenderParameters.FromContext(context, result.FormatProvider));
             //Further process it into HTML if its a Markdown file
             if (mdFld?.FileExt == MarkdownFile.MARKDOWN_DEF_EXT)
-                subRenderedContent = Renderer.ConvertMarkdown2Html(subRenderedContent, mdFld.UseEmoji);
+                subRenderedContent = Renderer.ConvertMarkdown2Html(subRenderedContent, mdFld.UseEmoji, mdFld.EnabledMDExtensions);
             result.Write(subRenderedContent);
             crd.Reset();
         }

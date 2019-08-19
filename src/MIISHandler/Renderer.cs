@@ -10,6 +10,7 @@ using Markdig;
 using DotLiquid;
 using MIISHandler.Filters;
 using MIISHandler.FMSources;
+using Markdig.Extensions.AutoIdentifiers;
 
 namespace MIISHandler
 {
@@ -77,15 +78,27 @@ namespace MIISHandler
         /// <param name="srcMarkdown">The markdown to convert to HTML</param>
         /// <param name="useEmoji">Wwther to transform or not :emoji: into UTF-8 emojis</param>
         /// <returns>The resulting HTML</returns>
-        public static string ConvertMarkdown2Html(string srcMarkdown, bool useEmoji)
+        public static string ConvertMarkdown2Html(string srcMarkdown, bool useEmoji, string extensions = "")
         {
             //Configure markdown conversion
             MarkdownPipelineBuilder mdPipe = new MarkdownPipelineBuilder().UseAdvancedExtensions();
+
+            //Add more extensions
+            if (!string.IsNullOrWhiteSpace(extensions))
+                mdPipe.Configure(extensions);
+            
+            //Add support for non-ASCII characters in the Autolinks for headers
+            //Remove the previous AutoIdentifierExtension
+            mdPipe.Extensions.Remove(mdPipe.Extensions.Find<AutoIdentifierExtension>());
+            //Add AutoIdentifier extension with only AutoLink option
+            mdPipe.UseAutoIdentifiers(AutoIdentifierOptions.AutoLink);
+            
             //Check if we must generate emojis
             if (useEmoji)
             {
                 mdPipe = mdPipe.UseEmojiAndSmiley();
             }
+
             var pipeline = mdPipe.Build();
             //Convert markdown to HTML
             return Markdig.Markdown.ToHtml(srcMarkdown, pipeline); //Convert to HTML
@@ -310,7 +323,7 @@ namespace MIISHandler
                     fragmentContent = RenderLiquidTags(mdFld.RawContent, md);   //Render tags in raw content (Markdown or HTML)
                     //If it's Markdown, convert to HTML before substitution
                     if (md.FileExt == MarkdownFile.MARKDOWN_DEF_EXT)
-                        fragmentContent = ConvertMarkdown2Html(fragmentContent, md.UseEmoji);
+                        fragmentContent = ConvertMarkdown2Html(fragmentContent, md.UseEmoji, md.EnabledMDExtensions);
                 }
                 catch
                 {

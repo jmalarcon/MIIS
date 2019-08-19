@@ -117,7 +117,7 @@ namespace MIISHandler
                     else  //Is markdown: transform into HTML
                     {
                         //Convert markdown to HTML
-                        _rawHtmlContent = Renderer.ConvertMarkdown2Html(this.RawContent, this.UseEmoji);
+                        _rawHtmlContent = Renderer.ConvertMarkdown2Html(this.RawContent, this.UseEmoji, this.EnabledMDExtensions);
                     }
                 }
 
@@ -147,7 +147,7 @@ namespace MIISHandler
                         else  //Is markdown: transform into HTML
                         {
                             //Convert markdown to HTML
-                            _rawFinalHtml = Renderer.ConvertMarkdown2Html(this.ProcessedContent, this.UseEmoji);
+                            _rawFinalHtml = Renderer.ConvertMarkdown2Html(this.ProcessedContent, this.UseEmoji, this.EnabledMDExtensions);
                             AddRawHtmlToCache();
                         }
                     }
@@ -314,6 +314,16 @@ namespace MIISHandler
 
         //The file paths of files the current file depends on, including itself (current file + fragments)
         internal List<string> Dependencies { get; private set; }
+
+        //A list of possible Markdig extensions to enable apart from the advanced ones that are enabled by default
+        //THe name differs from the name of the parameter (Enabled vs Enable, because of the point of view in each case)
+        public string EnabledMDExtensions
+        {
+            get
+            {
+                return FieldValuesHelper.GetFieldValue("EnableMDExtensions", this);
+            }
+        }
 
         public bool UseEmoji
         {
