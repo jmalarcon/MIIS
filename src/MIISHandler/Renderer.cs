@@ -132,9 +132,20 @@ namespace MIISHandler
                 else
                 {
                     List<string> templateDependencies = new List<string>();
-                    template = ReadTemplate(templateFile, ctx, templateDependencies);    //Read, transform and cache template
-                    //Add template file's dependences as dependences for the Markdown file cache too
-                    md.Dependencies.AddRange(templateDependencies);
+                    try
+                    {
+                        template = ReadTemplate(templateFile, ctx, templateDependencies);    //Read, transform and cache template
+                        //Add template file's dependences as dependences for the Markdown file cache too
+                        md.Dependencies.AddRange(templateDependencies);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        throw new Exception("Current template is not accesible! Check the TemplateName and Layout properties for the site or the current file");
+                    }
+                    catch (Exception)
+                    {
+                        throw;
+                    }
                 }
             }
 
