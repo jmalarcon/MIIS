@@ -10,22 +10,36 @@ namespace MIISHandler
     public class MIISFile : DotLiquid.Drop  //Implements Drop to be able to be used in templates (by custom tags)
     {
         //Reference to the internal MD or MDF file
-        private MarkdownFile md;
+        private readonly MarkdownFile _md;
         //Tags and categories
         private string[] _tags = null;
         private string[] _categories = null;
 
         public  MIISFile(MarkdownFile mdFile)
         {
-            md = mdFile;
+            _md = mdFile;
         }
 
-
-        public string Author
+        /// <summary>
+        /// Gets any property for the file, specificaly defined (such as Title, Tags Categories...) or from the Front-Matter
+        /// It won't process any special FM value such as File Processing Fields or Custom Front Matter Values
+        /// </summary>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
+        public override object this[object fieldName]
         {
             get
             {
-                return GetFMValue("author", "");
+                object res = base[fieldName];
+                if (res == null)
+                    res = GetFMValue(fieldName.ToString(), "");
+
+                return res;
+                //string res = GetFMValue(method.ToString(), "");
+                //if (string.IsNullOrEmpty(res))
+                //    return base[method];
+                //else
+                //    return res;
             }
         }
 
@@ -36,7 +50,18 @@ namespace MIISHandler
         {
             get
             {
-                return md.FileName;
+                return _md.FileName;
+            }
+        }
+
+        /// <summary>
+        /// Current file's name without extension
+        /// </summary>
+        public string FileNameNoExt
+        {
+            get
+            {
+                return _md.FileNameNoExt;
             }
         }
 
@@ -47,7 +72,7 @@ namespace MIISHandler
         {
             get
             {
-                return md.FilePath;
+                return _md.FilePath;
             }
         }
 
@@ -105,7 +130,7 @@ namespace MIISHandler
         {
             get
             {
-                return md.IsPublished;
+                return _md.IsPublished;
             }
         }
 
@@ -116,7 +141,7 @@ namespace MIISHandler
         {
             get
             {
-                return md.Title;
+                return _md.Title;
             }
         }
 
@@ -130,19 +155,7 @@ namespace MIISHandler
         {
             get
             {
-                return md.Excerpt;
-            }
-        }
-
-        /// <summary>
-        /// Returns the value of the "Image" property from the FM of the file, or a default value if it's specified globally in the web.config. 
-        /// If it's not specified, returns an empty string
-        /// </summary>
-        public string Image
-        {
-            get
-            {
-                return GetFMValue("image", "");
+                return _md.Excerpt;
             }
         }
 
@@ -153,7 +166,7 @@ namespace MIISHandler
         {
             get
             {
-                return md.RawFinalHtml;
+                return _md.RawFinalHtml;
             }
         }
 
@@ -164,7 +177,7 @@ namespace MIISHandler
         {
             get
             {
-                return md.Date;
+                return _md.Date;
             }
         }
 
@@ -177,7 +190,7 @@ namespace MIISHandler
             {
                 if (_categories == null)
                 {
-                string sCategs = FieldValuesHelper.GetFieldValue("categories", md);
+                string sCategs = FieldValuesHelper.GetFieldValue("categories", _md);
                 _categories = sCategs.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
                 }
                 return _categories;
@@ -185,7 +198,7 @@ namespace MIISHandler
         }
 
         /// <summary>
-        /// Returns Categories for this file if the field is present. Otherwise, returns an empty string array
+        /// Returns Tags for this file if the field is present. Otherwise, returns an empty string array
         /// </summary>
         public string[] Tags
         {
@@ -193,10 +206,28 @@ namespace MIISHandler
             {
                 if (_tags == null)
                 {
-                    string sTags = FieldValuesHelper.GetFieldValue("tags", md);
+                    string sTags = FieldValuesHelper.GetFieldValue("tags", _md);
                     _tags = sTags.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
                 }
                 return _tags;
+            }
+        }
+
+        //Current Template name
+        public string TemplateName
+        {
+            get
+            {
+                return _md.TemplateName;
+            }
+        }
+
+        //Current layout file name
+        public string Layout
+        {
+            get
+            {
+                return _md.Layout;
             }
         }
 
@@ -209,7 +240,7 @@ namespace MIISHandler
         /// from the global values in web.config</returns>
         public string GetFMValue(string name, string defvalue)
         {
-            return FieldValuesHelper.GetFieldValue(name, this.md, defvalue);
+            return FieldValuesHelper.GetFieldValue(name, this._md, defvalue);
         }
 
         #region Caching proxies
@@ -222,7 +253,7 @@ namespace MIISHandler
         /// </summary>
         public void DisableCache()
         {
-            md.CachingEnabled = false;
+            _md.CachingEnabled = false;
         }
 
         /// <summary>
@@ -234,9 +265,9 @@ namespace MIISHandler
             //If is a valid file or folder and it's not already added to the dependencies, add it
             if ( 
                 (File.Exists(filePath) || Directory.Exists(filePath)) 
-                 && !md.Dependencies.Contains(filePath) 
+                 && !_md.Dependencies.Contains(filePath) 
                )
-                md.Dependencies.Add(filePath);
+                _md.Dependencies.Add(filePath);
         }
 
         /// <summary>
@@ -246,7 +277,7 @@ namespace MIISHandler
         /// <param name="seconds">The value must be between 1 second a 24 hours (86400 seconds). Will force this range.</param>
         public void SetMaxCacheValidity(double seconds)
         {
-            md.NumSecondsCacheIsValid = seconds;
+            _md.NumSecondsCacheIsValid = seconds;
         }
 
         #endregion
