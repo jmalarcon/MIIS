@@ -163,7 +163,7 @@ namespace MIISHandler
         private static string GetCurrentTemplateFile(MarkdownFile md)
         {
             //Get the template name that is going to be used (Front Matter or configuration), if any.
-            string templateName = FieldValuesHelper.GetFieldValue("TemplateName", md);
+            string templateName = md.TemplateName;
             if (string.IsNullOrEmpty(templateName) || templateName.ToLowerInvariant() == "none")
                 return string.Empty;    //Use the default basic HTML5 template
 
@@ -171,7 +171,7 @@ namespace MIISHandler
                 return "raw";   //Use raw contents, without any wrapping HTML tags
 
             //The name (or sub-path) for the layout file (.html normaly) to be used
-            string layoutName = FieldValuesHelper.GetFieldValue("Layout", md);
+            string layoutName = md.Layout;
             if (string.IsNullOrEmpty(layoutName))
                 return string.Empty;    //Use the default basic HTML5 template
 

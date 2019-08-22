@@ -57,6 +57,9 @@ namespace MIISHandler
                 case "filename":
 					res = _md.FileName;
 					break;
+                case "filenamenoext":
+                    res = _md.FileNameNoExt;
+                    break;
                 case "dir":
                     res = _mdProxy.Dir;
                     break;
@@ -85,18 +88,25 @@ namespace MIISHandler
                     res = $"{_ctx.Request.Url.Scheme}{System.Uri.SchemeDelimiter}{_ctx.Request.Url.Authority}";
 					break;
                 case "now":
+                case "today":
                     res = DateTime.Now;
 					break;
                 case "time":
-                    res = DateTime.Now;
+                    res = DateTime.Now.ToString("hh:mm:ss tt");
 					break;
                 case "url":
                     res = _ctx.Request.Url.AbsolutePath;
 					break;
-                case "noexturl":
+                case "urlnoext":
                     //Files processed by MIIS always have extension on disk
                     res = _ctx.Request.Path.Remove(_ctx.Request.Path.LastIndexOf("."));
 					break;
+                case "templatename":
+                    res = _md.TemplateName;
+                    break;
+                case "layout":
+                    res = _md.Layout;
+                    break;
                 //Custom fields
                 default:
                     //Check if the custom field has already been retrieved before

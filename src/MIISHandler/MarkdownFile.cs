@@ -177,6 +177,24 @@ namespace MIISHandler
             }
         }
 
+        //Current Template name
+        public string TemplateName
+        {
+            get
+            {
+                return FieldValuesHelper.GetFieldValue("TemplateName", this);
+            }
+        }
+
+        //Current layout file name
+        public string Layout
+        {
+            get
+            {
+                return FieldValuesHelper.GetFieldValue("Layout", this);
+            }
+        }
+
         //The title of the file (first available H1 header or the file name)
         public string Title
         {
@@ -265,7 +283,17 @@ namespace MIISHandler
             }
         }
         
-        //The file extrension (with dot)
+        //THe file name without the extension
+        public string FileNameNoExt
+        {
+            get
+            {
+                return this.FileName.Substring(0, this.FileName.Length - this.FileExt.Length);
+                //return IISHelpers.IOHelper.RemoveFileExtension(this.FileName);
+            }
+        }
+
+        //The file extension (with dot)
         public string FileExt
         {
             get {

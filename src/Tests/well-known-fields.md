@@ -7,16 +7,21 @@ Description: This file shows all the well-known fields and tests different space
 
 {{description}}
 
-- Title of the page: {{title}}
-- File name: {{ FileName}}
-- Date created: {{datecreated }}
-- Date modified: {{    DATEmodified    }}
-- Is current user authenticated?: {{ isAuthenticated }}
-- Authentication Type: {{authTYPE}}
-- User name: {{username}}
-- Domain: {{DOMAIN}}
-- Base URL: {{baseurl}}
-- Current date and time: {{NOW}}
-- Current time: {{time}}
-- Current URL: {{url}}
-- Current URL without file extension (if existant): {{NoExtUrl}}
+- Title of the page: `{{title}}`
+- File name: `{{ FileName}}`
+- File name without extension: `{{   FileNameNoExt   }}`
+- Current folder: `{{dir}}`
+- Date created: `{{datecreated }}` <small>_(you can format dates using the liquid `date` filter)_</small>
+- Date modified: `{{    DATEmodified    }}`
+- Date: `{{date}}`
+- Is current user authenticated?: `{{ isAuthenticated }}`
+- Authentication Type: `{{authTYPE | default: "Non authenticated"}}`
+- User name: `{{username | default: "Anonymous" }}`
+- Domain: `{{DOMAIN}}`
+- Base URL: `{{baseurl}}`
+- Current date and time: `{{NOW}}`
+- Current time: `{{time}}`
+- Current URL: `{{url}}`
+- Current URL without file extension: `{{UrlNoExt}}`
+- Current Template in use: `{{TemplateName}}`
+- Current layout in use: `{{layout}}`
