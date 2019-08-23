@@ -21,7 +21,9 @@ namespace MIISHandler
 
         public const string MARKDOWN_DEF_EXT = ".md";   //Default extension for markdown files
         public const string HTML_EXT = ".mdh";  //File extension for HTML content
-        private readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}\s*?[\r\n]{1,2}", RegexOptions.Singleline);  //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line is allowed)
+        //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line are allowed)
+        //It takes into account the different EOL for Windows (\r\n), Mac (\r) or UNIX (\n)
+        private readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}\s*?(\r\n|\r|\n|$)", RegexOptions.Singleline);
 
         #region private fields
         private string _rawContent = string.Empty;
@@ -629,9 +631,10 @@ namespace MIISHandler
         }
 
         //Removes the front matter, if any, from the actual content of the file
+        //and removes the extra empty lines at the beginning and the end
         private void RemoveFrontMatter()
         {
-            _rawContent = FRONT_MATTER_RE.Replace(_rawContent, "");
+            _rawContent = FRONT_MATTER_RE.Replace(_rawContent, "").Trim('\r', '\n');
         }
         #endregion
     }

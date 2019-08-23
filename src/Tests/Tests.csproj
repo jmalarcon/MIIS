@@ -171,7 +171,10 @@
     <Content Include="posts\_atom.mdh" />
     <Content Include="insertfiles\fragments.md" />
     <Content Include="insertfiles\fragments-toc.md" />
-    <Content Include="error.md" />
+    <Content Include="frontmatter-tests\fm-newline-fmonly.md" />
+    <Content Include="frontmatter-tests\fm-newline-mac.md" />
+    <Content Include="frontmatter-tests\fm-newline-unix.md" />
+    <Content Include="frontmatter-tests\fm-newline-windows.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
