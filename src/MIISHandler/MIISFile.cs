@@ -198,6 +198,17 @@ namespace MIISHandler
         }
 
         /// <summary>
+        /// Alias for the Categories property for Jekyll templates compatibility
+        /// </summary>
+        public string[] Category
+        {
+            get
+            {
+                return this.Categories;
+            }
+        }
+
+        /// <summary>
         /// Returns Tags for this file if the field is present. Otherwise, returns an empty string array
         /// </summary>
         public string[] Tags
