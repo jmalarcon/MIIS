@@ -171,6 +171,7 @@
     <Content Include="posts\_atom.mdh" />
     <Content Include="insertfiles\fragments.md" />
     <Content Include="insertfiles\fragments-toc.md" />
+    <Content Include="error.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

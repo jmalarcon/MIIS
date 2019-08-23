@@ -86,7 +86,12 @@ namespace MIISHandler
             //Add more extensions
             if (!string.IsNullOrWhiteSpace(extensions))
                 mdPipe.Configure(extensions);
-            
+
+            //Remove the indented code block parser (code blocks must always be fenced)
+            //This is needed if you want to mix contents from MD and MDH files injected from FPFs and insertfile tags
+            //and prevent problems when mixing HTML inside a Markdown file contents
+            mdPipe.BlockParsers.Remove(mdPipe.BlockParsers.Find<Markdig.Parsers.IndentedCodeBlockParser>());
+
             //Add support for non-ASCII characters in the Autolinks for headers
             //Remove the previous AutoIdentifierExtension
             mdPipe.Extensions.Remove(mdPipe.Extensions.Find<AutoIdentifierExtension>());
