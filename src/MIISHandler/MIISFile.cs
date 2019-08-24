@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Linq;
 
@@ -32,14 +33,9 @@ namespace MIISHandler
             {
                 object res = base[fieldName];
                 if (res == null)
-                    res = GetFMValue(fieldName.ToString(), "");
+                    res = FieldValuesHelper.GetFieldObjectFromFM(fieldName.ToString(), _md, null);
 
                 return res;
-                //string res = GetFMValue(method.ToString(), "");
-                //if (string.IsNullOrEmpty(res))
-                //    return base[method];
-                //else
-                //    return res;
             }
         }
 
@@ -190,8 +186,14 @@ namespace MIISHandler
             {
                 if (_categories == null)
                 {
-                string sCategs = FieldValuesHelper.GetFieldValue("categories", _md);
-                _categories = sCategs.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+                    var guessedValue = FieldValuesHelper.GetFieldObject("categories", _md);
+                    if ( !(guessedValue is Array) )
+                        _categories = new string[0];
+                    else
+                        _categories = guessedValue;
+                    //_categories = ((IEnumerable)guessedValue).Cast<object>().Select(x => x.ToString()).ToArray();
+                    //string sCategs = FieldValuesHelper.GetFieldValue("categories", _md);
+                    //_categories = sCategs.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
                 }
                 return _categories;
             }
@@ -217,8 +219,13 @@ namespace MIISHandler
             {
                 if (_tags == null)
                 {
-                    string sTags = FieldValuesHelper.GetFieldValue("tags", _md);
-                    _tags = sTags.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+                    var guessedValue = FieldValuesHelper.GetFieldObject("tags", _md);
+                    if (!(guessedValue is Array))
+                        _tags = new string[0];
+                    else
+                        _tags = guessedValue;
+                    //string sTags = FieldValuesHelper.GetFieldValue("tags", _md);
+                    //_tags = sTags.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
                 }
                 return _tags;
             }
@@ -240,18 +247,6 @@ namespace MIISHandler
             {
                 return _md.Layout;
             }
-        }
-
-        /// <summary>
-        /// Returns the value of the indicated parameter or the default value
-        /// </summary>
-        /// <param name="name">The name of the parameter that we want to get. Checks</param>
-        /// <param name="defvalue">The default value for the parameter if it's not present</param>
-        /// <returns>A string with the value for the parameter. Get's it first from the Front Matter and if it's not present, 
-        /// from the global values in web.config</returns>
-        public string GetFMValue(string name, string defvalue)
-        {
-            return FieldValuesHelper.GetFieldValue(name, this._md, defvalue);
         }
 
         #region Caching proxies

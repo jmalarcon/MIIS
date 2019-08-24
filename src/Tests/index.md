@@ -1,7 +1,12 @@
 ﻿---
 Title: MIIS CMS Default page
 Author: Jose M. Alarcón
-InventedField: This is an invented field!
+arr: [ Element 1, Element 2, Element 3]
+fldBool: true
+CustomDate: 2019-08-23 22:50:53
+# Can have used nil instead of null n the next field
+nullval: null
+InventedField: "This is an invented field!"
 #Caching: true
 ---
 
@@ -9,6 +14,17 @@ InventedField: This is an invented field!
 #### by [{{author}}](https://twitter.com/jm_alarcon)
 
 **It's Working!**
+
+This is a custom field that is a date: {{CustomDate}}
+
+This is the Front-Matter array:
+{%- for elt in arr -%}
+- {{elt}}
+{%- endfor -%}
+
+The boolean field in the FM is:&nbsp;`{%- if fldbool == true -%}true{%- else -%}false{%- endif %}`
+
+{% if nullval %}This is never shown because nullval is null{% endif %}
 
 This is a sample field: **{{ inventedfield }}**
 

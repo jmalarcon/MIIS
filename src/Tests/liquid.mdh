@@ -5,7 +5,7 @@ Robots: noindex,nofollow
 cssfile: github
 UserInput: This had <b>HTML</b> inside. A Liquid filter stripped it.
 Max: 3
-#doesExist: Whatever
+doesExist: Whatever
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -28,13 +28,13 @@ This is a comment. Shouldn't appear.
 	{{ "Ground control to Major Tom." | truncate: 20 }}
 
 
-    {% if doesExist == "" %}
-		This does not exist. Remove the comment in the Front-Matter to change this section
-    {% else %}
-		This should exist if you change the Front-Matter
+    {% if doesExist %}
+		This exists if you've changed the Front-Matter to remove the comment for the `doesExist` field
 			{%- if doesExist == "Whatever" -%}
 			This is a nested if
 		{%- endif -%}
+    {% else %}
+		This does not exist. Remove the comment in the Front-Matter to change this section
     {% endif %}
 
 	{%- unless TemplateName != "raw" -%}
@@ -56,7 +56,7 @@ This is a comment. Shouldn't appear.
 		{{num }} > {{max}}
 	{% endif %}
 
-        {{baseURL | }}
+        {{baseURL }}
 
 		{% assign numbers = "1,5,4,3,2" | split: "," %}
 

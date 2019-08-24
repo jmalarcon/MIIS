@@ -39,7 +39,7 @@ namespace MIISHandler.Tags
             fileName = paramsTemplate.Render(RenderParameters.FromContext(context, result.FormatProvider));
 
             string subRenderedContent;
-            CircularReferencesDetector crd = new CircularReferencesDetector(); ; //Circular references detector
+            CircularReferencesDetector crd = new CircularReferencesDetector(); //Circular references detector
 
             MarkdownFile mdFld = null;
 
@@ -53,7 +53,7 @@ namespace MIISHandler.Tags
                     
                     //Checks if current file has been referenced before or not
                     object crdObj = context[CRD_CONTEXT_VAR_NAME];    //Try to get a CR Detector from context
-                    if (crdObj.GetType() == typeof(string) && crdObj.ToString() == "")
+                    if (crdObj == null || crdObj.GetType() != typeof(CircularReferencesDetector))
                     {
                         //If there's no detector (first insertfile) then add one to the context
                         crd.CheckCircularReference(currentMDF.FilePath);    //Add current initial file as a reference

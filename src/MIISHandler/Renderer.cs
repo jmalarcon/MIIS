@@ -193,7 +193,7 @@ namespace MIISHandler
 
             //If both the template folder and the layout are established, then get the base folder for the templates
             //This base path for the templates parameter is only available through Web.config. NOT in the file Front Matter (we're skipping the file in the following call)
-            string basePath = FieldValuesHelper.GetFieldValue("TemplatesBasePath", defValue: "~/Templates/");
+            string basePath = FieldValuesHelper.GetFieldValue("TemplatesBasePath", null, "~/Templates/");
             return VirtualPathUtility.AppendTrailingSlash(basePath) + VirtualPathUtility.AppendTrailingSlash(templateName) + layoutName;
         }
 

@@ -33,6 +33,6 @@ You can even use Front-Matter fields as the origin for the file to load:
 {% insertfile {{extFilePath}}.mdh %}
 ```
 
->IMPORTANT: Please, notice that you couldn't have used `extFile` or `extFile2` as parameters in the previous tag. The reason is that, since parameters are rendered **before** reading the file, they will be rendered as the file content itself (.md and .,dh values in parameters are processed this way), so not a valid filename and therefore an invalid file type exception will be shown. Try one of them to check exactly what I'm talking about.
+>IMPORTANT: Please, notice that you couldn't have used `extFile` or `extFile2` as parameters in the previous tag. The reason is that, since parameters are rendered **before** reading the file, they will be rendered as the file content itself (.md and .mdh values in parameters are processed this way), so not a valid filename and therefore an invalid file type exception will be shown. Try one of them to check exactly what I'm talking about.
 
 inserfile custom tags can detect and inform about custom references

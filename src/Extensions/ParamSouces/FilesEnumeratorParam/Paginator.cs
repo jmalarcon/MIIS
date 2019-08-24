@@ -11,6 +11,7 @@ namespace FilesEnumeratorParam
         //Constructor. Takes an IEnumerable list of MIISFiles and sets all the properties
         public Paginator(IEnumerable<MIISFile> allFiles, int currentPage, int pageSize)
         {
+            if (pageSize == 0) pageSize = 10;
             this.PerPage = pageSize < 0 ? Math.Abs(pageSize) : pageSize;
             //Number of files
             this.TotalFiles = allFiles.Count();

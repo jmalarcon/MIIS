@@ -87,11 +87,6 @@ namespace MIISHandler
                 //If the content has not been processed yet...
                 if (string.IsNullOrEmpty(_processedContent))
                 {
-                    //This hack is to take into account the double proessing of rawcontent tags 
-                    //(once here and another time when processing the template)
-                    //This is a very sloppy way, duplicating the tags, but it works
-                    //Regex reRawTag = new Regex(@"({%\s*?raw\s*?%})(.*?)({\s*?%endraw\s*?%})", RegexOptions.Multiline);
-                    //string rc = reRawTag.Replace(this.RawContent, "$1{%raw%}$2{%endraw%}$3");
                     //Process liquid tags
                     _processedContent = Renderer.RenderLiquidTags(this.RawContent, this);
                 }
@@ -241,15 +236,15 @@ namespace MIISHandler
         {
             get
             {
-                string res = FieldValuesHelper.GetFieldValueFromFM("excerpt", this);
+                string res = FieldValuesHelper.GetFieldObjectFromFM("excerpt", this, string.Empty).ToString();
                 if (res == string.Empty)
                 {
-                    res = FieldValuesHelper.GetFieldValueFromFM("description", this);
+                    res = FieldValuesHelper.GetFieldObjectFromFM("description", this, string.Empty).ToString();
                     if (res == string.Empty)
                     {
-                        res = FieldValuesHelper.GetFieldValueFromFM("summary", this);
+                        res = FieldValuesHelper.GetFieldObjectFromFM("summary", this, string.Empty).ToString();
                         if (res == string.Empty)
-                            res = TemplatingHelper.GetFirstParagraphText(this.ProcessedContent);   //Get the first paragraph in the content
+                            res = TemplatingHelper.GetFirstParagraphText(this.RawFinalHtml);   //Get the first paragraph in the content
                     }
                 }
                 return res;

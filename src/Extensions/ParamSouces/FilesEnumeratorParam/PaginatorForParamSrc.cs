@@ -53,7 +53,11 @@ namespace MIISHandler.FMSources
 
             //Get current specified page size (10 by deafult)
             int PageSize = 0;
-            _ = int.TryParse(currentFile.GetFMValue("paginate", "10"), out PageSize);
+            var valPageSize = currentFile["paginate"];
+            if (valPageSize != null)
+            {
+                _ = int.TryParse(valPageSize.ToString(), out PageSize);
+            }
 
             //Define the paginator object
             return new Paginator(currentFiles, page, PageSize);

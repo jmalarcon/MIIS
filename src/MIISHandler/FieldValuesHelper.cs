@@ -58,6 +58,24 @@ namespace MIISHandler
         }
 
         /// <summary>
+        /// Returns the value, if any, for a specified field name. It takes the value from the FrontMatter only.
+        /// If it's not present in the Front Matter, it returns the default value.
+        /// </summary>
+        /// <param name="name">The name of the field to retrieve</param>
+        /// <param name="md">An optional Markdown file to check in its front matter</param>
+        /// <param name="defValue">The default value to return if it's not present</param>
+        /// <returns>Can return different types: null, boolean, string, array or date</returns>
+        public static object GetFieldObjectFromFM(string name, MarkdownFile md, object defValue = null)
+        {
+            string res = GetFieldValueFromFM(name, md, "");
+            if (res == "")
+                return defValue;
+
+            return TypesHelper.TryToGuessAndConvertToTypeFromString(res);
+
+        }
+
+        /// <summary>
         /// Calls the indicated custom Front-Matter field and returns the resulting value/object to be used into documents/templates
         /// </summary>
         /// <param name="sourceName">The name of the FM source to call. Case insensitive.</param>
@@ -99,6 +117,24 @@ namespace MIISHandler
 
             //Retrieve from Web.config using the app-specific prefix or without it if it's not present
             return WebHelper.GetParamValue(WEB_CONFIG_PARAM_PREFIX + name, WebHelper.GetParamValue(name, defValue));
+        }
+
+        /// <summary>
+        /// Returns the value, if any, for a specified field name. It takes the value from the FrontMatter first, and if it's not there, tries to read it from the current Web.config.
+        /// In web.config it first tries to read them prefixed with "MIIS_" to prevent collision with other products, and then without the prefix.
+        /// If it's not present neither in the Front Matter nor the Web.config, returns the default value.
+        /// </summary>
+        /// <param name="name">The name of the field to retrieve. Case insensitive.</param>
+        /// <param name="md">An optional Markdown file to check in its front matter</param>
+        /// <param name="defValue">The default value to return if it's not present</param>
+        /// <returns>Can return different types: null, boolean, string, array or date</returns>
+        public static dynamic GetFieldObject(string name, MarkdownFile md = null, object defValue = null)
+        {
+            string res = GetFieldValue(name, md, "");
+            if (res == "")
+                return defValue;
+
+            return TypesHelper.TryToGuessAndConvertToTypeFromString(res);
         }
     }
 }

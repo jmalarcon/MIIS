@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace IISHelpers
 {
@@ -60,7 +61,7 @@ namespace IISHelpers
         {
             DateTime res;
             sd = sd.Trim();
-            bool parsed = DateTime.TryParseExact(sd, "yyyy'-'MM-dd", null, System.Globalization.DateTimeStyles.None, out res);
+            bool parsed = DateTime.TryParseExact(sd, "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out res);
             if (!parsed)
             {
                 //Try with full-time
@@ -72,6 +73,46 @@ namespace IISHelpers
                 }
             }
             return parsed ? res : defValue;
+        }
+
+        /// <summary>
+        /// Tries to convert from string to other types, such as booleans, arrays or strings without the double quotes a value obtained from the FM
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        internal static dynamic TryToGuessAndConvertToTypeFromString(string val)
+        {
+            string lowerCaseVal = val.Trim().ToLowerInvariant();
+
+            //Nulls
+            if (lowerCaseVal == "null" || lowerCaseVal == "nil")
+                return null;
+
+            //Check if it's a boolean
+            if (lowerCaseVal == "true") return true;
+            if (lowerCaseVal == "false") return false;
+
+            //Check if it's a string enclosed in double quotes
+            if (lowerCaseVal.StartsWith("\"") && lowerCaseVal.EndsWith("\""))
+            {
+                //Remove double quotes
+                return val.Trim().Substring(1, val.Length - 2);
+            }
+
+            //Check if it's an array in the form [el1, el2, el3]
+            if (lowerCaseVal.StartsWith("[") && lowerCaseVal.EndsWith("]"))
+            {
+                lowerCaseVal = val.Trim().Substring(1, lowerCaseVal.Length - 2);
+                return lowerCaseVal.Split(',').Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+            }
+
+            //Try to parse as string
+            DateTime res = ParseUniversalSortableDateTimeString(val, DateTime.MinValue);
+            if (res != DateTime.MinValue)
+                return res;
+
+            //In any other case
+            return val;
         }
     }
 }
