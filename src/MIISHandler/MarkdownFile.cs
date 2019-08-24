@@ -508,7 +508,7 @@ namespace MIISHandler
         {
             if (!CachingEnabled) return;
 
-            AddToCache(CachingIdRawHtml, _rawFinalHtml);
+            AddToCache(CachingIdRawHtml + GetQueryStringCachingSuffix(), _rawFinalHtml);
         }
 
         //Gets value from the cache if available
