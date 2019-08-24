@@ -3,10 +3,10 @@ title: NuGet CLI add command
 description: Reference for the nuget.exe add command
 author: karann-msft
 excerpt: This is a sample excerpt for the file. Takes precedence from description.
-categories: karann
+categories: [karann]
 # This post is not going to be published until 2055, so it won't appear in the listings either
 date: 2025-01-18
-tags: reference
+tags: [reference]
 ---
 
 # add command (NuGet CLI)

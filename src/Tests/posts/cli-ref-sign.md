@@ -2,9 +2,9 @@
 title: NuGet CLI sign command
 description: Reference for the nuget.exe sign command
 author: dtivel
-categories: dtivel
+categories: [dtivel]
 date: 2018-03-06
-tags: reference
+tags: [reference]
 ms.reviewer: rmpablos
 ---
 

@@ -3,9 +3,9 @@ title: dotnet CLI NuGet commands
 description: A short reference for NuGet-related commands using the dotnet command-line interface.
 image: media/LongPathPolicy.png
 author: karann-msft
-categories: karann
+categories: [karann]
 date: 2019-06-24
-tags: conceptual
+tags: [conceptual]
 ---
 
 # dotnet CLI commands

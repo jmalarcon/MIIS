@@ -2,9 +2,9 @@
 title: NuGet Sync-Package PowerShell Reference
 description: Reference for Sync-Package PowerShell command in the NuGet Package Manager Console in Visual Studio.
 author: karann-msft
-categories: karann
+categories: [karann]
 date: 2017-12-07
-tags: reference, conceptual
+tags: [reference, conceptual]
 ---
 
 # Sync-Package (Package Manager Console in Visual Studio)

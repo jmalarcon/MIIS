@@ -2,9 +2,9 @@
 title: NuGet Install-Package PowerShell Reference
 description: Reference for Install-Package PowerShell command in the NuGet Package Manager Console in Visual Studio.
 author: karann-msft
-categories: karann
+categories: [karann]
 date: 2017-06-01
-tags: reference
+tags: [reference]
 ---
 
 # Install-Package (Package Manager Console in Visual Studio)

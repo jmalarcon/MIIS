@@ -2,9 +2,9 @@
 title: NuGet Update-Package PowerShell Reference
 description: Reference for Update-Package PowerShell command in the NuGet Package Manager Console in Visual Studio.
 author: karann-msft
-categories: karann
+categories: [karann]
 date: 2017-12-07
-tags: reference, conceptual
+tags: [ reference, conceptual]
 ---
 
 # Update-Package (Package Manager Console in Visual Studio)

@@ -2,9 +2,9 @@
 title: Install and manage NuGet packages using PowerShell in Visual Studio
 description: Instructions for using the NuGet Package Manager Console in Visual Studio for working with packages.
 author: karann-msft
-categories: karann
+categories: [karann]
 date: 2019-06-24
-tags: conceptual
+tags: [conceptual]
 f1_keywords: 
   - "vs.nuget.packagemanager.console"
 ---

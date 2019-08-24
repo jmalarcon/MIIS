@@ -1,9 +1,9 @@
 ---
 title: NuGet CLI config command
 author: karann-msft
-categories: karann
+categories: [karann]
 date: 2018-01-18
-tags: reference
+tags: [reference]
 ---
 
 # config command (NuGet CLI) - Excerpt extracted directly from the content
