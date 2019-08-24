@@ -56,7 +56,7 @@ namespace IISHelpers
             //If there's no final point
             if (dotPos == -1)
                 return path;    //Return unmodified path
-            //If there's a last point, chack that it's not before a folder separator
+            //If there's a last point, check that it's not before a folder separator
             int slashPos = path.LastIndexOf('\\');  //Position of folder separator (physical path)
             if (slashPos == -1) slashPos = path.LastIndexOf('/');   //Try with virtual url path or phys path in UNIX systems
             if (slashPos > dotPos) //If the slash is afetr the dot, then is not a file extension but a dot in a folder name

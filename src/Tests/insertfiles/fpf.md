@@ -8,6 +8,9 @@ extFilePath: ../raw
 ---
 # This is a file that includes an external file (File Processing Fields)
 
+Current URL relative to the root: {{url}}
+Current URL relative to the root (no extension): {{urlnoext}}
+
 This content is taken from the `toc.md` file using a file with an `.md` or `.mdh` extension in a Front-Matter field:
 
 ----

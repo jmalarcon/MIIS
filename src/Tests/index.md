@@ -15,6 +15,9 @@ InventedField: "This is an invented field!"
 
 **It's Working!**
 
+Current URL relative to the root: {{url}}
+Current URL relative to the root (no extension): {{urlnoext}}
+
 This is a custom field that is a date: {{CustomDate}}
 
 This is the Front-Matter array:

@@ -9,6 +9,9 @@ categs: !!CategsFromFolder ./
 
 # Sample folder for Files obtained from a custom Front-Matter field
 
+Current URL relative to the root: {{url}}
+Current URL relative to the root (no extension): {{urlnoext}}
+
 The sample files have been retrieved and minimally adapted from this repo: https://github.com/NuGet/docs.microsoft.com-nuget, just for testing purposes
 
 Check this folder file's RSS in Atom format: [![Atom Feed](media/rss.png)](./feed){target="_blank"}

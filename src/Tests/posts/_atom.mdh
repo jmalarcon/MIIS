@@ -3,7 +3,7 @@ Title: Sample ATOM feed created with MIIS
 TemplateName: raw
 mime: application/atom+xml
 # Change it to true or comment it to have a text excerpt in the content instead of the full HTML contents of each file
-#UseFullHtml: true
+UseFullHtml: true
 posts: !!FilesFromFolder ./ true desc
 #caching: true
 ---

@@ -103,12 +103,13 @@ namespace MIISHandler
                     res = DateTime.Now.ToString("hh:mm:ss tt");
 					break;
                 case "url":
-                    res = _ctx.Request.Url.AbsolutePath;
+                    res = _ctx.Request.RawUrl;
 					break;
                 case "urlnoext":
+                    res = IOHelper.RemoveFileExtension(_ctx.Request.RawUrl);
                     //Files processed by MIIS always have extension on disk
-                    res = _ctx.Request.Path.Remove(_ctx.Request.Path.LastIndexOf("."));
-					break;
+                    //res = _ctx.Request.Path.Remove(_ctx.Request.Path.LastIndexOf("."));
+                    break;
                 case "templatename":
                     res = _md.TemplateName;
                     break;
