@@ -33,7 +33,7 @@ namespace MIISHandler
             {
                 object res = base[fieldName];
                 if (res == null)
-                    res = FieldValuesHelper.GetFieldObjectFromFM(fieldName.ToString(), _md, null);
+                    res = FieldValuesHelper.GetFieldObject(fieldName.ToString(), _md, null);
 
                 return res;
             }
