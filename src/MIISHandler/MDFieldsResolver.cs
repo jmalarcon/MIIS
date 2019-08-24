@@ -54,11 +54,19 @@ namespace MIISHandler
                 case "title":
                     res = _md.Title;
                     break;
+                case "excerpt":
+                case "description":
+                case "summary":
+                    res = _md.Excerpt;
+                    break;
                 case "filename":
 					res = _md.FileName;
 					break;
                 case "filenamenoext":
                     res = _md.FileNameNoExt;
+                    break;
+                case "fileext":
+                    res = _md.FileExt;
                     break;
                 case "dir":
                     res = _mdProxy.Dir;

@@ -156,6 +156,28 @@ namespace MIISHandler
         }
 
         /// <summary>
+        /// Alias for Excerpt
+        /// </summary>
+        public string Description
+        {
+            get
+            {
+                return this.Excerpt;
+            }
+        }
+
+        /// <summary>
+        /// Alias for Excerpt
+        /// </summary>
+        public string Summary
+        {
+            get
+            {
+                return this.Excerpt;
+            }
+        }
+
+        /// <summary>
         /// The rendered HTML content of the page, without the template (just raw html, processed)
         /// </summary>
         public string Html

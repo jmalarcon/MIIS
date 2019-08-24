@@ -117,10 +117,19 @@ namespace IISHelpers
         {
             if (string.IsNullOrWhiteSpace(content))
                 return "";
-            //Strip HTML
-            string plainContent = Regex.Replace(content, @"<.*?>", string.Empty, RegexOptions.None, TimeSpan.FromSeconds(5));
 
-            return new Regex(@"(.*\S.*)(\r{0,1}\n|$)", RegexOptions.Multiline).Matches(plainContent)[0].Groups[1].Captures[0].Value.Trim(); ;
+            /*
+             * This is a last resort to get content from HTML. I've should have used a parser but since using this 
+             * should be a last resort and the result is not so important, I'm using quick and dirty (and prone to failure) regular expressions
+            */
+
+            //Remove all the header tags
+            string plainContent = Regex.Replace(content, @"<(h\d)[^>]*?>.*?<\/\1>", string.Empty, RegexOptions.Singleline, TimeSpan.FromSeconds(1));
+
+            //Strip HTML
+            plainContent = Regex.Replace(plainContent, @"<.*?>", string.Empty, RegexOptions.None, TimeSpan.FromSeconds(1));
+
+            return new Regex(@"(.*\S.*)(\r\n|\r|\n|$)", RegexOptions.Multiline).Matches(plainContent)[0].Groups[1].Captures[0].Value.Trim(); ;
         }
     }
 }

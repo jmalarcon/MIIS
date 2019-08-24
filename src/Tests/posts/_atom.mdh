@@ -2,10 +2,10 @@
 Title: Sample ATOM feed created with MIIS
 TemplateName: raw
 mime: application/atom+xml
-# Change it or comment it to have a text excerpt in the content instead of the full HTML contents of each file
-UseHTML: 1
+# Change it to true or comment it to have a text excerpt in the content instead of the full HTML contents of each file
+#UseFullHtml: true
 posts: !!FilesFromFolder ./ true desc
-caching: true
+#caching: true
 ---
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xml:lang="en-US">
@@ -20,11 +20,11 @@ caching: true
     <updated>{{post.Date | date: "yyyy-MM-ddTHH:mm:sszzz"}}</updated>
     <link rel="alternate" type="text/html" href="{{baseurl}}{{post.URL}}"/>
     <title>{{post.Title}}</title>
-    <content type="html">{% if UseHtml == "1" %}{{post.HTML | escape}}{% else %}{{post.Excerpt}}{% endif %}</content>
+    <content type="html">{% if UseFullHtml == true %}{{post.HTML | escape}}{% else %}{{post.Excerpt}}{% endif %}</content>
     <author>
       <name>{{post.Author}}</name>
     </author>
-{%- if post.Image != "" -%}
+{%- if post.Image -%}
     <media:thumbnail url="{{baseurl}}{{post.Dir}}{{post.Image}}"/>
 {%- endif -%}
   </entry>
