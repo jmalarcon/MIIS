@@ -209,13 +209,10 @@ namespace MIISHandler
                 if (_categories == null)
                 {
                     var guessedValue = FieldValuesHelper.GetFieldObject("categories", _md);
-                    if ( !(guessedValue is Array) )
+                    if (!(guessedValue is Array))
                         _categories = new string[0];
                     else
-                        _categories = guessedValue;
-                    //_categories = ((IEnumerable)guessedValue).Cast<object>().Select(x => x.ToString()).ToArray();
-                    //string sCategs = FieldValuesHelper.GetFieldValue("categories", _md);
-                    //_categories = sCategs.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+                        _categories = ((string[]) guessedValue).Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();    //To Lowercase
                 }
                 return _categories;
             }
@@ -245,9 +242,7 @@ namespace MIISHandler
                     if (!(guessedValue is Array))
                         _tags = new string[0];
                     else
-                        _tags = guessedValue;
-                    //string sTags = FieldValuesHelper.GetFieldValue("tags", _md);
-                    //_tags = sTags.Split(',').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+                        _tags = ((string[]) guessedValue).Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();  //To lowercase
                 }
                 return _tags;
             }

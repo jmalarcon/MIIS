@@ -18,7 +18,7 @@ Check this folder file's RSS in Atom format: [![Atom Feed](media/rss.png)](./fee
 
 This is a sample file to show all the contents of an specific folder. In this case I'm using `"./"` as the folder param for `FilesFromFolder` FM custom param. In the parent folder you should use the name of the folder. This `index.md` file won't be in the listing and no other file whose name starts with "_":
 
-**{{ posts.size }}** posts {% if tag %}&nbsp;with Tag '{{tag}}'{% elseif categ %}&nbsp;with Category '{{categ}}'{% else %}(all){% endif %}:
+**{{ posts.size }}** posts {% if tag %}&nbsp;with Tag '{{tag | capitalize}}'{% elseif categ %}&nbsp;with Category '{{categ | capitalize}}'{% else %}(all){% endif %}:
 
 {%- comment -%}
 IMPORTANT: Normally this kind of structure will be created in the template, directly in HTML, not in markdown. Although I've done my best to prevent this, in general, using Liquid tags for iteration or conditional intertwined with Markdown can be pretty tricky and can lead to weird results because of unexpected paragraphs generated around liquid tags, etc.
@@ -54,7 +54,7 @@ In this case I've used the same `posts` parameter, but you could simply have use
 There's a `tags` parameter defined in this file's Front-Matter to get all the tags defined in the files inside this folder. Here they are:
 
 {%- for tag in tags -%}
-1. [{{tag.name | Capitalize}}](./?Tag={{tag.name | UrlEncode}}) ({{tag.count}})
+1. [{{tag.name | capitalize}}](./?Tag={{tag.name | UrlEncode}}) ({{tag.count}})
 {% endfor %}
 
 ## Categories available inside the files in this folder
@@ -62,5 +62,5 @@ There's a `tags` parameter defined in this file's Front-Matter to get all the ta
 There's a `categs` parameter defined in this file's Front-Matter to get all the categories defined in the files inside this folder. Here they are:
 
 {%- for categ in categs -%}
-1. [{{categ.name | Capitalize}}](./?Categ={{categ.name | UrlEncode}}) ({{categ.count}})
+1. [{{categ.name | capitalize}}](./?Categ={{categ.name | UrlEncode}}) ({{categ.count}})
 {% endfor %}
