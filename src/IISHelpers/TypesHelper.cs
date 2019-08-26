@@ -92,10 +92,10 @@ namespace IISHelpers
             if (lowerCaseVal == "true") return true;
             if (lowerCaseVal == "false") return false;
 
-            //Check if it's a string enclosed in double quotes
-            if (lowerCaseVal.StartsWith("\"") && lowerCaseVal.EndsWith("\""))
+            //Check if it's a string enclosed in quotes
+            if ( (lowerCaseVal.StartsWith("\"") && lowerCaseVal.EndsWith("\"")) || (lowerCaseVal.StartsWith("'") && lowerCaseVal.EndsWith("'")) )
             {
-                //Remove double quotes
+                //Remove quotes
                 return val.Trim().Substring(1, val.Length - 2);
             }
 

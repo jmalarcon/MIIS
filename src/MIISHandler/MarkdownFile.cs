@@ -72,6 +72,7 @@ namespace MIISHandler
         //Complex properties
         public string FilePath { get; private set; } //The full path to the file
 
+        #region Content related properties
         /// <summary>
         /// The raw file content, read from disk, without any further processing, without the Front-Matter
         /// </summary>
@@ -181,6 +182,9 @@ namespace MIISHandler
             }
         }
 
+        #endregion
+
+        #region "Plumbing" properties
         //Current Template name
         public string TemplateName
         {
@@ -208,65 +212,6 @@ namespace MIISHandler
             }
         }
 
-        //The title of the file (first available H1 header or the file name)
-        public string Title
-        {
-            get
-            {
-                if (!string.IsNullOrEmpty(_title))
-                    return _title;
-
-                //If there's a title specified in the Front Matter, this is the one that prevails
-                _title = this.FrontMatter["title"];
-
-                if (string.IsNullOrEmpty(_title))   //If there's no title in the Front Matter
-                {
-                    if (this.FileExt == HTML_EXT)  //If it's just HTML
-                    {
-                        //Use the file name, with no extension, as the default title
-                        _title = Path.GetFileNameWithoutExtension(this.FileName);
-                    }
-                    else
-                    {
-                        //Try to get the default title from the file the content (find the first H1 if there's any)
-                        //Quick and dirty with RegExp and only with "#".
-                        Regex re = new Regex(@"^\s*?#\s(.*)$", RegexOptions.Multiline);
-                        if (re.IsMatch(this.ProcessedContent))
-                            _title = re.Matches(this.ProcessedContent)[0].Groups[1].Captures[0].Value;
-                        else
-                            _title = Path.GetFileNameWithoutExtension(this.FileName);
-                    }
-                }
-
-                return _title;
-            }
-        }
-
-        /// <summary>
-        /// Excerpt for the page if present in the Front-Matter. It looks for the fields: excerpt, description & summary, in that order of precedence
-        /// If none is found, then gets the first paragraph in the contents (Markdown or HTML)
-        /// IMPORTANT: since this last option will trigger reading the file contents from disk and process all tags is highly recommended to add one
-        /// of the valid fields to files whose excerpt porperty we plan to use in other files, i.e, posts from a blog or other similar files.
-        /// </summary>
-        public string Excerpt
-        {
-            get
-            {
-                string res = FieldValuesHelper.GetFieldObjectFromFM("excerpt", this, string.Empty).ToString();
-                if (res == string.Empty)
-                {
-                    res = FieldValuesHelper.GetFieldObjectFromFM("description", this, string.Empty).ToString();
-                    if (res == string.Empty)
-                    {
-                        res = FieldValuesHelper.GetFieldObjectFromFM("summary", this, string.Empty).ToString();
-                        if (res == string.Empty)
-                            res = TemplatingHelper.GetFirstParagraphText(this.RawFinalHtml);   //Get the first paragraph in the content
-                    }
-                }
-                return res;
-            }
-        }
-
         //The object encapsulating access to Front Matter properties
         public SimpleYAMLParser FrontMatter
         {
@@ -281,6 +226,43 @@ namespace MIISHandler
                 return _FrontMatter;
             }
         }
+
+        #endregion
+
+        //The title of the file (first available H1 header or the file name)
+        public string Title
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_title))
+                    _title = FieldValuesHelper.GetFieldValue("title", this, this.FileNameNoExt);    //Use the file name, with no extension, as the default title
+
+                return _title;
+            }
+        }
+
+        /// <summary>
+        /// Excerpt for the page if present in the Front-Matter. It looks for the fields: excerpt, description & summary, in that order of precedence
+        /// If none is found, then returns an empty string
+        /// </summary>
+        public string Excerpt
+        {
+            get
+            {
+                string res = FieldValuesHelper.GetFieldValue("excerpt", this, string.Empty);
+                if (res == string.Empty)
+                {
+                    res = FieldValuesHelper.GetFieldValue("description", this, string.Empty);
+                    if (res == string.Empty)
+                    {
+                        res = FieldValuesHelper.GetFieldValue("summary", this, string.Empty);
+                    }
+                }
+                return res;
+            }
+        }
+
+        
 
         //Basic properties directly gotten from the file info
 
@@ -347,7 +329,7 @@ namespace MIISHandler
                 if (_date != default)
                     return _date;
 
-                _date = TypesHelper.ParseUniversalSortableDateTimeString(this.FrontMatter["date"], this.DateCreated);
+                _date = FieldValuesHelper.GetFieldObject("date", this, this.DateCreated);
                 return _date;
             }
         }

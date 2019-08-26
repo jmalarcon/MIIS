@@ -1,5 +1,5 @@
 ﻿---
-Title: MIIS CMS Default page
+Title: "MIIS CMS Default page"
 Author: Jose M. Alarcón
 arr: [ Element 1, Element 2, Element 3]
 fldBool: true
@@ -14,6 +14,8 @@ InventedField: "This is an invented field!"
 #### by [{{author}}](https://twitter.com/jm_alarcon)
 
 **It's Working!**
+
+{{description}}
 
 Current URL relative to the root: {{url}}
 Current URL relative to the root (no extension): {{urlnoext}}

@@ -1,5 +1,8 @@
 ﻿---
 title: Test for external files
+description: shouldn't appear because excerpt takes precedence
+excerpt: "This is a description. You could have used excerpt, description or summary in that order of precedence if the three are declared"
+summary: Shouldn't appear because excerpt and description take precedence
 data: a,b,c,d,e
 extFile: ~/toc.md
 extFile2: ../raw.mdh

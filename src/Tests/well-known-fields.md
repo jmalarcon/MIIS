@@ -10,6 +10,7 @@ Description: This file shows all the well-known fields and tests different space
 - Title of the page: `{{title}}`
 - File name: `{{ FileName}}`
 - File name without extension: `{{   FileNameNoExt   }}`
+- File extension: `{{ fileext }}`
 - Current folder: `{{dir}}`
 - Date created: `{{datecreated }}` <small>_(you can format dates using the liquid `date` filter)_</small>
 - Date modified: `{{    DATEmodified    }}`

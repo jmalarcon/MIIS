@@ -63,7 +63,17 @@ namespace IISHelpers.YAML
                 if (property == null)
                     return string.Empty;
                 else
-                    return property.Groups[1].Value.Trim();
+                {
+                    //Remove start and end quotes and double quotes from value if present
+                    string res = property.Groups[1].Value.Trim();
+                    //Check if it's a string enclosed in double quotes
+                    if ( (res.StartsWith("\"") && res.EndsWith("\"")) || (res.StartsWith("'") && res.EndsWith("'")) )
+                    {
+                        //Remove quotes
+                        res = res.Trim().Substring(1, res.Length - 2);
+                    }
+                    return res;
+                }
             }
         }
 
