@@ -48,9 +48,9 @@ namespace MIISHandler.FMSources
 
             string cacheKey = folderPath + "_tags" + "_" + topOnly;
             //Check if tags are already cached
-            string[] arrTags = HttpRuntime.Cache[cacheKey] as string[];
+            var tags = HttpRuntime.Cache[cacheKey];
 
-            if (arrTags == null)    //Get tags from disk
+            if (tags == null)    //Get tags from disk
             {
                 //Get al files in the folder (and subfolders if indicated), without specific ordering (we don't need it and it'll save some processing time)
                 IEnumerable<MarkdownFile> allFiles = FilesEnumeratorHelper.GetAllFilesFromFolder(folderPath, topOnly);
@@ -65,19 +65,26 @@ namespace MIISHandler.FMSources
                     hTags.UnionWith(mf.Tags);
                 }
 
+                //Get the number of files in each tag
+                tags = from t in hTags
+                         select new
+                         {
+                             name = t,
+                             count = (from f in publishedFilesProxies
+                                      where f.Tags.Contains<string>(t)
+                                      select f).Count()
+                         };
+
                 //FILE CACHING
                 FilesEnumeratorHelper.AddCacheDependencies(currentFile, folderPath, allFiles);
-
-                //Return tags
-                arrTags = hTags.ToArray<string>();
 
                 //Add tags to cache depending on the folder and the time until the next published file
                 FilesEnumeratorHelper.CacheResults(folderPath, cacheKey,
                                                    FilesEnumeratorHelper.NumSecondsToNextFilePubDate(allFiles), 
-                                                   arrTags);
+                                                   tags);
             }
 
-            return arrTags;
+            return tags;
 
         }
     }

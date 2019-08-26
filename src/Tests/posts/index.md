@@ -54,7 +54,7 @@ In this case I've used the same `posts` parameter, but you could simply have use
 There's a `tags` parameter defined in this file's Front-Matter to get all the tags defined in the files inside this folder. Here they are:
 
 {%- for tag in tags -%}
-1. [{{tag | Capitalize}}](./?Tag={{tag | UrlEncode}})
+1. [{{tag.name | Capitalize}}](./?Tag={{tag.name | UrlEncode}}) ({{tag.count}})
 {% endfor %}
 
 ## Categories available inside the files in this folder
@@ -62,5 +62,5 @@ There's a `tags` parameter defined in this file's Front-Matter to get all the ta
 There's a `categs` parameter defined in this file's Front-Matter to get all the categories defined in the files inside this folder. Here they are:
 
 {%- for categ in categs -%}
-1. [{{categ | Capitalize}}](./?Categ={{categ | UrlEncode}})
+1. [{{categ.name | Capitalize}}](./?Categ={{categ.name | UrlEncode}}) ({{categ.count}})
 {% endfor %}
