@@ -70,7 +70,11 @@ namespace MIISHandler
 
             //Process the content tags (if any) with DotLiquid
             Template parser = Template.Parse(rawContent);
-            return parser.Render(fieldsInfo);
+            string res = parser.Render(fieldsInfo);
+            
+            //Check if a custom error has been raised
+            CheckParserForSpecialErrors(parser.Errors);
+            return res;
         }
 
         /// <summary>
@@ -164,6 +168,7 @@ namespace MIISHandler
             //Process the template with DotLiquid for this file (the {{content}} placeholder is resolved in the MDFieldsResolver
             Template parser = Template.Parse(template);
             string tempContent = parser.Render(fieldsInfo);    //The file contents get rendered into the template by the {{content}} placeholder
+            CheckParserForSpecialErrors(parser.Errors);
 
             //Transform virtual paths
             tempContent = WebHelper.TransformVirtualPaths(tempContent);
@@ -183,6 +188,21 @@ namespace MIISHandler
         #endregion
 
         #region Aux methods
+
+        // Checks the list of errors for special errors that we'd like to rethrow to the main handler
+        //As of now, the only custom special exception is NotFoundException that, when raised by an exgension,
+        //indicates that the page is not valid and should generate a 404 not found status
+        private static void CheckParserForSpecialErrors(List<Exception> errors)
+        {
+            if (errors.Count == 0)
+                return;
+
+            //Check if a NotFoundException has bben raised (normally when a QueryString parameter has an out of range value)
+            IEnumerable<Exception> fnfExs = errors.OfType<Renderer.NotFoundException>();
+            if (fnfExs.Count<Exception>() > 0)
+                throw fnfExs.First<Exception>();
+        }
+
         /// <summary>
         /// Gets the relative path of the template to use with the current file taking into account all the possible parameters/fields that control this setting
         /// </summary>
@@ -492,12 +512,26 @@ namespace MIISHandler
 #endregion
 
     #region Aux classes
-    internal class CircularReferenceException : Exception
+        internal class CircularReferenceException : Exception
         {
             public CircularReferenceException(string msg):base(msg)
             {
             }
         }
-        #endregion
+
+        /// <summary>
+        /// This class is used to force a 404 exception from custom liquid tags or parameters rendering
+        /// </summary>
+        public class NotFoundException : System.IO.FileNotFoundException
+        {
+            public NotFoundException() : base()
+            {
+            }
+
+            public NotFoundException(string msg) : base(msg)
+            {
+            }
+        }
+    #endregion
     }
 }

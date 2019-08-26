@@ -122,6 +122,7 @@ namespace MIISHandler
                     break;
                 //Custom fields
                 default:
+                    Exception exToBeRaised = null;    //Possible exceptions raised by the next code
                     //Check if the custom field has already been retrieved before
                     bool isCached = InternalFileFieldCache.TryGetValue(name, out res);  //If it's cached the value will be saved to res
                     if (!isCached)  //If it's not cached (has not been retrieved before) then retrieve it
@@ -158,7 +159,15 @@ namespace MIISHandler
                                 //Get the name of the source and it's params splitting the string (the first element would be the name of the source, and the rest, the parameters, if any
                                 string[] srcelements = resAsString.Substring(FRONT_MATTER_SOURCES_PREFIX.Length).Trim().Split(new char[0], StringSplitOptions.RemoveEmptyEntries);
                                 if (srcelements.Length > 0)
-                                    res = FieldValuesHelper.GetFieldValueFromFMSource(srcelements[0], _mdProxy, srcelements.Skip(1).ToArray());
+                                    try
+                                    {
+                                        res = FieldValuesHelper.GetFieldValueFromFMSource(srcelements[0], _mdProxy, srcelements.Skip(1).ToArray());
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        //Throw the exception to be reflected in the
+                                        exToBeRaised = ex;
+                                    }
                             }
                             //////////////////////////////
                             //Second, File Processing Fields, thar inject the content of .md or .mdh processing their inner fields in their own context
@@ -250,6 +259,9 @@ namespace MIISHandler
 
                         //Cache the retrieved value
                         InternalFileFieldCache[name] = res;
+                        //If there's been an exception, raise it to inform the renderer about it
+                        if (exToBeRaised != null)
+                            throw exToBeRaised;
                     }
                     //Get out of the switch construction
                     break;

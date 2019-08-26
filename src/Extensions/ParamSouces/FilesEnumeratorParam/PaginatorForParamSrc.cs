@@ -51,7 +51,7 @@ namespace MIISHandler.FMSources
                 _ = int.TryParse(qs["page"], out page);
             }
 
-            //Get current specified page size (10 by deafult)
+            //Get current specified page size (10 by default, in the constructor)
             int PageSize = 0;
             var valPageSize = currentFile["paginate"];
             if (valPageSize != null)

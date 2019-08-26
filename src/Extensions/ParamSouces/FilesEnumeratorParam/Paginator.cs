@@ -18,8 +18,12 @@ namespace FilesEnumeratorParam
             //Number of pages
             this.TotalPages = (this.TotalFiles / pageSize) + ((this.TotalFiles % pageSize == 0) ? 0 : 1);
             //Current page
-            currentPage = (currentPage <= 0) ? 1 : currentPage;
-            this.Page = (currentPage > this.TotalPages) ? this.TotalPages : currentPage;
+            if (currentPage <= 0 || currentPage > this.TotalPages)
+                throw new Renderer.NotFoundException("Page out of range");
+
+            this.Page = currentPage;
+            //currentPage = (currentPage <= 0) ? 1 : currentPage;
+            //this.Page = (currentPage > this.TotalPages) ? this.TotalPages : currentPage;
 
             //Reutn ronly the files that belong to the current pagination page
             this.Files = allFiles.Skip((this.Page - 1) * this.PerPage).Take(this.PerPage).ToList<MIISFile>();

@@ -98,6 +98,11 @@ namespace MIISHandler.FMSources
                                         select file;
             }
 
+            //If there're no files in the resulting set because of the filters, 
+            //throw a FileNotFound exception, because there are no files to be shown
+            if (allFiles.Count() > 0 && publishedFilesProxies.Count() == 0)
+                throw new Renderer.NotFoundException("The tag or category does not exist");
+
             return publishedFilesProxies;
         }
     }
