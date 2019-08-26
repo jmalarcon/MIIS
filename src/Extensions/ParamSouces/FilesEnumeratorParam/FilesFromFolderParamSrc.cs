@@ -80,6 +80,7 @@ namespace MIISHandler.FMSources
 
             //Filter only those that are published
             IEnumerable<MIISFile> publishedFilesProxies = FilesEnumeratorHelper.OnlyPublished(allFiles);
+            int numPublishedFiles = publishedFilesProxies.Count();
 
             //Filter by tag or category from QueryString params
             NameValueCollection qs = HttpContext.Current.Request.QueryString;
@@ -100,7 +101,7 @@ namespace MIISHandler.FMSources
 
             //If there're no files in the resulting set because of the filters, 
             //throw a FileNotFound exception, because there are no files to be shown
-            if (allFiles.Count() > 0 && publishedFilesProxies.Count() == 0)
+            if (numPublishedFiles > 0 && publishedFilesProxies.Count() == 0)
                 throw new Renderer.NotFoundException("The tag or category does not exist");
 
             return publishedFilesProxies;
