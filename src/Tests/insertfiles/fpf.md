@@ -14,7 +14,7 @@ Current URL relative to the root (no extension): {{urlnoext}}
 This content is taken from the `toc.md` file using a file with an `.md` or `.mdh` extension in a Front-Matter field:
 
 ----
-{{extFile |}}
+{{extFile}}
 
 ---
 

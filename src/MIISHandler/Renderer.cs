@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Reflection;
+using System.Net;
 using System.Web;
 using System.Web.Caching;
 using IISHelpers;
@@ -145,7 +146,7 @@ namespace MIISHandler
                     }
                     catch (FileNotFoundException)
                     {
-                        throw new Exception("Current template is not accesible! Check the TemplateName and Layout properties for the site or the current file");
+                        throw new Exception("Current template is not accessible! Check the TemplateName and Layout properties for the site or the current file");
                     }
                     catch (Exception)
                     {
@@ -164,8 +165,18 @@ namespace MIISHandler
             Template parser = Template.Parse(template);
             string tempContent = parser.Render(fieldsInfo);    //The file contents get rendered into the template by the {{content}} placeholder
 
-            //Finally Transform virtual paths
+            //Transform virtual paths
             tempContent = WebHelper.TransformVirtualPaths(tempContent);
+
+            //HACK: remove possible delimiters to prevent the processing of HTML contents inside Markdown files (see MDFieldsResolver.cs)
+            //Normal delimiters
+            tempContent = tempContent.Replace(MDFieldsResolver.HTML_NO_PROCESSING_DELIMITER_BEGIN, string.Empty).
+                Replace(MDFieldsResolver.HTML_NO_PROCESSING_DELIMITER_END, string.Empty);
+            //Delimiters inside blocks (shouldn't be located there, but...) that get HTMLEncoded for that reason
+            tempContent = tempContent.Replace(WebUtility.HtmlEncode(MDFieldsResolver.HTML_NO_PROCESSING_DELIMITER_BEGIN), string.Empty)
+                .Replace(WebUtility.HtmlEncode(MDFieldsResolver.HTML_NO_PROCESSING_DELIMITER_END), string.Empty);
+
+            //Return the final content
             return tempContent;
         }
 

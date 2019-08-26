@@ -1,0 +1,13 @@
+﻿---
+Published: false
+text01: This is a sample text processed from a field
+injected: injected01.mdh
+---
+				<div>
+					This shouldn't be processed inside the markdown file and should remain untouched HTML
+				</div>
+
+
+				<div>
+					The following field is not processed since it's in a second level of processing. You should see just a semicolon: {{injected}}
+				</div>

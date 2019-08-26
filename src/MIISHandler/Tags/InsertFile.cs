@@ -31,8 +31,8 @@ namespace MIISHandler.Tags
         {
             //Current HTTPContext
             HttpContext ctx = HttpContext.Current;
-            //Current MD or MDF file
-            dynamic currentMDF = context[MDFieldsResolver.INTERNAL_REFERENCE_TO_CURRENT_FILE]; //as MIISFile;
+            //Current MD or MDH file
+            dynamic parentFile = context[MDFieldsResolver.INTERNAL_REFERENCE_TO_CURRENT_FILE]; //as MIISFile;
 
             //Process the current parameter to allow the substitution of possible values, to be able to use them as parameters for this inserFile tag
             Template paramsTemplate = Template.Parse(fileName);
@@ -41,7 +41,7 @@ namespace MIISHandler.Tags
             string subRenderedContent;
             CircularReferencesDetector crd = new CircularReferencesDetector(); //Circular references detector
 
-            MarkdownFile mdFld = null;
+            MarkdownFile insertedFile = null;
 
             //Read the file contents if possible
             //Only .md, .mdh files allowed
@@ -56,7 +56,7 @@ namespace MIISHandler.Tags
                     if (crdObj == null || crdObj.GetType() != typeof(CircularReferencesDetector))
                     {
                         //If there's no detector (first insertfile) then add one to the context
-                        crd.CheckCircularReference(currentMDF.FilePath);    //Add current initial file as a reference
+                        crd.CheckCircularReference(parentFile.FilePath);    //Add current initial file as a reference
                         context[CRD_CONTEXT_VAR_NAME] = crd;
                     }
                     else
@@ -66,10 +66,10 @@ namespace MIISHandler.Tags
 
                     if (crd.CheckCircularReference(fp2File) == false)
                     {
-                        mdFld = new MarkdownFile(fp2File);
-                        subRenderedContent = mdFld.RawContent;  //Use the raw content. Later we'll further process it
+                        insertedFile = new MarkdownFile(fp2File);
+                        subRenderedContent = insertedFile.RawContent;  //Use the raw content. Later we'll further process it
                         //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
-                        currentMDF.AddFileDependency(fp2File);
+                        parentFile.AddFileDependency(fp2File);
                     }
                     else
                     {
@@ -102,8 +102,10 @@ namespace MIISHandler.Tags
             Template partial = Template.Parse(subRenderedContent);
             subRenderedContent = partial.Render(RenderParameters.FromContext(context, result.FormatProvider));
             //Further process it into HTML if its a Markdown file
-            if (mdFld?.FileExt == MarkdownFile.MARKDOWN_DEF_EXT)
-                subRenderedContent = Renderer.ConvertMarkdown2Html(subRenderedContent, mdFld.UseEmoji, mdFld.EnabledMDExtensions);
+            if (insertedFile?.FileExt == MarkdownFile.MARKDOWN_DEF_EXT)
+                subRenderedContent = MDFieldsResolver.HTML_NO_PROCESSING_DELIMITER_BEGIN +
+                    Renderer.ConvertMarkdown2Html(subRenderedContent, insertedFile.UseEmoji, insertedFile.EnabledMDExtensions) +
+                    MDFieldsResolver.HTML_NO_PROCESSING_DELIMITER_END;  //Add delimiters to prevent the processing of the HTML
             result.Write(subRenderedContent);
             crd.Reset();
         }

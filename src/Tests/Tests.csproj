@@ -175,6 +175,8 @@
     <Content Include="frontmatter-tests\fm-newline-mac.md" />
     <Content Include="frontmatter-tests\fm-newline-unix.md" />
     <Content Include="frontmatter-tests\fm-newline-windows.md" />
+    <Content Include="insertfiles\injected01.mdh" />
+    <Content Include="insertfiles\mixed_md_html.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

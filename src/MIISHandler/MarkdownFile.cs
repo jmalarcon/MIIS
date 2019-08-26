@@ -23,7 +23,7 @@ namespace MIISHandler
         public const string HTML_EXT = ".mdh";  //File extension for HTML content
         //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line are allowed)
         //It takes into account the different EOL for Windows (\r\n), Mac (\r) or UNIX (\n)
-        private readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}\s*?(\r\n|\r|\n|$)", RegexOptions.Singleline);
+        private static readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}\s*?(\r\n|\r|\n|$)", RegexOptions.Singleline);
 
         #region private fields
         private string _rawContent = string.Empty;
@@ -31,6 +31,7 @@ namespace MIISHandler
         private string _rawHtmlContent = string.Empty;
         private string _rawFinalHtml = string.Empty;
         private string _finalHtml;
+        private bool _processSubFiles = true;   //Used by sub-files inserted with a File Processing Field (FPF) to prevent the processing of subfiles in that case
         private string _title;
         private string _filename;
         private DateTime _dateCreated;
@@ -41,7 +42,7 @@ namespace MIISHandler
         private double _NumSecondsCacheIsValid = 0;
         #endregion
 
-        #region Constructor
+        #region Constructors
         //Reads and process the file. 
         //IMPORTANT: Expects the PHYSICAL path to the file.
         //Possibly generates errors that must be handled in the call-stack
@@ -59,6 +60,12 @@ namespace MIISHandler
                 this.FilePath   //Add current file as cache dependency (the render process will add the fragments and other files if needed)
             };
         }
+
+        public MarkdownFile(string mdFilePath, bool processSubFiles) : this(mdFilePath)
+        {
+            _processSubFiles = processSubFiles;
+        }
+
         #endregion
 
         #region Properties
@@ -192,6 +199,15 @@ namespace MIISHandler
             }
         }
 
+        //This is only used for the special case of HTML being rendered inside Markdown
+        public bool MustProcessSubFiles
+        {
+            get
+            {
+                return _processSubFiles;
+            }
+        }
+
         //The title of the file (first available H1 header or the file name)
         public string Title
         {
@@ -286,7 +302,6 @@ namespace MIISHandler
             get
             {
                 return this.FileName.Substring(0, this.FileName.Length - this.FileExt.Length);
-                //return IISHelpers.IOHelper.RemoveFileExtension(this.FileName);
             }
         }
 
