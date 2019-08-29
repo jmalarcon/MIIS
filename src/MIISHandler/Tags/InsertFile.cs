@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Web;
@@ -14,16 +15,59 @@ namespace MIISHandler.Tags
     {
         //Name of the context variable that gives access to the Circular Refefences Detector
         private const string CRD_CONTEXT_VAR_NAME = "_crd";
+        //Constants for choosing the right context to evaluate the insertion of the file
+        private const string RENDER_CONTEXT_TYPE_THIS = "this";  //Default: use the parent file's context to insert the file
+        private const string RENDER_CONTEXT_TYPE_OWN = "own";    //The inserted file's context. Equivalent to use a placeholder with a .md or .mdh name on it
+        private const string RENDER_CONTEXT_TYPE_NONE = "none";  //No context to be used. Inserts the file contents "as is", without replacing any tags
+
+        //The file extensions allowed to be inserted
+        private readonly string[] _AllowedInsertedFileExts = { MarkdownFile.MARKDOWN_DEF_EXT, MarkdownFile.HTML_EXT, ".htm", ".html", ".txt" };
+        //The file extensions allowed to be used as context (should contain simple YAML)
+        private readonly string[] _AllowedContextFileExts = { MarkdownFile.MARKDOWN_DEF_EXT, MarkdownFile.HTML_EXT, ".yml", ".txt" };
 
         //The file name to render (if any), set in the Initialize method
-        private string fileName = "";
+        private string _fileName = "";
+        private string _renderContextType = RENDER_CONTEXT_TYPE_THIS;  //If we must use a third file content as a context, it'll keep the name of the file
+        private RenderParameters _parentFileRenderParams = null;
 
         //Gets info from the tag in the file: tagname, parameters (markup) and the rest of the tokens below it
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
             base.Initialize(tagName, markup, tokens);
-            //Just make a note of the final parameter (presumably the name of the file to render)
-            fileName = markup.Trim();
+            //Get all the parameters into an array (lowercase)
+            string[] paramValues = markup.Split(' ').Select(c => c.Trim().ToLowerInvariant()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+
+            //At least a parameter is mandatory: the file name of the file to be inserted
+            if (paramValues.Length == 0)
+            {
+                throw new Exception("The filename is missing!");
+            }
+            else
+            {
+                //>>>>>>> File to be inserted
+                //Check if the first parameter it's a valid file type to be inserted or not
+                _fileName = paramValues[0];
+                string _fileExt = Path.GetExtension(_fileName);
+                //Check if it's an allowed file extension to be inserted
+                if ( !_AllowedInsertedFileExts.Contains<string>(_fileExt) )
+                {
+                    throw new Exception($"Invalid file type '{_fileName}'. Allowed types are {string.Join(", ", _AllowedInsertedFileExts)}");
+                }
+                //>>>>>>> Context to be used for processing
+                if (paramValues.Length > 1)
+                    _renderContextType = paramValues[1];
+
+                //>>>>>>> Check if it's a valid context
+                //If it's a third file's context, check if it's a valid file
+                if ( _renderContextType != RENDER_CONTEXT_TYPE_THIS &&
+                    _renderContextType != RENDER_CONTEXT_TYPE_OWN &&
+                    _renderContextType != RENDER_CONTEXT_TYPE_NONE &&
+                    !_AllowedContextFileExts.Contains<string>(Path.GetExtension(_renderContextType)) )
+                {
+                    throw new Exception($"Invalid context for inserting the file '{_renderContextType}'. Check the documentation for valid values.");
+                }
+
+            }
         }
 
         //Renders the file
@@ -31,81 +75,105 @@ namespace MIISHandler.Tags
         {
             //Current HTTPContext
             HttpContext ctx = HttpContext.Current;
-            //Current MD or MDH file
+            //Current MD or MDH file (needed for cache management and circular references detection)
             dynamic parentFile = context[MDFieldsResolver.INTERNAL_REFERENCE_TO_CURRENT_FILE]; //as MIISFile;
 
             //Process the current parameter to allow the substitution of possible values, to be able to use them as parameters for this inserFile tag
-            Template paramsTemplate = Template.Parse(fileName);
-            fileName = paramsTemplate.Render(RenderParameters.FromContext(context, result.FormatProvider));
+            _parentFileRenderParams = RenderParameters.FromContext(context, result.FormatProvider);
+            Template paramsTemplate = Template.Parse(_fileName);
+            _fileName = paramsTemplate.Render(_parentFileRenderParams);
 
-            string subRenderedContent;
-            CircularReferencesDetector crd = new CircularReferencesDetector(); //Circular references detector
-
+            string subRenderedContent = "";
             MarkdownFile insertedFile = null;
+            
+            //Circular references detector
+            CircularReferencesDetector crd = new CircularReferencesDetector();
 
-            //Read the file contents if possible
-            //Only .md, .mdh files allowed
-            if (fileName.ToLowerInvariant().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || fileName.ToLowerInvariant().EndsWith(MarkdownFile.HTML_EXT))
+            //Read and process the inserted file contents if possible
+            //Don't need to check if it's a valid file, because this has already be done in the Initialize method
+            try
             {
-                try
-                {
-                    string fp2File = ctx.Server.MapPath(fileName);    //Full path to the inserted file
+                string fp2File = ctx.Server.MapPath(_fileName);    //Full path to the inserted file
                     
-                    //Checks if current file has been referenced before or not
-                    object crdObj = context[CRD_CONTEXT_VAR_NAME];    //Try to get a CR Detector from context
-                    if (crdObj == null || crdObj.GetType() != typeof(CircularReferencesDetector))
-                    {
-                        //If there's no detector (first insertfile) then add one to the context
-                        crd.CheckCircularReference(parentFile.FilePath);    //Add current initial file as a reference
-                        context[CRD_CONTEXT_VAR_NAME] = crd;
-                    }
-                    else
-                    {
-                        crd = (CircularReferencesDetector) crdObj;
-                    }
+                //Checks if current file has been referenced before or not
+                object crdObj = context[CRD_CONTEXT_VAR_NAME];    //Try to get a CR Detector from context
+                if (crdObj == null || crdObj.GetType() != typeof(CircularReferencesDetector))
+                {
+                    //If there's no detector (first insertfile) then add one to the context
+                    crd.CheckCircularReference(parentFile.FilePath);    //Add current initial file as a reference
+                    context[CRD_CONTEXT_VAR_NAME] = crd;
+                }
+                else
+                {
+                    crd = (CircularReferencesDetector) crdObj;
+                }
 
-                    if (crd.CheckCircularReference(fp2File) == false)
-                    {
-                        insertedFile = new MarkdownFile(fp2File);
-                        subRenderedContent = insertedFile.RawContent;  //Use the raw content. Later we'll further process it
-                        //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
-                        parentFile.AddFileDependency(fp2File);
-                    }
-                    else
-                    {
-                        throw new Exception( string.Format("Circular reference!!:<br>{0}", crd.GetNestedFilesPath()) );
-                    }
-
-                }
-                catch (System.Security.SecurityException)
+                if (crd.CheckCircularReference(fp2File) == false)
                 {
-                    subRenderedContent = string.Format("Can't access file \"{0}\"", fileName);
+                    insertedFile = new MarkdownFile(fp2File, false);
+                    //Use the raw content of the file. Later we'll further process it
+                    //Liquid fields processing must always be done in the raw format to prevent problems with 
+                    //unexpected HTML inserted by HTML conversion and not present in the original file, when the liquid tags were written
+                    subRenderedContent = insertedFile.RawContent;
+                    //Add the processed file to the dependencies of the currently processed content file, so that the file is invalidated when the FPF changes (if caching is enabled)
+                    parentFile.AddFileDependency(fp2File);
                 }
-                catch (System.IO.FileNotFoundException)
+                else
                 {
-                    subRenderedContent = string.Format("File not found for \"{0}\"", fileName);
-                }
-                catch (Exception ex)
-                {
-                    //This should only happen while testing, never in production, so I send the exception's message
-                    subRenderedContent = string.Format("Error loading \"{0}\": {1}", fileName, ex.Message);
+                    throw new Exception( string.Format("Circular reference!!:<br>{0}", crd.GetNestedFilesPath()) );
                 }
             }
-            else
+            catch (System.Security.SecurityException)
             {
-                subRenderedContent = string.Format("Forbidden file type: \"{0}\"", fileName);
+                subRenderedContent = $"Can't access file \"{_fileName}\"";
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                subRenderedContent = $"File not found: \"{_fileName}\"";
+            }
+            catch (Exception ex)
+            {
+                //This should only happen while testing, never in production, so I send the exception's message
+                subRenderedContent = $"Error loading \"{_fileName}\": {ex.Message}";
             }
 
-            //Render the raw subfile content *in the same context as the parent file*
-            //Liquid fields processing must always be done in the raw format to prevent problems with 
-            //unexpected HTML inserted by HTML conversion and not present in the original file, when the liquid tags were written
-            Template partial = Template.Parse(subRenderedContent);
-            subRenderedContent = partial.Render(RenderParameters.FromContext(context, result.FormatProvider));
-            //Further process it into HTML if its a Markdown file
-            if (insertedFile?.FileExt == MarkdownFile.MARKDOWN_DEF_EXT)
-                subRenderedContent = MDFieldsResolver.HTML_NO_PROCESSING_DELIMITER_BEGIN +
-                    Renderer.ConvertMarkdown2Html(subRenderedContent, insertedFile.UseEmoji, insertedFile.EnabledMDExtensions) +
-                    MDFieldsResolver.HTML_NO_PROCESSING_DELIMITER_END;  //Add delimiters to prevent the processing of the HTML
+            //If the raw contents of the file were read
+            if (insertedFile != null)
+            {
+                Template partial = Template.Parse(subRenderedContent);
+                //Process the file using the appropiate context
+                switch (_renderContextType)
+                {
+                    case RENDER_CONTEXT_TYPE_THIS:
+                        //Render the raw subfile content *in the same context as the parent file*
+                        subRenderedContent = partial.Render(_parentFileRenderParams);
+                        break;
+                    case RENDER_CONTEXT_TYPE_OWN:
+                        //Render the file in its own context
+                        subRenderedContent = insertedFile.ProcessedContent;
+                        break;
+                    case RENDER_CONTEXT_TYPE_NONE:
+                        //Use an empty context (placeholders will be deleted)
+                        subRenderedContent = partial.Render(new Hash());
+                        break;
+                    default:    //It's a thrid party file's context
+                        //In this case we need to use the MIISFile that represents the third file, as the context
+                        MDFieldsResolver renderContext = new MDFieldsResolver(
+                                new MarkdownFile(ctx.Server.MapPath(_renderContextType), false)
+                            );
+                        subRenderedContent = partial.Render(renderContext);
+                        break;
+                }
+
+                //Further process the results into HTML if the injected file its a Markdown file
+                if (insertedFile.FileExt == MarkdownFile.MARKDOWN_DEF_EXT)
+                    subRenderedContent = Renderer.ConvertMarkdown2Html(subRenderedContent, insertedFile.UseEmoji, insertedFile.EnabledMDExtensions);
+
+                //Sice we're inserting HTML we need to add the delimiters preventing the processing of the HTML 
+                //when the final file is transformed into HTML from Markdown
+                subRenderedContent = MDFieldsResolver.HTML_NO_PROCESSING_DELIMITER_BEGIN + subRenderedContent + MDFieldsResolver.HTML_NO_PROCESSING_DELIMITER_END;
+            }
+
             result.Write(subRenderedContent);
             crd.Reset();
         }

@@ -150,7 +150,7 @@ namespace MIISHandler
                     }
                     catch (FileNotFoundException)
                     {
-                        throw new Exception("Current template is not accessible! Check the TemplateName and Layout properties for the site or the current file");
+                        throw new Exception("Current template file is not accessible! Check the TemplateName and Layout properties for the site or the current file");
                     }
                     catch (Exception)
                     {
