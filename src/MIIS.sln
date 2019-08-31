@@ -21,7 +21,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParamSources", "ParamSources", "{7B6664D1-DC6A-4F0D-964A-B60416D761EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FilesEnumeratorParam", "Extensions\ParamSouces\FilesEnumeratorParam\FilesEnumeratorParam.csproj", "{A02771B1-1155-4505-B6CA-662439A72AA0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISFilesEnumeratorFMS", "Extensions\ParamSouces\FilesEnumeratorParam\MIISFilesEnumeratorFMS.csproj", "{A02771B1-1155-4505-B6CA-662439A72AA0}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

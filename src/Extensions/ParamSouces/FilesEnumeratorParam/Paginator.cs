@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using DotLiquid;
 using MIISHandler;
 
-namespace FilesEnumeratorParam
+namespace MIISFilesEnumeratorFMS
 {
     public class Paginator : Drop
     {

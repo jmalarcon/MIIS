@@ -6,7 +6,7 @@ using System.Web.Caching;
 using System.Linq;
 using MIISHandler;
 
-namespace FilesEnumeratorParam
+namespace MIISFilesEnumeratorFMS
 {
     /// <summary>
     /// A helper enum to specify the sort order of the resulting files

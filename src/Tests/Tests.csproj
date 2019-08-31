@@ -186,9 +186,9 @@
     <Content Include="well-known-fields.md" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Extensions\ParamSouces\FilesEnumeratorParam\FilesEnumeratorParam.csproj">
+    <ProjectReference Include="..\Extensions\ParamSouces\FilesEnumeratorParam\MIISFilesEnumeratorFMS.csproj">
       <Project>{a02771b1-1155-4505-b6ca-662439a72aa0}</Project>
-      <Name>FilesEnumeratorParam</Name>
+      <Name>MIISFilesEnumeratorFMS</Name>
     </ProjectReference>
     <ProjectReference Include="..\MIISHandler\MIISHandler.csproj">
       <Project>{80934ba3-4d14-4dd1-ab2c-6466fce8e791}</Project>
