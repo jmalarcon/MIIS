@@ -65,12 +65,9 @@ namespace MIISHandler
 
         public static string RenderLiquidTags(string rawContent, MarkdownFile contextFile)
         {
-            //Get the parameters' resolver
-            Hash fieldsInfo = new MDFieldsResolver(contextFile);
-
             //Process the content tags (if any) with DotLiquid
             Template parser = Template.Parse(rawContent);
-            string res = parser.Render(fieldsInfo);
+            string res = parser.Render(contextFile.FieldsResolver);
             
             //Check if a custom error has been raised
             CheckParserForSpecialErrors(parser.Errors);
@@ -162,12 +159,9 @@ namespace MIISHandler
             //Check if there're fragments in the layout and process them
             template = InjectFragments(template, md, ctx);
 
-            //Get the parameters' resolver
-            Hash fieldsInfo = new MDFieldsResolver(md, ctx);
-
             //Process the template with DotLiquid for this file (the {{content}} placeholder is resolved in the MDFieldsResolver
             Template parser = Template.Parse(template);
-            string tempContent = parser.Render(fieldsInfo);    //The file contents get rendered into the template by the {{content}} placeholder
+            string tempContent = parser.Render(md.FieldsResolver);    //The file contents get rendered into the template by the {{content}} placeholder
             CheckParserForSpecialErrors(parser.Errors);
 
             //Transform virtual paths

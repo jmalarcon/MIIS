@@ -29,16 +29,11 @@ namespace MIISHandler
         private readonly IDictionary<string, object> InternalFileFieldCache = new Dictionary<string, object>();
 
         //Constructor
-        public MDFieldsResolver(MarkdownFile mdFile, HttpContext context)
+        internal MDFieldsResolver(MarkdownFile mdFile)
         {
             _parentFile = mdFile;
             _mdProxy = new MIISFile(_parentFile);
-            _ctx = context;
-        }
-
-        public MDFieldsResolver(MarkdownFile mdFile):this(mdFile, HttpContext.Current)
-        {
-            //Just to ease the initialization from extensions
+            _ctx = HttpContext.Current;
         }
 
         //Retrieves the value for the specified field or returns an empty string if it doesn't exist

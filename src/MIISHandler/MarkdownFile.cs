@@ -32,6 +32,7 @@ namespace MIISHandler
         private string _rawFinalHtml = string.Empty;
         private string _finalHtml;
         private bool _processSubFiles = true;   //Used by sub-files inserted with a File Processing Field (FPF) to prevent the processing of subfiles in that case
+        private MDFieldsResolver _resolver = null;    //Internal reference to a MDFields resolver to be reused while the MarkdownFile is used
         private string _title;
         private string _filename;
         private DateTime _dateCreated;
@@ -46,11 +47,6 @@ namespace MIISHandler
         //Reads and process the file. 
         //IMPORTANT: Expects the PHYSICAL path to the file.
         //Possibly generates errors that must be handled in the call-stack
-        //IMPORTANT: It doesn't need to cache the results because it's only directly used (and therefore read from disk)
-        //in downloads (it could be cached for that but it's a not a frequent operation so it can be left that way instead of ocupping memory)
-        //and in File-Processing fields, that use the rawHTML proprty and therefore this property too (and Markdown transformation) but in this case
-        //the final result is cached and it's ony done once per file, so its effect it's neglictive and we save memory. 
-        //This default behaviour could be changed in the future as needed.
         public MarkdownFile(string mdFilePath)
         {
             this.FilePath = mdFilePath;
@@ -179,6 +175,17 @@ namespace MIISHandler
                     }
                 }
                 return _finalHtml;
+            }
+        }
+
+        public MDFieldsResolver FieldsResolver
+        {
+            get
+            {
+                if (_resolver == null)
+                    _resolver = new MDFieldsResolver(this);
+
+                return _resolver;
             }
         }
 

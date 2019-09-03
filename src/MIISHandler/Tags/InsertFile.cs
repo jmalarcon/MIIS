@@ -158,9 +158,7 @@ namespace MIISHandler.Tags
                         break;
                     default:    //It's a thrid party file's context
                         //In this case we need to use the MIISFile that represents the third file, as the context
-                        MDFieldsResolver renderContext = new MDFieldsResolver(
-                                new MarkdownFile(ctx.Server.MapPath(_renderContextType), false)
-                            );
+                        MDFieldsResolver renderContext = new MarkdownFile(ctx.Server.MapPath(_renderContextType), false).FieldsResolver;
                         subRenderedContent = partial.Render(renderContext);
                         break;
                 }
