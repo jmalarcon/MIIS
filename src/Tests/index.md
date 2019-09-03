@@ -1,6 +1,6 @@
 ﻿---
 Title: "MIIS CMS Default page"
-Author: Jose M. Alarcón
+Author: !!DataFromFile _data/authors/jmalarcon.md
 arr: [ Element 1, Element 2, Element 3]
 fldBool: true
 CustomDate: 2019-08-23 22:50:53
@@ -12,7 +12,11 @@ data: one, two, three, four, five
 ---
 
 # MIIS - A Markdown File-based CMS for IIS and Azure Web Apps
-#### by [{{author}}](https://twitter.com/jm_alarcon)
+#### by [{{author.name}}](https://twitter.com/{{author.twitter}})
+
+This bio is taken from a content file:
+
+>{{author.bio}}
 
 **It's Working!**
 

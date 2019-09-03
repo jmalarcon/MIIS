@@ -34,13 +34,13 @@ namespace MIISFilesEnumeratorFMS
         /// </summary>
         /// <param name="folderPath">The full path to the folder that contains the files</param>
         /// <param name="topFolderOnly">If true the results will include files into subfolders too</param>
-        /// <returns>Returns files in the dafult order they have in disk. NO further ordering is done</returns>
+        /// <returns>Returns files in the default order they have in disk. NO further ordering is done</returns>
         private static IEnumerable<MarkdownFile> GetAllFilesFromFolderInternal(string folderPath, bool topFolderOnly)
         {
             if (!Directory.Exists(folderPath))
             {
-                //throw new DirectoryNotFoundException("Folder does not exist!!");
-                return new List<MarkdownFile>();
+                throw new DirectoryNotFoundException("Folder does not exist!!");
+                //return new List<MarkdownFile>();
             }
 
             //Search top directory only or all subdirectories too

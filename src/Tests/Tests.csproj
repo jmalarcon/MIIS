@@ -184,6 +184,11 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <Content Include="well-known-fields.md" />
+    <Content Include="_data\authors\karann-msft.md" />
+    <Content Include="_data\authors\dtivel.md" />
+    <Content Include="_data\authors\patbel.md" />
+    <Content Include="_data\authors\zhili1208.md" />
+    <Content Include="_data\authors\jmalarcon.md" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Extensions\ParamSouces\FilesEnumeratorParam\MIISFilesEnumeratorFMS.csproj">
