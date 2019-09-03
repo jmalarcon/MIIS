@@ -40,6 +40,24 @@ namespace MIISHandler
         }
 
         /// <summary>
+        /// Gets if a specified property for the file exists or not, specificaly defined (such as Title, Tags Categories...) or from the Front-Matter
+        /// It won't process any special FM value such as File Processing Fields or Custom Front Matter Values
+        /// </summary>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
+        public override bool ContainsKey(object fieldName)
+        {
+            bool hasProp = base.ContainsKey(fieldName);
+            if (!hasProp)
+            {
+                object propVal = FieldValuesHelper.GetFieldObject(fieldName.ToString(), _md, null);
+                if (propVal != null)
+                    hasProp = true;
+            }
+            return hasProp;
+        }
+
+        /// <summary>
         /// Current file's name
         /// </summary>
         public string FileName
