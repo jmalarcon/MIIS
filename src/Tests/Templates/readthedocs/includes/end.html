@@ -7,6 +7,9 @@
                 <div class="rst-content">
                     <div role="main">
                         <div class="section">
+                            {% if authors.size > 0 %}
+                                Post by: {% for author in authors %}{{ author.name }} {% endfor %}
+                            {% endif %}
                             {{content}}
                         </div>
                     </div>

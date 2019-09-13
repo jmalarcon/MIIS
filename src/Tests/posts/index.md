@@ -1,10 +1,11 @@
 ---
 title: Sample folder for Files custom Front-Matter field
-author: JM Alarcon
+author: jmalarcon
 posts: !!FilesFromFolder ./
 tags: !!TagsFromFolder ./
 categs: !!CategsFromFolder ./
 #caching: false
+arr: [cli-ref-config, cli-ref-delete, cli-ref-init]
 ---
 
 # Sample folder for Files obtained from a custom Front-Matter field
@@ -21,7 +22,7 @@ This is a sample file to show all the contents of an specific folder. In this ca
 **{{ posts.size }}** posts {% if tag %}&nbsp;with Tag '{{tag | capitalize}}'{% elseif categ %}&nbsp;with Category '{{categ | capitalize}}'{% else %}(all){% endif %}:
 
 {%- comment -%}
-IMPORTANT: Normally this kind of structure will be created in the template, directly in HTML, not in markdown. Although I've done my best to prevent this, in general, using Liquid tags for iteration or conditional intertwined with Markdown can be pretty tricky and can lead to weird results because of unexpected paragraphs generated around liquid tags, etc.
+IMPORTANT: Normally this kind of structure will be created in the template, directly in HTML, not in markdown. Although I've done my best to prevent this, in general, using Liquid tags for iteration or conditional intertwined with Markdown could be pretty tricky and could lead to weird results because of unexpected paragraphs generated around liquid tags, etc. It should not happen with the measures taken, but be warned.
 By default, dates are formated using the .NET format, much more simple and intuitive than the Ruby one. If you want to use something from Shopify or Jekyll you can switch globally to the Ruby format for dates (see docs)
 {%- endcomment -%}
 
@@ -64,3 +65,19 @@ There's a `categs` parameter defined in this file's Front-Matter to get all the 
 {%- for categ in categs -%}
 1. [{{categ.name | capitalize}}](./?Categ={{categ.name | UrlEncode}}) ({{categ.count}})
 {% endfor %}
+
+## Filter posts by name
+
+{% assign filtered = posts | with_name: arr %}
+{% comment %} 
+The previous assigment is equivalent to:
+
+assign filtered = posts | where: "file_name_no_ext", arr
+
+{% endcomment %}
+
+{% assign filtered = posts | where: "tags", "Reference" %}
+
+Check the file contents to see how it's done to return just `{{filtered.size}}` elements from hardcoded file names. In this case we use the file names to filter the collection of posts, but could have used any other property of the files or the data in them with the extra `where` filter I've added. The `with_name` filter it's just a shortcut for the whole filtering using the file name (without extension) as the property to be used for filtering.
+
+The most common use of this filter is to return specific data from a collection of files, such as the current list of authors in blog posts and many other similar situations (check the `_data/authors/` folder, the `web.config` in this folder and the)

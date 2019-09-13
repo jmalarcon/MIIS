@@ -414,8 +414,8 @@ namespace MIISHandler
         {
             //Custom filters are obtained from classes in the Filters namespace that implement the IFilterFactory interface
             var filterFactories = from c in assembly.GetTypes()
-                       where c.IsClass && c.Namespace == CUSTOM_FILTERS_NAMESPACE && (typeof(IFilterFactory)).IsAssignableFrom(c)
-                       select c;
+                       where c.IsClass && c.Namespace == CUSTOM_FILTERS_NAMESPACE && typeof(IFilterFactory).IsAssignableFrom(c)
+                                  select c;
             //Register each filter globally using its factory method (GetFilterType)
             filterFactories.ToList().ForEach( filterFactoryClass =>
                 {
