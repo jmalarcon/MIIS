@@ -336,7 +336,7 @@ namespace MIISHandler
             }
         }
 
-        //The file extension (with dot)
+        //The file extension (with dot) in lower case
         public string FileExt
         {
             get {
@@ -659,7 +659,12 @@ namespace MIISHandler
 
             //Extract and remove YAML Front Matter
             EnsureContent();
-            Match fm = FRONT_MATTER_RE.Match(this._rawContent);
+
+            //If it's a .yml file, wrap the full content as Front-Matter (.yml files don't have the FM delimiters)
+            if (this.FileExt == ".yml")
+                _rawContent = "---\r\n" + _rawContent + "---";
+
+            Match fm = FRONT_MATTER_RE.Match(_rawContent);
             if (fm.Length > 0) //If there's front matter available
             {
                 strFM = fm.Groups[0].Value;

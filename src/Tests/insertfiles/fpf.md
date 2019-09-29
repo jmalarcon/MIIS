@@ -116,7 +116,7 @@ This one is really powerful. If you want to insert the content of a file (using 
 
 In this case we're injecting the same file contents but all the data for the liquid placeholders comes from the `index.md` file at the root of the site, therefore has different values.
 
->You can use any `.md`, `.mdh`, `.yml` or `.text` file for the context, but it should have a correctly formatted front-matter with the data you want to use. The front-matter should have the `---` delimiters even in `.yml` files.
+>You can use any `.md`, `.mdh`, `.yml` or `.text` file for the context, but it should have a correctly formatted front-matter with the data you want to use. The only files that must not have front-matter with the `---` delimiters are the `.yml` files (in fact, this kind of files should not have it if we want them to work correctly).
 
 You can use this to inject anywhere, data from any other file. For example, imagine that you want to use the information of your company's team at several places in your site. You can have a folder with a file for each employee with their data in the front-matter and even use those pages as individual landing pages for each one of them. But, with this variation of `inserfile` and the fact that you can use any field for your file path (inserted file path or context file path, see below) ypu can reuse that data anywhere using any author's file as context, and render it as you want using the inserted file contents. This is really powerful for a lot of applications as soon as you discover its ins and outs.
 

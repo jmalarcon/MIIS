@@ -22,7 +22,7 @@ namespace MIISHandler.Tags
 
         //The file extensions allowed to be inserted
         private readonly string[] _AllowedInsertedFileExts = { MarkdownFile.MARKDOWN_DEF_EXT, MarkdownFile.HTML_EXT, ".htm", ".html", ".txt" };
-        //The file extensions allowed to be used as context (should contain simple YAML)
+        //The file extensions allowed to be used as context (should contain simple YAML in the Front Matter or in the body in the case of .yml and .txt files)
         private readonly string[] _AllowedContextFileExts = { MarkdownFile.MARKDOWN_DEF_EXT, MarkdownFile.HTML_EXT, ".yml", ".txt" };
 
         //The file name to render (if any), set in the Initialize method
