@@ -184,19 +184,19 @@ namespace MIISHandler
                                         if (_parentFile.FileExt == MarkdownFile.MARKDOWN_DEF_EXT)
                                         {
                                             //HACK: Since {{field}} placeholders are processed BEFORE transforming into HTML
-                                            //I need to mark the injected HTML in a special to prevent further processing of the resulting HTML when converting 
+                                            //I need to wrap the injected HTML into a special tag to prevent further processing of the resulting HTML when converting 
                                             //the main file contents to HTML. The reason is that mixed HTML is very tricky and can lead to unexpected results
                                             //This is a sloppy way to do it, but it's the only way to mark a section of markdown as "not processable"
                                             //See: https://github.com/lunet-io/markdig/blob/master/src/Markdig.Tests/Specs/CommonMark.md#html-blocks
                                             //Later we need to remove these delimiters in a sloppy way too :-(
-                                            res = HTML_NO_PROCESSING_DELIMITER_BEGIN + 
-                                                    insertedFile.RawFinalHtml +
+                                            res = HTML_NO_PROCESSING_DELIMITER_BEGIN +
+                                                    insertedFile.ComponentHtml +
                                                     HTML_NO_PROCESSING_DELIMITER_END;
                                         }
                                         else
                                         {
                                             //If the parent file is already an HTML file, there's no need for the previous hack
-                                            res = insertedFile.RawFinalHtml; //Use the raw HTML (WITHOUT the template (obviously) and WITH the liquid tags processed in its own context)
+                                            res = insertedFile.ComponentHtml; //Use the final HTML (WITHOUT the template (except in components) and WITH the liquid tags processed in its own context)
                                         }
 
                                         //Add the processed file to the dependencies of the currently processed content file, 

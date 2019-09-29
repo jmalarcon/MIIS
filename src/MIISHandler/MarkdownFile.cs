@@ -38,6 +38,7 @@ namespace MIISHandler
         private DateTime _dateCreated;
         private DateTime _dateLastModified;
         private DateTime _date;
+        private string _layout;
         private SimpleYAMLParser _FrontMatter;
         private bool? _CachingEnabled = null;    //Should be default to allow for the expression shortcircuit in the CachingEnabled property
         private double _NumSecondsCacheIsValid = 0;
@@ -127,12 +128,13 @@ namespace MIISHandler
         }
 
         /// <summary>
-        /// The HTML content of the file, WITHOUT the template, and WITH the liquid tags processed
+        /// The HTML content of the file, WITHOUT the template (except in components), and WITH the liquid tags processed
         /// </summary>
         public string RawFinalHtml
         {
             get
             {
+                //In the normal case, pprocess the main content
                 if (string.IsNullOrEmpty(_rawFinalHtml))
                 {
                     //Try to read it from the cache
@@ -178,6 +180,21 @@ namespace MIISHandler
             }
         }
 
+        /// <summary>
+        /// Renders the full HTML (with layout) or just the raw HTML depending on the current file being a component or not
+        /// </summary>
+        public string ComponentHtml
+        {
+            get
+            {
+                //Check if the file is a component, in which case, render the full HTML
+                if (this.IsComponent)
+                    return this.FinalHtml;
+                else
+                    return this.RawFinalHtml;
+            }
+        }
+
         public MDFieldsResolver FieldsResolver
         {
             get
@@ -206,7 +223,32 @@ namespace MIISHandler
         {
             get
             {
-                return FieldValuesHelper.GetFieldValue("Layout", this);
+                if (string.IsNullOrEmpty(_layout))
+                    _layout = FieldValuesHelper.GetFieldValue("Layout", this);
+                return _layout;
+            }
+            set
+            {
+                _layout = value;
+            }
+        }
+
+        //Checks if the file is marked as a component in the front-matter
+        public bool IsComponent
+        {
+            get
+            {
+                return TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValueFromFM("IsComponent", this, "false"));
+            }
+        }
+
+        //Used internally for rendering the file as a component (component property)
+        //Gets the value of the field "component" when rendering the file as a partial element of the content (File processing fields or with InserFile)
+        internal string ComponentLayout
+        {
+            get
+            {
+                return FieldValuesHelper.GetFieldValueFromFM("component", this);
             }
         }
 

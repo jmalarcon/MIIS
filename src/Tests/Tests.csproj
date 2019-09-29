@@ -89,6 +89,7 @@
     <Content Include="posts\media\UpdatePackages.png" />
     <Content Include="Templates\common.css" />
     <Content Include="Templates\common.js" />
+    <Content Include="Templates\readthedocs\components\testcomponent.html" />
     <Content Include="Templates\readthedocs\css\highlight.css" />
     <Content Include="Templates\readthedocs\css\theme.css" />
     <Content Include="Templates\readthedocs\css\theme_extra.css" />
@@ -177,6 +178,7 @@
     <Content Include="frontmatter-tests\fm-newline-windows.md" />
     <Content Include="insertfiles\injected01.mdh" />
     <Content Include="insertfiles\mixed_md_html.md" />
+    <Content Include="insertfiles\component01.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

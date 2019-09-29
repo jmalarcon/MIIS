@@ -5,6 +5,7 @@ excerpt: "This is a description. You could have used excerpt, description or sum
 summary: Shouldn't appear because excerpt and description take precedence
 data: a,b,c,d,e
 extFile: ../raw.mdh
+mycomponent: component01.md
 #Can't inject this file (no extension). Is used to demonstrate processing fields in injectfile
 extFilePath: ../raw
 ---
@@ -15,7 +16,7 @@ Current URL relative to the root (no extension): {{urlnoext}}
 
 There are 5 ways to insert the contents of another file in a MIIS file.
 
-## 1. Using file names in fields (File Processing Fields, FPF)
+## 1. Using file names in FM fields (File Processing Fields, FPF)
 
 They are inserted when you create a field with the name or the path to a .md or .mdh file in your site. You can define it in the Front-Matter or globally in the `web.config` for your site or folder.
 
@@ -29,11 +30,29 @@ This kind of external files will process placeholders inside their content just 
 
 This is a very simple way to render other file's content, and it's very **efficient** because it will use the caching mechanism built in MIIS (if enabled). The `InsertFile` method doesn't take advantage of the cache when it's invoqued (the final page will be cached anyway).
 
+### Render FPF as components, with extra "wrapping" HTML
+
+You can render a file as a component, using an specific layout in your current template that will be processed to return any "wrapping" contents you need for the data in the file, including the main content. 
+
+Take a look for example to the `component01.md` file in this folder and the corresponding `components/testcomponent.html` file in the current template, that acts as the "wrapping" HTML. We use the HTML of the layout of the component to inject any complex structure in the current file, based on the data and contents of a file, making easy, for example, to add special sections to the current document of template.
+
+This is an inserted component with extra HTML usng it's data (see the `mycomponent` field in the front-matter of this file:
+
+{{mycomponent}}
+
+The key here is the **`IsComponent`** field used in the Front-Matter of a file. If specified it indicates that the current file is a component, not a full-fledged file. It must indicate a `Layout` property that points to the component HTML file in the current template to be used for processing the file content.
+
+The `IsComponent` field can only be specified in the Front.Matter and won't be retrieved or inherited from `web.config` file if specified there (the `Layout` property can be global, for example in the `web.config` in a folder that affects to all the files in there, that are components).
+
+Normally this kind of component would be unpublished files, since they are designed to be part of other files, so it's highly recommended to specifiy  `Published: false` in the FM for they to become invisible from the outside.
+
+**This `IsComponent` field only works with file processing fields**. However, you can easily use the next methods to insert any HTML file contents using any other context, so it's very easy too, although FPF components is a faster way to do it depending on your needs.
+
 ## 2. Using the `InsertFile` tag
 
 There's am special MIIS tag named `InsertFile` (case insensitive) that you can use to insert the contents of any other valid file in your site inside the current file.
 
-It's similar to the typical `include` tag available in some static file generators sucha as Jekyll, but much more powerful, since it allows you to decide the context you want to use for processing the files before being inserted.
+It's similar to the typical `include` tag available in some static file generators such as Jekyll, but much more powerful, since it allows you to decide the context you want to use for processing the files before being inserted.
 
 This tag syntax is:
 
