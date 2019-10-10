@@ -191,6 +191,8 @@
     <Content Include="_data\authors\patbel.md" />
     <Content Include="_data\authors\zhili1208.md" />
     <Content Include="_data\authors\jmalarcon.md" />
+    <Content Include="_data\langs\en.yml" />
+    <Content Include="_data\langs\es.yml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Extensions\ParamSouces\FilesEnumeratorParam\MIISFilesEnumeratorFMS.csproj">

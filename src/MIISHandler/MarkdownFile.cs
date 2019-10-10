@@ -660,8 +660,8 @@ namespace MIISHandler
             //Extract and remove YAML Front Matter
             EnsureContent();
 
-            //If it's a .yml file, wrap the full content as Front-Matter (.yml files don't have the FM delimiters)
-            if (this.FileExt == ".yml")
+            //If it's a .yml file, wrap the full content as Front-Matter (.yml files don't neeed to have the FM delimiters, but I wan't to support them)
+            if (this.FileExt == ".yml" && !_rawContent.StartsWith("---\r\n"))
                 _rawContent = "---\r\n" + _rawContent + "---";
 
             Match fm = FRONT_MATTER_RE.Match(_rawContent);

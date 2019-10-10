@@ -1,0 +1,7 @@
+﻿# Sample language file in Spanish
+
+iso: es
+name: Español
+
+#Toc resource strings
+TocTitle: Archivos de prueba
