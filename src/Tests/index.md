@@ -1,6 +1,6 @@
 ﻿---
 Title: "MIIS CMS Default page"
-Author: !!DataFromFile _data/authors/jmalarcon.md
+Author: !!DataFromFile ~/_data/authors/jmalarcon.md
 arr: [ Element 1, Element 2, Element 3]
 fldBool: true
 CustomDate: 2019-08-23 22:50:53

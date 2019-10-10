@@ -82,7 +82,7 @@ namespace IISHelpers
         /// <returns></returns>
         internal static dynamic TryToGuessAndConvertToTypeFromString(string val)
         {
-            string lowerCaseVal = val.Trim().ToLowerInvariant();
+            string lowerCaseVal = val.Trim(' ', '\t').ToLowerInvariant();
 
             //Nulls
             if (lowerCaseVal == "null" || lowerCaseVal == "nil")
@@ -92,27 +92,33 @@ namespace IISHelpers
             if (lowerCaseVal == "true") return true;
             if (lowerCaseVal == "false") return false;
 
-            //Check if it's a string enclosed in quotes
-            if ( (lowerCaseVal.StartsWith("\"") && lowerCaseVal.EndsWith("\"")) || (lowerCaseVal.StartsWith("'") && lowerCaseVal.EndsWith("'")) )
-            {
-                //Remove quotes
-                return val.Trim().Substring(1, val.Length - 2);
-            }
-
-            //Check if it's an array in the form [el1, el2, el3]
+            //Check if it's an array in the form [el1, el2, el3, ...]
             if (lowerCaseVal.StartsWith("[") && lowerCaseVal.EndsWith("]"))
             {
                 lowerCaseVal = val.Trim().Substring(1, lowerCaseVal.Length - 2);
-                return lowerCaseVal.Split(',').Select(c => c.Trim()).Where(c => !string.IsNullOrEmpty(c)).ToArray<string>();
+                return lowerCaseVal.Split(',').Select(s => StripQuotes(s)).Where(s => !string.IsNullOrEmpty(s)).ToArray<string>();
             }
 
-            //Try to parse as string
+            //Try to parse as date string
             DateTime res = ParseUniversalSortableDateTimeString(val, DateTime.MinValue);
             if (res != DateTime.MinValue)
                 return res;
 
-            //In any other case
-            return val;
+            //In any other case return as string
+            return StripQuotes(val);
+        }
+
+        ///Removes wrapping quotes from strings allowing to specify strings with or without quotes
+        private static string StripQuotes(string val)
+        {
+            val = val.Trim(' ', '\t');
+
+            if ((val.StartsWith("\"") && val.EndsWith("\"")) || (val.StartsWith("'") && val.EndsWith("'")))
+            {
+                //Remove quotes
+                return val.Trim().Substring(1, val.Length - 2);
+            }
+            return val.Trim();  //If it's not enclosed in double quotes, then remove extra spaces that may be due to sloppy writing of the parameter
         }
     }
 }
