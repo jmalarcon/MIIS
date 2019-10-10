@@ -29,7 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Filters", "Filters", "{AFDE
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISWhereFilter", "MIISWhereFilter\MIISWhereFilter.csproj", "{4B5F6E61-05F6-4E9F-83AC-D7B161213024}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotLiquid", "..\..\DotLiquidMIIS\src\DotLiquid\DotLiquid.csproj", "{48A66C97-A19F-422A-81B5-6831D17EFF7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MIISdotliquid", "..\..\MIISdotliquid\src\DotLiquid\MIISdotliquid.csproj", "{48A66C97-A19F-422A-81B5-6831D17EFF7C}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution

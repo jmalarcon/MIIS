@@ -45,9 +45,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\DotLiquidMIIS\src\DotLiquid\DotLiquid.csproj">
+    <ProjectReference Include="..\..\..\..\MIISdotliquid\src\DotLiquid\MIISdotliquid.csproj">
       <Project>{48a66c97-a19f-422a-81b5-6831d17eff7c}</Project>
-      <Name>DotLiquid</Name>
+      <Name>MIISdotliquid</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\MIISHandler\MIISHandler.csproj">
       <Project>{80934ba3-4d14-4dd1-ab2c-6466fce8e791}</Project>
