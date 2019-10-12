@@ -12,14 +12,14 @@ posts: !!FilesFromFolder ./ true desc
   <id>{{baseurl}}{{url}}</id>
   <link type="text/html" rel="alternate" href="{{baseurl}}{{url}}"/>
   <link type="application/atom+xml" rel="self" href="{{baseurl}}{{url}}"/>
-  <title>{{title}}</title>
+  <title>{{title | escape }}</title>
   <updated>{{now | date: "yyyy-MM-ddTHH:mm:sszzz"}}</updated>
 {%- for post in posts limit:10 -%}
   <entry>
     <id>{{baseurl}}{{post.url}}</id>
     <updated>{{post.Date | date: "yyyy-MM-ddTHH:mm:sszzz"}}</updated>
     <link rel="alternate" type="text/html" href="{{baseurl}}{{post.URL}}"/>
-    <title>{{post.Title}}</title>
+    <title>{{post.Title | escape}}</title>
     <content type="html">{% if UseFullHtml == true %}{{post.HTML | escape}}{% else %}{{post.Excerpt}}{% endif %}</content>
     <author>
       <name>{{post.Author}}</name>
