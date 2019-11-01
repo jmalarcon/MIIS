@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Caching;
 using IISHelpers;
+using IISHelpers.YAML;
 using Markdig;
 using DotLiquid;
 using MIISHandler.Filters;
@@ -256,7 +257,33 @@ namespace MIISHandler
                 if (!cacheDependencies.Contains(templatePath))
                     cacheDependencies.Add(templatePath);
 
-                string phValue = string.Empty;    //The value to substitute the placeholder
+                string phValue;    //The value to substitute the placeholder
+
+                /////////////////////////////////////////////
+                // Process template inheritance (if any)
+                /////////////////////////////////////////////
+
+                //Check if there's Front-Matter or not
+                string strFM = SimpleYAMLParser.GetFrontMatterFromContent(templateContents);
+                //If FM is present
+                if (strFM != SimpleYAMLParser.EMPTY_FRONT_MATTER)
+                {
+                    //Remove the FM
+                    templateContents = SimpleYAMLParser.RemoveFrontMatterFromContent(templateContents);
+                    //get the Layout field from the current template's FM
+                    SimpleYAMLParser yaml = new SimpleYAMLParser(strFM);
+                    string layout = yaml["layout"];
+                   //If there's a layout specified, use it as the base layout for the current template
+                    if (!string.IsNullOrEmpty(layout))
+                    {
+                        //Process the layout
+                        string parentTemplateVPath = VirtualPathUtility.RemoveTrailingSlash(VirtualPathUtility.GetDirectory(templateVirtualPath)) + "/" + layout; ;
+                        string parentTemplateContent = ReadTemplate(parentTemplateVPath, ctx, cacheDependencies, graph);
+                        //Substitute the content field in the parent layout, with the current template's content
+                        templateContents = TemplatingHelper.ReplacePlaceHolder(parentTemplateContent, "content", templateContents);
+                    }
+                }
+
 
                 ////////////////////////////////////////////
                 //Search for includes in the current file and substitute them, before substituting any other placeholder
@@ -301,7 +328,7 @@ namespace MIISHandler
                     //After inserting all the "includes", check if there's a content placeholder present (mandatory)
                     if ( !TemplatingHelper.IsPlaceHolderPresent(templateContents, "content") )
                     {
-                        throw new Exception("Invalid template: The " + TemplatingHelper.GetPlaceholderName("content") + " placeholder must be present!");
+                        throw new Exception("Invalid template '" + templateVirtualPath + "': The " + TemplatingHelper.GetPlaceholderName("content") + " placeholder must be present!");
                     }
 
                     //////////////////////////////

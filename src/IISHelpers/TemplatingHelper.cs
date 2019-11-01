@@ -46,6 +46,7 @@ namespace IISHelpers
         /// </summary>
         /// <param name="content"></param>
         /// <param name="name">Optional. The name of a specific palceholder to search. If not provided returns all the placeholders present in the content</param>
+        /// <param name="phPrefix">The prefix for all the reutrned placeholders</param>
         /// <returns>A collection of RegExp matches with the placeholders in a content</returns>
         internal static MatchCollection GetAllPlaceHolderMatches(string content, string name = "", string phPrefix = "")
         {

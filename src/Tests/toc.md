@@ -13,6 +13,7 @@ _{{customfield}}_
   - [Injecting file with circular reference](~/insertfiles/fpf_circular_reference.md)
   - [HTML content injected in a Markdown file and second lvel processing stopped](~/insertfiles/mixed_md_html.md)
   - [Fragments in layouts](~/insertfiles/fragments.md)
+  - [Layout inheritance](~/insertfiles/inheritance.md)
 - [Liquid Syntax in HTML](~/liquid.mdh){target="_blank"}
 - [Raw content (text/plain) from MDH](~/raw.mdh){target="_blank"}
 - [Custom filters](~/customfilters.md)

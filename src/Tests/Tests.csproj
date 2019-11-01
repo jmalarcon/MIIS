@@ -98,6 +98,7 @@
     <Content Include="Templates\readthedocs\includes\beginning.html" />
     <Content Include="Templates\readthedocs\includes\end.html" />
     <Content Include="Templates\readthedocs\includes\forkme.html" />
+    <Content Include="Templates\readthedocs\inherited.html" />
     <Content Include="Templates\readthedocs\js\highlight.pack.js" />
     <Content Include="Templates\readthedocs\js\modernizr-2.8.3.min.js" />
     <Content Include="Templates\readthedocs\js\theme.js" />
@@ -179,6 +180,7 @@
     <Content Include="insertfiles\injected01.mdh" />
     <Content Include="insertfiles\mixed_md_html.md" />
     <Content Include="insertfiles\component01.md" />
+    <Content Include="insertfiles\inheritance.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

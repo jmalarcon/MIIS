@@ -21,8 +21,13 @@ namespace IISHelpers.YAML
     /// </summary>
     public class SimpleYAMLParser
     {
+        //Regexp to detect and extract Front-Matter
+        //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line are allowed)
+        //It takes into account the different EOL for Windows (\r\n), Mac (\r) or UNIX (\n)
+        public static readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}\s*?(\r\n|\r|\n|$)", RegexOptions.Singleline);
+        public static readonly string EMPTY_FRONT_MATTER = "---\r\n---";
 
-        //The YAML to be processed
+        //The YAML Front-Matter to be processed (including the delimiters)
         private string yaml;
 
         /// <summary>
@@ -33,6 +38,37 @@ namespace IISHelpers.YAML
         {
             yaml = frontmatter;
         }
+
+#region Front-Matter manipulation
+
+        /// <summary>
+        /// Extracts the Front-Matter from a content and returns it
+        /// It always include the "---" delimiters
+        /// </summary>
+        /// <param name="content">The Front-Matter if present or an empty Front-Matter if not</param>
+        public static string GetFrontMatterFromContent(string content)
+        {
+            Match fm = FRONT_MATTER_RE.Match(content);
+            if (fm.Length > 0) //If there's front matter available
+            {
+                return fm.Groups[0].Value;
+            }
+            return EMPTY_FRONT_MATTER;
+        }
+
+        /// <summary>
+        /// Removes the front matter, if any, from the passed content string
+        /// and removes the extra empty lines at the beginning
+        /// returning the content without the Front-Matter
+        /// </summary>
+        /// <param name="content">The content where the Front-Matter is present and we want it to be removed</param>
+        /// <returns>The original content without the Front-Matter</returns>
+        public static string RemoveFrontMatterFromContent(string content)
+        {
+            return SimpleYAMLParser.FRONT_MATTER_RE.Replace(content, "").TrimStart('\r', '\n');
+        }
+
+#endregion
 
         /// <summary>
         /// Builds the appropriate regular expression to search for an specific placeholder name using the correct prefix and suffix
@@ -76,6 +112,5 @@ namespace IISHelpers.YAML
                 }
             }
         }
-
     }
 }

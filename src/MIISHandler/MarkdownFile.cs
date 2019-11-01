@@ -21,9 +21,6 @@ namespace MIISHandler
 
         public const string MARKDOWN_DEF_EXT = ".md";   //Default extension for markdown files
         public const string HTML_EXT = ".mdh";  //File extension for HTML content
-        //It allows more than 3 dashed to be used to delimit the Front-Matter (the YAML spec requires exactly 3 dashes, but I like to allow more freedom on this, so 3 or more in a line are allowed)
-        //It takes into account the different EOL for Windows (\r\n), Mac (\r) or UNIX (\n)
-        private static readonly Regex FRONT_MATTER_RE = new Regex(@"^-{3,}(.*?)-{3,}\s*?(\r\n|\r|\n|$)", RegexOptions.Singleline);
 
         #region private fields
         private string _rawContent = string.Empty;
@@ -616,7 +613,7 @@ namespace MIISHandler
         {
             EnsureContent();
             ProcessFrontMatter();   //Make sure the FM is processed
-            RemoveFrontMatter();    //This is a separate step because FM can be cached and it's only dependent of the current file
+            RemoveFrontMatter();    //This is a separate step because FM can be cached and we want to get rid of it in the file content even in that case
         }
 
         //Ensures that the content of the file is loaded from disk
@@ -639,7 +636,8 @@ namespace MIISHandler
             if (_FrontMatter != null)
                     return;
 
-            string strFM = string.Empty;
+            //Non empty value, for caching
+            string strFM = "---\r\n---";
 
             strFM = GetFromCache(this.CachingIDFrontMatter);
             if (!string.IsNullOrEmpty(strFM)) //If it in the cache, just use it
@@ -649,13 +647,11 @@ namespace MIISHandler
             }
             else
             {
-                //Assign a default empty FrontMatter (if an empty string was used, contents would be read every time for all the files without a Front Matter)
-                strFM = "---\r\n---";
+                //If cache is not enabled or the FM is not currently cached, read it from the file content
+                //Default value (empty FM, but no empty string), prevents the Content property from processing Front-Matter twice if it's not read yet
+                _FrontMatter = new SimpleYAMLParser(strFM);
             }
 
-            //If cache is not enabled or the FM is not currently cached, read it from the file content
-            //Default value (empty FM, but no empty string), prevents the Content property from processing Front-Matter twice if it's not read yet
-            _FrontMatter = new SimpleYAMLParser(strFM);
 
             //Extract and remove YAML Front Matter
             EnsureContent();
@@ -664,13 +660,8 @@ namespace MIISHandler
             if (this.FileExt == ".yml" && !_rawContent.StartsWith("---\r\n"))
                 _rawContent = "---\r\n" + _rawContent + "\r\n---";
 
-            Match fm = FRONT_MATTER_RE.Match(_rawContent);
-            if (fm.Length > 0) //If there's front matter available
-            {
-                strFM = fm.Groups[0].Value;
-                //Save front matter text
-                _FrontMatter = new SimpleYAMLParser(strFM);
-            }
+            strFM = SimpleYAMLParser.GetFrontMatterFromContent(_rawContent);
+            _FrontMatter = new SimpleYAMLParser(strFM);
 
             //Cache the final FM content (if caching is enabled)
             AddToCache(this.CachingIDFrontMatter, strFM);
@@ -680,7 +671,7 @@ namespace MIISHandler
         //and removes the extra empty lines at the beginning and the end
         private void RemoveFrontMatter()
         {
-            _rawContent = FRONT_MATTER_RE.Replace(_rawContent, "").Trim('\r', '\n');
+            _rawContent = SimpleYAMLParser.RemoveFrontMatterFromContent(_rawContent);
         }
         #endregion
     }
