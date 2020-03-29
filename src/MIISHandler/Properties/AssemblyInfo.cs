@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MIISHandler")]
-[assembly: AssemblyCopyright("JM Alarcón  2017-2018 - JMAlarcon - www.jasoft.org - Open Source")]
+[assembly: AssemblyCopyright("JM Alarcón  2017-2020 - JMAlarcon - www.jasoft.org - Open Source")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
