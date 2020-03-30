@@ -55,4 +55,4 @@ These are some sites that run with MIIS:
 - [Alquiler Sanxenxo](https://www.alquilersanxenxo.com/): Seaside flat rental site. Azure App.
 - [Krasis Intranet](https://krasisintranet.azurewebsites.net/): private, OAuth 2.0 protected Intranet site. Azure App.
 
-Using MIIS for your website, documentation or any other thing? Just [tell me](https://jmalarcon.es/contacto/) to get a link here 😊
+**If you use MIIS** to create a website, the documentation for your project, a document-based site, etc... please **[tweet it to me](https://twitter.com/jm_alarcon)** with the URL 😊 Thanks!
