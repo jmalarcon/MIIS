@@ -1,5 +1,9 @@
-{{ $includes/beginning.html}}
+---
+Layout: main.html
+---
 
 {% assign authors = allauthors | with_name: author %}
 
-{{ $includes/end.html}}
+{{Content}}
+
+{{ $includes/relatedposts.html}}

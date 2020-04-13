@@ -1,0 +1,31 @@
+﻿    {%- comment -%}
+    RELATED ARTICLES
+    Searches by tag first and, if there are not enough coincidences, searches by category too
+    {%- endcomment -%}
+    {%- assign related = posts | where: "tags", tags -%}
+        {%- assign relatedbycateg = posts | where: "categories", categories -%}
+        {%- comment -%}
+        The MIIS's concat filter implementation (DotLiquid desn't have one) add an extra parameter to return unique elements
+        saving you from use the uniq filter if you want (MIIS's is fastere for MDFiles)
+        {%- endcomment -%}
+        {%- assign related = relatedbycateg | concat: related, true | sort: "date" -%}
+
+    {%- if related.size > 1 -%}
+<h2> related posts:</h2>
+<div class="related-posts">
+    <ul>
+        {% assign n = 0 %}
+        {%- for post in related -%}
+        {%- if post.file_name != FileName -%}
+        {%- assign n = n | plus:1 -%}
+        <li>
+            <a class="related-posts__post-wrap" href="{{post.url_no_ext}}">
+                {{ post.Title }}
+            </a>
+        </li>
+        {%- endif -%}
+        {%- endfor -%}
+    </ul>
+</div>
+
+        {%- endif -%}

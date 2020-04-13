@@ -1,9 +1,9 @@
 ---
 title: Sample folder for Files custom Front-Matter field
 author: jmalarcon
-posts: !!FilesFromFolder ./
-tags: !!TagsFromFolder ./
-categs: !!CategsFromFolder ./
+#posts: !!FilesFromFolder ./
+#tags: !!TagsFromFolder ./
+#categs: !!CategsFromFolder ./
 #caching: false
 arr: [cli-ref-config, cli-ref-delete, cli-ref-init]
 ---
