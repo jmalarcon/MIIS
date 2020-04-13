@@ -98,6 +98,7 @@
     <Content Include="Templates\readthedocs\includes\beginning.html" />
     <Content Include="Templates\readthedocs\includes\end.html" />
     <Content Include="Templates\readthedocs\includes\forkme.html" />
+    <Content Include="Templates\readthedocs\includes\relatedposts.html" />
     <Content Include="Templates\readthedocs\inherited.html" />
     <Content Include="Templates\readthedocs\js\highlight.pack.js" />
     <Content Include="Templates\readthedocs\js\modernizr-2.8.3.min.js" />
@@ -197,7 +198,7 @@
     <Content Include="_data\langs\es.yml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Extensions\ParamSouces\FilesEnumeratorParam\MIISFilesEnumeratorFMS.csproj">
+    <ProjectReference Include="..\Extensions\ParamSources\FilesEnumeratorParam\MIISFilesEnumeratorFMS.csproj">
       <Project>{a02771b1-1155-4505-b6ca-662439a72aa0}</Project>
       <Name>MIISFilesEnumeratorFMS</Name>
     </ProjectReference>
@@ -205,7 +206,7 @@
       <Project>{80934ba3-4d14-4dd1-ab2c-6466fce8e791}</Project>
       <Name>MIISHandler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MIISWhereFilter\MIISWhereFilter.csproj">
+    <ProjectReference Include="..\Extensions\Filters\MIISLiquidFilters\MIISLiquidFilters.csproj">
       <Project>{4b5f6e61-05f6-4e9f-83ac-d7b161213024}</Project>
       <Name>MIISWhereFilter</Name>
     </ProjectReference>
@@ -217,7 +218,7 @@
       <Project>{a7db5b34-882a-422f-af62-42158a1e5049}</Project>
       <Name>MIISTitleCaseSampleFilter</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SampleExtensions\MIISYouTubeTag\MIISYouTubeTag.csproj">
+    <ProjectReference Include="..\Extensions\Tags\MIISYouTubeTag\MIISYouTubeTag.csproj">
       <Project>{da8c87f0-67ac-4e0f-a999-9b1089aac1e8}</Project>
       <Name>MIISYouTubeTag</Name>
     </ProjectReference>

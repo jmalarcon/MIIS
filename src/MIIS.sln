@@ -9,7 +9,7 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "IISHelpers", "IISHelpers\II
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{211FB561-9B94-4EAE-8E3A-4F2F92ADAEA5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISYouTubeTag", "SampleExtensions\MIISYouTubeTag\MIISYouTubeTag.csproj", "{DA8C87F0-67AC-4E0F-A999-9B1089AAC1E8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISYouTubeTag", "Extensions\Tags\MIISYouTubeTag\MIISYouTubeTag.csproj", "{DA8C87F0-67AC-4E0F-A999-9B1089AAC1E8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISTitleCaseSampleFilter", "SampleExtensions\MIISToTitleCaseFilter\MIISTitleCaseSampleFilter.csproj", "{A7DB5B34-882A-422F-AF62-42158A1E5049}"
 EndProject
@@ -21,13 +21,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ParamSources", "ParamSources", "{7B6664D1-DC6A-4F0D-964A-B60416D761EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISFilesEnumeratorFMS", "Extensions\ParamSouces\FilesEnumeratorParam\MIISFilesEnumeratorFMS.csproj", "{A02771B1-1155-4505-B6CA-662439A72AA0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISFilesEnumeratorFMS", "Extensions\ParamSources\FilesEnumeratorParam\MIISFilesEnumeratorFMS.csproj", "{A02771B1-1155-4505-B6CA-662439A72AA0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tags", "Tags", "{20212318-63B5-4198-8C1E-513DAD23FF32}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Filters", "Filters", "{AFDE0DC7-7492-4EE3-BE02-75BBBF2562FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISWhereFilter", "MIISWhereFilter\MIISWhereFilter.csproj", "{4B5F6E61-05F6-4E9F-83AC-D7B161213024}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MIISLiquidFilters", "Extensions\Filters\MIISLiquidFilters\MIISLiquidFilters.csproj", "{4B5F6E61-05F6-4E9F-83AC-D7B161213024}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MIISdotliquid", "..\..\MIISdotliquid\src\DotLiquid\MIISdotliquid.csproj", "{48A66C97-A19F-422A-81B5-6831D17EFF7C}"
 EndProject
