@@ -27,6 +27,20 @@ Current URL relative to the root (no extension): {{urlnoext}}
 
 This is a custom field that is a date: {{CustomDate}}
 
+These are some images using the `relative_url` filter (you should test this in lower level folders too), and you can use the `absolute_url` filter with them too, to get the full qualified URL for the resource automatically (with protocol and domain):
+
+Absolute URL:
+
+![This is an image]({{ "https://images.unsplash.com/photo-1586763209537-4d1fb62ef601?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1267&q=80" | relative_url }})
+
+Relative to the root URL:
+
+![This is an image]({{ "~/images/logo.png" | relative_url }})
+
+Relative to this page URL (in lower levels you can use upwards paths such as `../../whatever/image.png` and the like):
+
+![This is an image]({{ "images/logo.png" | relative_url }})
+
 This is the Front-Matter array:
 {%- for elt in arr -%}
 - {{elt}}
