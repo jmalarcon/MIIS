@@ -7,8 +7,9 @@
         {%- comment -%}
         The MIIS's concat filter implementation (DotLiquid desn't have one) add an extra parameter to return unique elements
         saving you from use the uniq filter if you want (MIIS's is fastere for MDFiles)
+        DotLiquid doesn't have the reverse filter implemented, si I impleted it in MIIS too
         {%- endcomment -%}
-        {%- assign related = relatedbycateg | concat: related, true | sort: "date" -%}
+        {%- assign related = relatedbycateg | concat: related, true | sort: "date" | reverse -%}
 
     {%- if related.size > 1 -%}
 <h2> related posts:</h2>
