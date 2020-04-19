@@ -182,6 +182,7 @@
     <Content Include="insertfiles\mixed_md_html.md" />
     <Content Include="insertfiles\component01.md" />
     <Content Include="insertfiles\inheritance.md" />
+    <Content Include="if-null-filter.md" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
