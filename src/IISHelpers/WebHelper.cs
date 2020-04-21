@@ -1,4 +1,6 @@
-﻿using System;
+﻿using MIISHandler;
+using System;
+using System.Configuration;
 using System.Web;
 using System.Web.Configuration;
 
@@ -16,6 +18,36 @@ namespace IISHelpers
         internal static string GetParamValue(string paramName, string defaultvalue = "")
         {
             string v = WebConfigurationManager.AppSettings[paramName];
+            return String.IsNullOrEmpty(v) ? defaultvalue : v.Trim();
+        }
+
+        /// <summary>
+        /// Returns a param from web.config using the indicated file context, that is, the web.config in the file's folder
+        /// or a default value for it if it's not available
+        /// The defaultValue can be skipped and it will be returned an empty string if it's needed
+        /// </summary>
+        /// <param name="paramName">The name of the param to search in the configuration file</param>
+        /// <param name="defaultvalue">The default value to return if the param is not found. It's optional. If missing it will return an empty string</param>
+        /// <param name="md">The Markdown or MDH file which parameters are going to be processed. It it's null, it'll use the current file context config and will be equivalent to using GetParamValue.
+        /// <returns></returns>
+        internal static string GetParamValueInContext(string paramName, string defaultvalue = "", MarkdownFile md = null)
+        {
+            //If it's null or the file is the same that is being processed by the request, then return the normal value
+            if (md == null)
+                return GetParamValue(paramName, defaultvalue);
+
+            HttpContext ctx = HttpContext.Current;
+
+            if (ctx.Application["MDFilesInOwnContext"] == null || ctx.Application["MDFilesInOwnContext"].ToString().ToLower() != "true")
+                return GetParamValue(paramName, defaultvalue);
+
+            String contextDir = GetContainingDir(GetAbsolutePath(md.FilePath));
+            if (GetContainingDir(ctx.Request.Url.LocalPath) == contextDir)
+                return GetParamValue(paramName, defaultvalue);
+
+            //Load the configuration file for the current file's path
+            KeyValueConfigurationCollection currConf = WebConfigurationManager.OpenWebConfiguration(contextDir).AppSettings.Settings;
+            string v = currConf[paramName]?.Value;
             return String.IsNullOrEmpty(v) ? defaultvalue : v.Trim();
         }
 

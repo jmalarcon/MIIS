@@ -48,6 +48,7 @@ namespace MIISHandler
         public MarkdownFile(string mdFilePath)
         {
             this.FilePath = mdFilePath;
+            
             //Initialize the file dependencies
             this.Dependencies = new List<string>
             {
@@ -457,11 +458,7 @@ namespace MIISHandler
                 //Returns true if caching is enabled in the file or global settings, and if is not disabled by a custom tag or param
                 if (_CachingEnabled == null)
                 {
-                    _CachingEnabled = (
-                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("Caching", this, "0")) ||
-                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("UseMDCaching", this, "0") //Compatibility with 2.x
-                        )
-                    );
+                    _CachingEnabled = TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("Caching", this, "0"));
                 }
                 return _CachingEnabled.Value;
             }

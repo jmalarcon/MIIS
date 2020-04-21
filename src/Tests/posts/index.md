@@ -4,7 +4,7 @@ author: jmalarcon
 #posts: !!FilesFromFolder ./
 #tags: !!TagsFromFolder ./
 #categs: !!CategsFromFolder ./
-#caching: false
+#caching: true
 arr: [cli-ref-config, cli-ref-delete, cli-ref-init]
 ---
 
@@ -19,7 +19,7 @@ Check this folder file's RSS in Atom format: [![Atom Feed](media/rss.png)](./fee
 
 This is a sample file to show all the contents of an specific folder. In this case I'm using `"./"` as the folder param for `FilesFromFolder` FM custom param. In the parent folder you should use the name of the folder. This `index.md` file won't be in the listing and no other file whose name starts with "_":
 
-**{{ posts.size }}** posts {% if tag %}&nbsp;with Tag '{{tag | capitalize}}'{% elseif categ %}&nbsp;with Category '{{categ | capitalize}}'{% else %}(all){% endif %}:
+**{{ posts.size }}** published posts {% if tag %}&nbsp;with Tag '{{tag | capitalize}}'{% elseif categ %}&nbsp;with Category '{{categ | capitalize}}'{% else %}(all){% endif %}:
 
 {%- comment -%}
 IMPORTANT: Normally this kind of structure will be created in the template, directly in HTML, not in markdown. Although I've done my best to prevent this, in general, using Liquid tags for iteration or conditional intertwined with Markdown could be pretty tricky and could lead to weird results because of unexpected paragraphs generated around liquid tags, etc. It should not happen with the measures taken, but be warned.

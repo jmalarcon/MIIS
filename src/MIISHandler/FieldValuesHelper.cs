@@ -79,7 +79,7 @@ namespace MIISHandler
         /// Calls the indicated custom Front-Matter field and returns the resulting value/object to be used into documents/templates
         /// </summary>
         /// <param name="sourceName">The name of the FM source to call. Case insensitive.</param>
-        /// <param name="srcParams">a list of params in test form</param>
+        /// <param name="srcParams">a list of params in text form</param>
         /// <returns></returns>
         public static object GetFieldValueFromFMSource(string sourceName, MIISFile file, params string[] srcParams)
         {
@@ -116,7 +116,7 @@ namespace MIISHandler
             }
 
             //Retrieve from Web.config using the app-specific prefix or without it if it's not present
-            return WebHelper.GetParamValue(WEB_CONFIG_PARAM_PREFIX + name, WebHelper.GetParamValue(name, defValue));
+            return WebHelper.GetParamValueInContext(WEB_CONFIG_PARAM_PREFIX + name, WebHelper.GetParamValueInContext(name, defValue, md), md);
         }
 
         /// <summary>

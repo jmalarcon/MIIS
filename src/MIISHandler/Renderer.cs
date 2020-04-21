@@ -59,6 +59,9 @@ namespace MIISHandler
             //Check which date formatting to use (Ruby/strftime or C#, C# by default)
             //DateFormat parameter
             Liquid.UseRubyDateFormat = (FieldValuesHelper.GetFieldValue("dateformat", null, "csharp") == "ruby");
+
+            //Determine if the files in the frontmatter should get their values from the current context configuration or its own
+            HttpContext.Current.Application["MDFilesInOwnContext"] = FieldValuesHelper.GetFieldObject("MDFilesInOwnContext", null, false);
         }
         #endregion
 
