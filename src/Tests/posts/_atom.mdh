@@ -14,6 +14,10 @@ posts: !!FilesFromFolder ./ true
   <link type="application/atom+xml" rel="self" href="{{baseurl}}{{url}}"/>
   <title>{{title | escape }}</title>
   <updated>{{now | date: "yyyy-MM-ddTHH:mm:sszzz"}}</updated>
+{%- comment -%}
+The next line is not needed since the posts are returned in descending order by date. 
+It's just an example of how to control the sort order
+{%- endcomment -%}
 {%- assign sortedposts = posts | sort: "date" | reverse -%}
 {%- for post in sortedposts limit:10 -%}
   <entry>
