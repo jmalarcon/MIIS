@@ -50,12 +50,14 @@ namespace MIISHandler.FMSources
             //- Folder path relative to the current file or to the root of the site
             //- Top folder files only (true*/false, could be 1*/0) 
 
+            //First parameter: folder to process
             //Check if there's a folder specified
             if (parameters.Length == 0)
                 throw new Exception("Folder not specified!!");
             string folderPath = FilesEnumeratorHelper.GetFolderAbsPathFromName(parameters[0]);
 
-            //Include top folder only or all subfolders (second parameter)
+            //Second parameter: include files in subfolders
+            //Include top folder only or all subfolders
             bool topOnly = true;
             try
             {
@@ -64,16 +66,8 @@ namespace MIISHandler.FMSources
             }
             catch { }
 
-            //Use the correct sort order, if any (third parameter)
-            SortDirection sd = SortDirection.desc;    //Default value
-            try
-            {
-                sd = (SortDirection)Enum.Parse(typeof(SortDirection), parameters[2]);
-            }
-            catch { }
-
             //Get al files in the folder (and subfolders if indicated), ordered by date desc
-            IEnumerable<MarkdownFile> allFiles = FilesEnumeratorHelper.GetAllFilesFromFolder(folderPath, topOnly, sd);
+            IEnumerable<MarkdownFile> allFiles = FilesEnumeratorHelper.GetAllFilesFromFolder(folderPath, topOnly);
 
             //File caching dependencies
             FilesEnumeratorHelper.AddCacheDependencies(currentFile, folderPath, allFiles);

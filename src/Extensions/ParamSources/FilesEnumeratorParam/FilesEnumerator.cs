@@ -9,22 +9,13 @@ using MIISHandler;
 namespace MIISFilesEnumeratorFMS
 {
     /// <summary>
-    /// A helper enum to specify the sort order of the resulting files
-    /// </summary>
-    internal enum SortDirection
-    {
-        desc = 0,
-        asc = 1
-    }
-
-    /// <summary>
     /// Helper class to retrieve files from folder in different ways
     /// </summary>
     internal static class FilesEnumeratorHelper
     {
         #region constants and private members
-        //Valid file extensions - Only MIIS files (.md or .mdh)
-        private static readonly string[] VALID_EXTS = new string[] { MarkdownFile.MARKDOWN_DEF_EXT, MarkdownFile.HTML_EXT };
+        //MIIS file extensions - Only MIIS files (.md or .mdh)
+        internal static readonly string[] MIIS_EXTS = new string[] { MarkdownFile.MARKDOWN_DEF_EXT, MarkdownFile.HTML_EXT };
         private static readonly string[] EXCLUDED_FILE_NAMES = new string[] { "index", "default" };
         #endregion
 
@@ -35,7 +26,8 @@ namespace MIISFilesEnumeratorFMS
         /// <param name="folderPath">The full path to the folder that contains the files</param>
         /// <param name="topFolderOnly">If true the results will include files into subfolders too</param>
         /// <returns>Returns files in the default order they have in disk. NO further ordering is done</returns>
-        private static IEnumerable<MarkdownFile> GetAllFilesFromFolderInternal(string folderPath, bool topFolderOnly)
+        private static IEnumerable<MarkdownFile> GetAllFilesFromFolderInternal(string folderPath, bool topFolderOnly, 
+            string[] validExtensions = null, string[] excludedFileNames = null)
         {
             if (!Directory.Exists(folderPath))
             {
@@ -48,9 +40,18 @@ namespace MIISFilesEnumeratorFMS
 
             DirectoryInfo di = new DirectoryInfo(folderPath);
 
+            //By default use only valid MIIS extensions
+            if (validExtensions == null)
+                validExtensions = MIIS_EXTS;
+
+            //By default exclude default names such as "index" or "default"
+            if (excludedFileNames == null)
+                excludedFileNames = EXCLUDED_FILE_NAMES;
+
             var allFiles = (from file in di.EnumerateFiles("*.*", sfo)
                                 //Include only MIIS files and exclude files that start with "_" or with a default name (index or default)
-                            where !file.Name.StartsWith("_") && VALID_EXTS.Contains(file.Extension.ToLowerInvariant()) && !EXCLUDED_FILE_NAMES.Contains(Path.GetFileNameWithoutExtension(file.Name).ToLowerInvariant())
+                            where !file.Name.StartsWith("_") && validExtensions.Contains(file.Extension.ToLowerInvariant()) && 
+                                  !excludedFileNames.Contains(Path.GetFileNameWithoutExtension(file.Name).ToLowerInvariant())
                             select new MarkdownFile(file.FullName)
                            );
 
@@ -64,7 +65,7 @@ namespace MIISFilesEnumeratorFMS
         /// <param name="topFolderOnly">If true the results will include files into subfolders too</param>
         /// <param name="sortdirection">The sort direction ordering the files by date.</param>
         /// <returns></returns>
-        public static IEnumerable<MarkdownFile> GetAllFilesFromFolder(string folderPath, bool topFolderOnly, SortDirection sortdirection = SortDirection.desc)
+        public static IEnumerable<MarkdownFile> GetAllFilesFromFolder(string folderPath, bool topFolderOnly)
         {
             //Try to read from the results cache
             string cacheKey = folderPath + "_files" + "_" + topFolderOnly;
@@ -77,10 +78,8 @@ namespace MIISFilesEnumeratorFMS
                 CacheResults(folderPath, cacheKey, NumSecondsToNextFilePubDate(allFiles), allFiles);
             }
 
-            //Return the correct order (they are already ordered in descending direction
-            return (sortdirection == SortDirection.asc) ?
-                                 allFiles.Reverse<MarkdownFile>() : //Oldest first
-                                 allFiles;  //Newest first
+            //Return all the files sorted by date desc (is the default sort order)
+            return allFiles;
         }
 
         /// <summary>
