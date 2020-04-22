@@ -25,9 +25,9 @@ namespace MIISFilesEnumeratorFMS
         /// </summary>
         /// <param name="folderPath">The full path to the folder that contains the files</param>
         /// <param name="topFolderOnly">If true the results will include files into subfolders too</param>
+        /// <param name="excludedFileNames">A string array with the names of files (no extension) to exclude from the results</param>
         /// <returns>Returns files in the default order they have in disk. NO further ordering is done</returns>
-        private static IEnumerable<MarkdownFile> GetAllFilesFromFolderInternal(string folderPath, bool topFolderOnly, 
-            string[] validExtensions = null, string[] excludedFileNames = null)
+        private static IEnumerable<MarkdownFile> GetAllFilesFromFolderInternal(string folderPath, bool topFolderOnly, string[] excludedFileNames = null)
         {
             if (!Directory.Exists(folderPath))
             {
@@ -40,17 +40,13 @@ namespace MIISFilesEnumeratorFMS
 
             DirectoryInfo di = new DirectoryInfo(folderPath);
 
-            //By default use only valid MIIS extensions
-            if (validExtensions == null)
-                validExtensions = MIIS_EXTS;
-
             //By default exclude default names such as "index" or "default"
             if (excludedFileNames == null)
                 excludedFileNames = EXCLUDED_FILE_NAMES;
 
             var allFiles = (from file in di.EnumerateFiles("*.*", sfo)
                                 //Include only MIIS files and exclude files that start with "_" or with a default name (index or default)
-                            where !file.Name.StartsWith("_") && validExtensions.Contains(file.Extension.ToLowerInvariant()) && 
+                            where !file.Name.StartsWith("_") && MIIS_EXTS.Contains(file.Extension.ToLowerInvariant()) && 
                                   !excludedFileNames.Contains(Path.GetFileNameWithoutExtension(file.Name).ToLowerInvariant())
                             select new MarkdownFile(file.FullName)
                            );
@@ -63,9 +59,9 @@ namespace MIISFilesEnumeratorFMS
         /// </summary>
         /// <param name="folderPath">The full path to the folder that contains the files</param>
         /// <param name="topFolderOnly">If true the results will include files into subfolders too</param>
-        /// <param name="sortdirection">The sort direction ordering the files by date.</param>
+        /// <param name="includeDefFiles">If default files should be included (index.md, default.md...). Not included by default, so no index.md ir default.mdh included.</param>
         /// <returns></returns>
-        public static IEnumerable<MarkdownFile> GetAllFilesFromFolder(string folderPath, bool topFolderOnly)
+        public static IEnumerable<MarkdownFile> GetAllFilesFromFolder(string folderPath, bool topFolderOnly, bool includeDefFiles = false)
         {
             //Try to read from the results cache
             string cacheKey = folderPath + "_files" + "_" + topFolderOnly;
@@ -73,7 +69,10 @@ namespace MIISFilesEnumeratorFMS
 
             if (allFiles == null)   //Read files from disk if not in the cache
             {
-                allFiles = GetAllFilesFromFolderInternal(folderPath, topFolderOnly).OrderByDescending<MarkdownFile, DateTime>(f => f.Date);   //Oldest file first (this is the most common way to use them)
+                string[] excludedFileNames = EXCLUDED_FILE_NAMES;  //Default action
+                if (includeDefFiles)
+                    excludedFileNames = new string[] { };   //Empty: don't exclude anything
+                allFiles = GetAllFilesFromFolderInternal(folderPath, topFolderOnly, excludedFileNames).OrderByDescending<MarkdownFile, DateTime>(f => f.Date);   //Oldest file first (this is the most common way to use them)
                 //Add sorted files to cache depending on the folder and the time until the next published file
                 CacheResults(folderPath, cacheKey, NumSecondsToNextFilePubDate(allFiles), allFiles);
             }

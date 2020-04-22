@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Web;
 using MIISFilesEnumeratorFMS;
@@ -66,8 +67,17 @@ namespace MIISHandler.FMSources
             }
             catch { }
 
+            //Third parameter: include default files (index, default)
+            bool includeDefFiles = false;
+            try
+            {
+                string sincludeDefFiles = parameters[2].ToLowerInvariant();
+                includeDefFiles = FilesEnumeratorHelper.IsTruthy(sincludeDefFiles);
+            }
+            catch { }
+
             //Get al files in the folder (and subfolders if indicated), ordered by date desc
-            IEnumerable<MarkdownFile> allFiles = FilesEnumeratorHelper.GetAllFilesFromFolder(folderPath, topOnly);
+            IEnumerable<MarkdownFile> allFiles = FilesEnumeratorHelper.GetAllFilesFromFolder(folderPath, topOnly, includeDefFiles);
 
             //File caching dependencies
             FilesEnumeratorHelper.AddCacheDependencies(currentFile, folderPath, allFiles);

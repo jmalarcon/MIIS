@@ -2,6 +2,7 @@
 using System.Collections;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MIISHandler
 {
@@ -12,6 +13,8 @@ namespace MIISHandler
     {
         //Reference to the internal MD or MDF file
         private readonly MarkdownFile _md;
+        //URL
+        private string _url = "";
         //Tags and categories
         private string[] _tags = null;
         private string[] _categories = null;
@@ -110,7 +113,13 @@ namespace MIISHandler
         {
             get
             {
-                return IISHelpers.WebHelper.GetAbsolutePath(this.FilePath);
+                if (_url == "")
+                {
+                    string absPath = IISHelpers.WebHelper.GetAbsolutePath(this.FilePath);
+                    //Remove the file name if it's a default one (index.md(h) or default.md(h)
+                    _url = Regex.Replace(absPath, @"^(.*\/)(index|default)(\.[^\/]+)$", "$1", RegexOptions.IgnoreCase);
+                }
+                return _url;
             }
         }
 
