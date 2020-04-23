@@ -76,10 +76,10 @@ namespace MIISHandler.FMSources
                           };
 
                 //FILE CACHING
-                FilesEnumeratorHelper.AddCacheDependencies(currentFile, folderPath, allFiles);
+                FilesEnumeratorHelper.AddFileCacheDependencies(currentFile, folderPath, allFiles);
 
                 //Add categories to cache depending on the folder and the time until the next published file
-                FilesEnumeratorHelper.CacheResults(folderPath, cacheKey,
+                FilesEnumeratorHelper.CacheFileList(folderPath, cacheKey,
                                                    FilesEnumeratorHelper.NumSecondsToNextFilePubDate(allFiles),
                                                    categs);
             }

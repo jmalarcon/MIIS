@@ -80,7 +80,7 @@ namespace MIISHandler.FMSources
             IEnumerable<MarkdownFile> allFiles = FilesEnumeratorHelper.GetAllFilesFromFolder(folderPath, topOnly, includeDefFiles);
 
             //File caching dependencies
-            FilesEnumeratorHelper.AddCacheDependencies(currentFile, folderPath, allFiles);
+            FilesEnumeratorHelper.AddFileCacheDependencies(currentFile, folderPath, allFiles);
 
             //Filter only those that are published
             IEnumerable<MIISFile> publishedFilesProxies = FilesEnumeratorHelper.OnlyPublished(allFiles);
