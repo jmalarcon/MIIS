@@ -524,8 +524,8 @@ namespace MIISHandler
             }
         }
 
-        //Set by custom tags or params. 0 means no time based expiration. Maximum value 1 day (24 hours)
-        internal double NumSecondsCacheIsValid
+        //Set by custom tags or params. 0 means no time based expiration.
+        internal double CachingTimeOut
         {
             get
             {
@@ -694,11 +694,11 @@ namespace MIISHandler
                 CacheDependency deps = GetCacheDependencies();
 
                 //Add to Cache
-                if (this.NumSecondsCacheIsValid > 0)
+                if (this.CachingTimeOut > 0)
                 {
                     //Cache invalidation when files change or after a certain time
                     HttpRuntime.Cache.Insert(this.CachingId, this.CachedContentItem, deps,
-                        DateTime.UtcNow.AddSeconds(this.NumSecondsCacheIsValid), Cache.NoSlidingExpiration);
+                        DateTime.UtcNow.AddSeconds(this.CachingTimeOut), Cache.NoSlidingExpiration);
                 }
                 else
                 {

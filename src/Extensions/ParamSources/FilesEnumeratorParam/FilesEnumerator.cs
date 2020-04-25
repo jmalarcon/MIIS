@@ -119,7 +119,7 @@ namespace MIISFilesEnumeratorFMS
             //If any of the files has a (publishing) date later than now, then add the first one as a cache dependency to refresh the listings at that point
             double maxDateSecs = NumSecondsToNextFilePubDate(allFiles);
             if (maxDateSecs > 0)
-                currentFile.SetMaxCacheValidity(maxDateSecs);
+                currentFile.SetCachingTimeOut(maxDateSecs);
         }
 
         /// <summary>

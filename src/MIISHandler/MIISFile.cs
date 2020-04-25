@@ -333,9 +333,9 @@ namespace MIISHandler
         /// so that it can be fresh in reasonable spans of time
         /// </summary>
         /// <param name="seconds">The value must be between 1 second a 24 hours (86400 seconds). Will force this range.</param>
-        public void SetMaxCacheValidity(double seconds)
+        public void SetCachingTimeOut(double seconds)
         {
-            _md.NumSecondsCacheIsValid = seconds;
+            _md.CachingTimeOut = seconds;
         }
 
         #endregion
