@@ -34,11 +34,11 @@ namespace IISHelpers
         /// <exception cref="System.IO.FileNotFoundException">Thrown when the requested file does not exist</exception>
         internal static string ReadTextFromFileWithCaching(string filePath)
         {
-            string cachedContent = HttpRuntime.Cache[filePath] as string;
+            string cachedContent = HttpRuntime.Cache[filePath + "_content"] as string;
             if (string.IsNullOrEmpty(cachedContent))
             {
                 string content = ReadTextFromFile(filePath);    //Read file contents from disk
-                HttpRuntime.Cache.Insert(filePath, content, new CacheDependency(filePath)); //Add result to cache with dependency on the file
+                HttpRuntime.Cache.Insert(filePath + "_content", content, new CacheDependency(filePath)); //Add result to cache with dependency on the file
                 return content; //Return content
             }
             else

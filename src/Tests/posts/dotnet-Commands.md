@@ -4,7 +4,7 @@ description: A short reference for NuGet-related commands using the dotnet comma
 image: media/LongPathPolicy.png
 author: karann-msft
 categories: [karann]
-date: 2020-06-24
+date: 2019-06-24
 tags: [conceptual]
 ---
 

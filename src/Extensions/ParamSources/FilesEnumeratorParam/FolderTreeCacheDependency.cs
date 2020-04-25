@@ -44,15 +44,6 @@ namespace MIISFilesEnumeratorFMS
             return _folderPath;
         }
 
-        //To avoid adding the same dependency more than once
-        public override bool Equals(object obj)
-        {
-            if (obj is FolderTreeCacheDependency)
-                return (obj as FolderTreeCacheDependency).GetUniqueID() == this.GetUniqueID();
-            else
-                return false;
-        }
-
         //Deletion of file or folder
         void DeletedHandler(object sender, FileSystemEventArgs e)
         {

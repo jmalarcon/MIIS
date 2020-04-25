@@ -57,7 +57,6 @@ namespace MIISHandler
         {
             public string RawHTML;  //Raw final HTML (without template and with liquid tags processed)
             public string FinalHTML; //Final HTML (with template and with liquid tags processed)
-            public string FrontMatter;  //File's Front Matter
         }
 
         //THe type of item to add to cache
@@ -65,7 +64,6 @@ namespace MIISHandler
         {
             FinalHtml,
             RawHtml,
-            FrontMatter
         }
         #endregion
 
@@ -171,7 +169,7 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_rawFinalHtml))
                 {
                     //Try to read it from the cache
-                    _rawFinalHtml = GetFromCache(CachedContentType.RawHtml);
+                    _rawFinalHtml = GetContentFromCache(CachedContentType.RawHtml);
                     if (string.IsNullOrEmpty(_rawFinalHtml))    //If it's not in the cache, process the raw content
                     {
                         //Check if its a pure HTML file (.mdh extension)
@@ -185,7 +183,7 @@ namespace MIISHandler
                             //Convert markdown to HTML
                             _rawFinalHtml = Renderer.ConvertMarkdown2Html(this.ProcessedContent, this.UseEmoji, this.EnabledMDExtensions);
                         }
-                        AddToCache(_rawFinalHtml, CachedContentType.RawHtml);
+                        AddContentToCache(_rawFinalHtml, CachedContentType.RawHtml);
                     }
                 }
                 return _rawFinalHtml;
@@ -202,12 +200,12 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_finalHtml))    //If it's not processed yet
                 {
                     //Try to read from cache
-                    _finalHtml = GetFromCache(CachedContentType.FinalHtml);
+                    _finalHtml = GetContentFromCache(CachedContentType.FinalHtml);
                     if (string.IsNullOrEmpty(_finalHtml)) //If it's not in the cache, process the file
                     {
                         _finalHtml = Renderer.RenderMarkdownFile(this);
-                        AddToCache(_finalHtml, CachedContentType.FinalHtml);    //Add to cache (if enabled)
-                        PersistToCache();   //Make sure the final cached content gets saved to cache (if caching is enabled)
+                        AddContentToCache(_finalHtml, CachedContentType.FinalHtml);    //Add to cache (if enabled)
+                        PersistContentToCache();   //Make sure the final cached content gets saved to cache (if caching is enabled)
                     }
                 }
                 return _finalHtml;
@@ -230,7 +228,7 @@ namespace MIISHandler
                 else
                 { 
                     html = this.RawFinalHtml;
-                    this.PersistToCache();  //Since it's used as a component, persist the result to cache (above, FinalHtml does it automatically)
+                    this.PersistContentToCache();  //Since it's used as a component, persist the result to cache (above, FinalHtml does it automatically)
                 }
 
                 return html;
@@ -650,8 +648,9 @@ namespace MIISHandler
             return deps;
         }
 
-        //Adds the specified value to the cache with the specified key, if it's enabled
-        private void AddToCache(string content, CachedContentType ccType)
+        //Adds the specified content to the cache with the specified key, if it's enabled
+        //Content is stored in a single object and not separately because the "Special CacheDependencies" can't be used more than once
+        private void AddContentToCache(string content, CachedContentType ccType)
         {
             //and assign property depending on content type
             switch (ccType)
@@ -662,14 +661,11 @@ namespace MIISHandler
                 case CachedContentType.RawHtml:
                     this.CachedContentItem.RawHTML = content;
                     break;
-                case CachedContentType.FrontMatter:
-                    this.CachedContentItem.FrontMatter = content;
-                    break;
             }
         }
 
         //Gets value from the cache if available
-        private string GetFromCache(CachedContentType ccType)
+        private string GetContentFromCache(CachedContentType ccType)
         {
             //NOTE to self: It doesn't check if caching is enabled because I want the setting to be available in the front-matter too
             //and, at the point this method is called, the FM is not usually available yet, and I want to avoid reading the file 
@@ -682,15 +678,13 @@ namespace MIISHandler
                     return this.CachedContentItem.FinalHTML;
                 case CachedContentType.RawHtml:
                     return this.CachedContentItem.RawHTML;
-                case CachedContentType.FrontMatter:
-                    return this.CachedContentItem.FrontMatter;
                 default:
                     return "";
             }
         }
 
         //Persists the cached contents to Cache (in caching is enabled)
-        internal void PersistToCache()
+        private void PersistContentToCache()
         {
             //Can only be persisted once!
             if (_isPersistedToCache) return;
@@ -714,6 +708,20 @@ namespace MIISHandler
             }
             
             _isPersistedToCache = true;
+        }
+
+        /////////FRONT-MATTER
+        //Front-Matter's only dependency is the current file, and many files are used just for data, 
+        //so it's cached on itself and only depends onthe current file
+        
+        private void AddFMToCache(string fm)
+        {
+            HttpRuntime.Cache.Insert(this.FilePath + "_FM", fm, new CacheDependency(this.FilePath));
+        }
+
+        private string GetFMFromCache()
+        {
+            return HttpRuntime.Cache[this.FilePath + "_FM"] as string;
         }
 
         #endregion
@@ -750,7 +758,7 @@ namespace MIISHandler
             //Non empty value, for caching
             string strFM = "---\r\n---";
 
-            strFM = GetFromCache(CachedContentType.FrontMatter);
+            strFM = GetFMFromCache();
             if (!string.IsNullOrEmpty(strFM)) //If it in the cache, just use it
             {
                 _FrontMatter = new SimpleYAMLParser(strFM);
@@ -775,7 +783,7 @@ namespace MIISHandler
             _FrontMatter = new SimpleYAMLParser(strFM);
 
             //Cache the final FM content (if caching is enabled)
-            AddToCache(strFM, CachedContentType.FrontMatter);
+            AddFMToCache(strFM);
         }
 
         //Removes the front matter, if any, from the actual content of the file
