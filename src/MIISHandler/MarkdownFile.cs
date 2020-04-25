@@ -38,7 +38,7 @@ namespace MIISHandler
         private string _layout;
         private SimpleYAMLParser _FrontMatter;
         private bool? _CachingEnabled = null;    //Should be default to allow for the expression shortcircuit in the CachingEnabled property
-        private double _NumSecondsCacheIsValid = 0;
+        private double _CachingTimeOut = 0;
         private bool _isPersistedToCache = false;
         #endregion
 
@@ -524,18 +524,26 @@ namespace MIISHandler
             }
         }
 
+        //The timeout in seconds to force the content cache to invalidate
         //Set by custom tags or params. 0 means no time based expiration.
+        //This is only read once, when persisting the file contents to the Cache
         internal double CachingTimeOut
         {
             get
             {
-                return _NumSecondsCacheIsValid;
+                //Read from Front-Matter
+                double fmVal = 0;
+                _ = double.TryParse(FieldValuesHelper.GetFieldValue("CachingTimeOut", this, "0"), out fmVal);
+                return Math.Min(_CachingTimeOut, fmVal);
             }
             set
             {
-                _NumSecondsCacheIsValid = value;
-                if (value <= 0) _NumSecondsCacheIsValid = 0;
-                //if (value > 86400) _NumSecondsCacheIsValid = 86400;    //24 hours in seconds
+                if (value <= 0) return;
+                //If the value has been set before (external value and FM value, for example), the minimum one wins
+                if (_CachingTimeOut > 0)
+                    _CachingTimeOut = Math.Min(_CachingTimeOut, value);
+                else
+                    _CachingTimeOut = value;
             }
         }
 
@@ -693,12 +701,13 @@ namespace MIISHandler
             {
                 CacheDependency deps = GetCacheDependencies();
 
+                double cachingTimeout = this.CachingTimeOut;
                 //Add to Cache
-                if (this.CachingTimeOut > 0)
+                if (cachingTimeout > 0)
                 {
                     //Cache invalidation when files change or after a certain time
                     HttpRuntime.Cache.Insert(this.CachingId, this.CachedContentItem, deps,
-                        DateTime.UtcNow.AddSeconds(this.CachingTimeOut), Cache.NoSlidingExpiration);
+                        DateTime.UtcNow.AddSeconds(cachingTimeout), Cache.NoSlidingExpiration);
                 }
                 else
                 {
