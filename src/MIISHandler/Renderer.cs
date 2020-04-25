@@ -144,7 +144,7 @@ namespace MIISHandler
                     {
                         template = ReadTemplate(templateFile, ctx, templateDependencies);    //Read, transform and cache template
                         //Add template file's dependences as dependences for the Markdown file cache too
-                        md.Dependencies.AddRange(templateDependencies);
+                        md.AddFileDependencies(templateDependencies);
                     }
                     catch (FileNotFoundException)
                     {
@@ -344,7 +344,7 @@ namespace MIISHandler
                     templateContents = WebHelper.TransformVirtualPaths(templateContents);
 
                     //If it's the main file, add result to cache with dependency on the file(s)
-                    //Templates are cached ALWAYS, and this is not dependent on the UseMDcaching parameter (that one is only for MarkDown or MDH files)
+                    //Templates are cached ALWAYS, and this is not dependent on the caching parameter (that one is only for MarkDown or MDH files)
                     HttpRuntime.Cache.Insert(templatePath, templateContents, new CacheDependency(cacheDependencies.ToArray()));
                     //Keep a list of template's dependencies to reuse when not reading from cache
                     ctx.Application[templatePath] = cacheDependencies;
@@ -384,7 +384,7 @@ namespace MIISHandler
                 //Try to read the file with fragment
                 try
                 {
-                    md.Dependencies.Add(fragmentFileName);
+                    md.AddFileDependency(fragmentFileName);
 
                     MarkdownFile mdFld = new MarkdownFile(fragmentFileName);
                     //Render the file in the context of the parent file, no its own

@@ -165,7 +165,7 @@ namespace MIISHandler
                                     }
                             }
                             //////////////////////////////
-                            //Second, File Processing Fields, thar inject the content of .md or .mdh processing their inner fields in their own context
+                            //Second, File Processing Fields, that inject the content of .md or .mdh processing their inner fields in their own context
                             //This is for compatbility reasons with MIIS v1.x and 2.x
                             //////////////////////////////
                             else if (resAsString.ToLowerInvariant().EndsWith(MarkdownFile.MARKDOWN_DEF_EXT) || resAsString.ToLowerInvariant().EndsWith(MarkdownFile.HTML_EXT))
@@ -202,7 +202,7 @@ namespace MIISHandler
                                         //Add the processed file to the dependencies of the currently processed content file, 
                                         //so that the file is invalidated when the FPF changes (if caching is enabled)
                                         //The FPF is already cached too if caching is enabled
-                                        _parentFile.Dependencies.Add(fpfPath);
+                                        _parentFile.AddFileDependency(fpfPath);
                                     }
                                     catch (System.Security.SecurityException)
                                     {

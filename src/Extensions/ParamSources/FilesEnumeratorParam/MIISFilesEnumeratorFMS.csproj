@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="CategsFolderParamSrc.cs" />
     <Compile Include="DataFromFileParamSrc.cs" />
+    <Compile Include="FolderTreeCacheDependency.cs" />
     <Compile Include="Paginator.cs" />
     <Compile Include="PaginatorForParamSrc.cs" />
     <Compile Include="TagsFolderParamSrc.cs" />

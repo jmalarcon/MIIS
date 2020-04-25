@@ -64,7 +64,7 @@ namespace MIISFilesEnumeratorFMS
         public static IEnumerable<MarkdownFile> GetAllFilesFromFolder(string folderPath, bool topFolderOnly, bool includeDefFiles = false)
         {
             //Try to read from the results cache
-            string cacheKey = folderPath + "_files" + "_" + topFolderOnly;
+            string cacheKey = folderPath + "_files" + "_" + topFolderOnly + "_" + includeDefFiles;
             IEnumerable<MarkdownFile> allFiles = HttpRuntime.Cache[cacheKey] as IEnumerable<MarkdownFile>;
 
             if (allFiles == null)   //Read files from disk if not in the cache
@@ -74,7 +74,7 @@ namespace MIISFilesEnumeratorFMS
                     excludedFileNames = new string[] { };   //Empty: don't exclude anything
                 allFiles = GetAllFilesFromFolderInternal(folderPath, topFolderOnly, excludedFileNames).OrderByDescending<MarkdownFile, DateTime>(f => f.Date);   //Oldest file first (this is the most common way to use them)
                 //Add sorted files to cache depending on the folder and the time until the next published file
-                CacheFileList(folderPath, cacheKey, NumSecondsToNextFilePubDate(allFiles), allFiles);
+                AddFileListToCache(folderPath, cacheKey, NumSecondsToNextFilePubDate(allFiles), allFiles, topFolderOnly);
             }
 
             //Return all the files sorted by date desc (is the default sort order)
@@ -102,14 +102,50 @@ namespace MIISFilesEnumeratorFMS
         /// <param name="currentFile"></param>
         /// <param name="folderPath"></param>
         /// <param name="allFiles"></param>
-        public static void AddFileCacheDependencies(MIISFile currentFile, string folderPath, IEnumerable<MarkdownFile> allFiles)
+        /// <param name="topOnly">If only the top folder is being watched</param>
+        public static void AddFileCacheDependencies(MIISFile currentFile, string folderPath, IEnumerable<MarkdownFile> allFiles, bool topOnly)
         {
-            //Establish the processed folder as a caching dependency for the current file this FM souce is working on
-            currentFile.AddFileDependency(folderPath);
+            if (topOnly)
+            { 
+                //Establish the processed folder as a caching dependency for the current file this FM souce is working on
+                currentFile.AddFileDependency(folderPath);
+            }
+            else
+            {
+                //Add an special FolderTreeCacheDependency to watch all the subfolders
+                currentFile.AddFileDependency(new FolderTreeCacheDependency(folderPath));
+            }
+
             //If any of the files has a (publishing) date later than now, then add the first one as a cache dependency to refresh the listings at that point
             double maxDateSecs = NumSecondsToNextFilePubDate(allFiles);
             if (maxDateSecs > 0)
                 currentFile.SetMaxCacheValidity(maxDateSecs);
+        }
+
+        /// <summary>
+        /// Adds the object to the cache
+        /// </summary>
+        /// <param name="folderPath">The folder to monitor for changes to invalidate the cache</param>
+        /// <param name="cacheKey">The cache identifer</param>
+        /// <param name="maxDateSecs">Maximum number of seconds to keep the cache alive</param>
+        /// <param name="result">The result to cache</param>
+        /// <param name="topOnly">If only the top folder is to be watched for changes to invalidate the cache</param>
+        public static void AddFileListToCache(string folderPath, string cacheKey, double maxDateSecs, object result, bool topOnly)
+        {
+            if (HttpRuntime.Cache[cacheKey] != null) return;
+
+            CacheDependency dep;
+            if (topOnly)
+                dep = new CacheDependency(folderPath);
+            else
+                dep = new FolderTreeCacheDependency(folderPath);
+            
+            //If any of the files has a (publishing) date later than now, then add the first one as a cache dependency to refresh the cache at that point
+            if (maxDateSecs > 0)    //Add dependency with a maximum period of validity
+                HttpRuntime.Cache.Insert(cacheKey, result, dep,
+                    DateTime.UtcNow.AddSeconds(maxDateSecs), Cache.NoSlidingExpiration);
+            else  //Just add the folder as a dependency
+                HttpRuntime.Cache.Insert(cacheKey, result, dep);
         }
 
         /// <summary>
@@ -130,23 +166,6 @@ namespace MIISFilesEnumeratorFMS
             }
 
             return maxDateSecs;
-        }
-
-        /// <summary>
-        /// Adds the object to the cache
-        /// </summary>
-        /// <param name="folderPath">The folder to monitor for changes to invalidate the cache</param>
-        /// <param name="cacheKey">The cache identifer</param>
-        /// <param name="maxDateSecs">Maximum number of seconds to keep the cache alive</param>
-        /// <param name="result">The result to cache</param>
-        public static void CacheFileList(string folderPath, string cacheKey, double maxDateSecs, object result)
-        {
-            //If any of the files has a (publishing) date later than now, then add the first one as a cache dependency to refresh the cache at that point
-            if (maxDateSecs > 0)    //Add dependency with a maximum period of validity
-                HttpRuntime.Cache.Insert(cacheKey, result, new CacheDependency(folderPath),
-                    DateTime.UtcNow.AddSeconds(maxDateSecs), Cache.NoSlidingExpiration);
-            else  //Just add the folder as a dependency
-                HttpRuntime.Cache.Insert(cacheKey, result, new CacheDependency(folderPath));
         }
         #endregion
 

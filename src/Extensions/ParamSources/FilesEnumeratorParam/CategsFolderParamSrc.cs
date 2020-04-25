@@ -46,7 +46,16 @@ namespace MIISHandler.FMSources
             }
             catch { }
 
-            string cacheKey = folderPath + "_categs" + "_" + topOnly;
+            //Third parameter: include default files (index, default)
+            bool includeDefFiles = false;
+            try
+            {
+                string sincludeDefFiles = parameters[2].ToLowerInvariant();
+                includeDefFiles = FilesEnumeratorHelper.IsTruthy(sincludeDefFiles);
+            }
+            catch { }
+
+            string cacheKey = folderPath + "_categs" + "_" + topOnly + "_" + includeDefFiles;
             //Check if tags are already cached
             var categs = HttpRuntime.Cache[cacheKey];
 
@@ -76,12 +85,12 @@ namespace MIISHandler.FMSources
                           };
 
                 //FILE CACHING
-                FilesEnumeratorHelper.AddFileCacheDependencies(currentFile, folderPath, allFiles);
+                FilesEnumeratorHelper.AddFileCacheDependencies(currentFile, folderPath, allFiles, topOnly);
 
                 //Add categories to cache depending on the folder and the time until the next published file
-                FilesEnumeratorHelper.CacheFileList(folderPath, cacheKey,
+                FilesEnumeratorHelper.AddFileListToCache(folderPath, cacheKey,
                                                    FilesEnumeratorHelper.NumSecondsToNextFilePubDate(allFiles),
-                                                   categs);
+                                                   categs, topOnly);
             }
 
             return categs;

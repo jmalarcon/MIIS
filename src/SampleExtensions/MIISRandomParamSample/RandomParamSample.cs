@@ -38,7 +38,7 @@ namespace MIISHandler.FMSources
 
             //Force the file to be cached for 10 seconds
             //currentFile.SetMaxCacheValidity(10);
-            //Force the file to not do any caching despite of the UseMDCaching parameter
+            //Force the file to not do any caching despite of the Caching parameter
             currentFile.DisableCache();
 
             return rnd.Next(min, max);

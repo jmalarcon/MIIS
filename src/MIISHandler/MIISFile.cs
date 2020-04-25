@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web.Caching;
 
 namespace MIISHandler
 {
@@ -312,12 +313,19 @@ namespace MIISHandler
         /// <param name="filePath">The full path to the file or folder that the current file depends on</param>
         public void AddFileDependency(string filePath)
         {
-            //If is a valid file or folder and it's not already added to the dependencies, add it
-            if ( 
-                (File.Exists(filePath) || Directory.Exists(filePath)) 
-                 && !_md.Dependencies.Contains(filePath) 
-               )
-                _md.Dependencies.Add(filePath);
+            _md.AddFileDependency(filePath);
+        }
+
+        /// <summary>
+        /// Allows a custom tag or FM source to add a new CacheDependency class to the current MD or MDH file caching
+        /// It is combined with other dependencies that may exist
+        /// It's for specialized caching strategies only
+        /// </summary>
+        /// <param name="cd">CacheDependency object (or an inherited class)</param>
+        public void AddFileDependency(CacheDependency cd)
+        {
+            //Just delegates this to the underlying file
+            _md.AddCacheDependency(cd);
         }
 
         /// <summary>

@@ -39,6 +39,34 @@ namespace MIISHandler
         private SimpleYAMLParser _FrontMatter;
         private bool? _CachingEnabled = null;    //Should be default to allow for the expression shortcircuit in the CachingEnabled property
         private double _NumSecondsCacheIsValid = 0;
+        private bool _isPersistedToCache = false;
+        #endregion
+
+        #region Internal classes, structs and enums
+        //Nested private helper class to keep a unique cache for the file
+        /*
+         * Note: in fact, each component has different dependencies:
+         * - RawHtml: current file, it's fragments and inserted files, extension dependencies...
+         * - FinalHtml: the previous ones and the dependencies for the template (files, includes...)
+         * - FrontMatter: just his file
+         * However, for the sake of simplicity I use just one cache for everything and therefore, 
+         * for example, the FM or RawHTML would be invalidated if a template file changes.
+         * It doesn't matter much bacuase, normally, when this happens most of the times the file need to be read again from disk
+        */
+        private class MarkdownFileCacheItem
+        {
+            public string RawHTML;  //Raw final HTML (without template and with liquid tags processed)
+            public string FinalHTML; //Final HTML (with template and with liquid tags processed)
+            public string FrontMatter;  //File's Front Matter
+        }
+
+        //THe type of item to add to cache
+        private enum CachedContentType
+        {
+            FinalHtml,
+            RawHtml,
+            FrontMatter
+        }
         #endregion
 
         #region Constructors
@@ -48,11 +76,18 @@ namespace MIISHandler
         public MarkdownFile(string mdFilePath)
         {
             this.FilePath = mdFilePath;
+            //Initializae cache item
+            this.CachedContentItem = HttpRuntime.Cache[this.CachingId] as MarkdownFileCacheItem;
+            if (this.CachedContentItem == null) this.CachedContentItem = new MarkdownFileCacheItem();
+
             //Initialize the file dependencies
             this.Dependencies = new List<string>
             {
                 this.FilePath   //Add current file as cache dependency (the render process will add the fragments and other files if needed)
             };
+
+            //No special dependencies by default (normally this is not used)
+            this.SpecialDependencies = null;
         }
 
         public MarkdownFile(string mdFilePath, bool processSubFiles) : this(mdFilePath)
@@ -126,6 +161,7 @@ namespace MIISHandler
 
         /// <summary>
         /// The HTML content of the file, WITHOUT the template (except in components), and WITH the liquid tags processed
+        /// It's used for FPFs
         /// </summary>
         public string RawFinalHtml
         {
@@ -135,7 +171,7 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_rawFinalHtml))
                 {
                     //Try to read it from the cache
-                    _rawFinalHtml = GetRawHtmlFromCache();
+                    _rawFinalHtml = GetFromCache(CachedContentType.RawHtml);
                     if (string.IsNullOrEmpty(_rawFinalHtml))    //If it's not in the cache, process the raw content
                     {
                         //Check if its a pure HTML file (.mdh extension)
@@ -148,8 +184,8 @@ namespace MIISHandler
                         {
                             //Convert markdown to HTML
                             _rawFinalHtml = Renderer.ConvertMarkdown2Html(this.ProcessedContent, this.UseEmoji, this.EnabledMDExtensions);
-                            AddRawHtmlToCache();
                         }
+                        AddToCache(_rawFinalHtml, CachedContentType.RawHtml);
                     }
                 }
                 return _rawFinalHtml;
@@ -166,11 +202,12 @@ namespace MIISHandler
                 if (string.IsNullOrEmpty(_finalHtml))    //If it's not processed yet
                 {
                     //Try to read from cache
-                    _finalHtml = GetFinalHtmlFromCache();
+                    _finalHtml = GetFromCache(CachedContentType.FinalHtml);
                     if (string.IsNullOrEmpty(_finalHtml)) //If it's not in the cache, process the file
                     {
                         _finalHtml = Renderer.RenderMarkdownFile(this);
-                        AddFinalHtmlToCache();  //Add to cache (if enabled)
+                        AddToCache(_finalHtml, CachedContentType.FinalHtml);    //Add to cache (if enabled)
+                        PersistToCache();   //Make sure the final cached content gets saved to cache (if caching is enabled)
                     }
                 }
                 return _finalHtml;
@@ -184,11 +221,19 @@ namespace MIISHandler
         {
             get
             {
+                string html;
                 //Check if the file is a component, in which case, render the full HTML
                 if (this.IsComponent)
-                    return this.FinalHtml;
+                { 
+                    html = this.FinalHtml;
+                }
                 else
-                    return this.RawFinalHtml;
+                { 
+                    html = this.RawFinalHtml;
+                    this.PersistToCache();  //Since it's used as a component, persist the result to cache (above, FinalHtml does it automatically)
+                }
+
+                return html;
             }
         }
 
@@ -383,6 +428,9 @@ namespace MIISHandler
         //The file paths of files the current file depends on, including itself (current file + fragments)
         internal List<string> Dependencies { get; private set; }
 
+        //This can be used to cache the file using specialized dependencies and not only specific files or folders
+        private List<CacheDependency> SpecialDependencies { get; set; }
+
         //A list of possible Markdig extensions to enable apart from the advanced ones that are enabled by default
         //THe name differs from the name of the parameter (Enabled vs Enable, because of the point of view in each case)
         public string EnabledMDExtensions
@@ -444,6 +492,17 @@ namespace MIISHandler
         #endregion
 
         #region caching
+        private string CachingId
+        {
+            get
+            {
+                return this.FilePath + GetQueryStringCachingSuffix();
+            }
+        }
+
+        //Gets the cache item associated with this file
+        //It's loaded at the constructor to recover possible cached values
+        private MarkdownFileCacheItem CachedContentItem { get; set; }
 
         //If false, then caching is not applied even if it's enabled in the settings.
         //This is used by custom tags and fields to keep the document fresh
@@ -457,11 +516,7 @@ namespace MIISHandler
                 //Returns true if caching is enabled in the file or global settings, and if is not disabled by a custom tag or param
                 if (_CachingEnabled == null)
                 {
-                    _CachingEnabled = (
-                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("Caching", this, "0")) ||
-                        TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("UseMDCaching", this, "0") //Compatibility with 2.x
-                        )
-                    );
+                    _CachingEnabled = TypesHelper.IsTruthy(FieldValuesHelper.GetFieldValue("Caching", this, "0"));
                 }
                 return _CachingEnabled.Value;
             }
@@ -501,6 +556,7 @@ namespace MIISHandler
         }
 
         //Gets the unique query string to be used as a suffix for caching the contents of the page
+        //It just takes into account registered query string fields declared by FM sources. Any other QS field is ignored
         internal string GetQueryStringCachingSuffix()
         {
             if (string.IsNullOrWhiteSpace(HttpContext.Current.Request.Url.Query))
@@ -510,99 +566,154 @@ namespace MIISHandler
             //Get all fields that have values in the current qs joined in the form field=value&field2=value2...
             string res = string.Join("&",
                             (from f in _CachingQueryStringFields
-                            where !string.IsNullOrWhiteSpace(qsFlds[f])
-                            select string.Format("{0}={1}", f, qsFlds[f]))
+                             where !string.IsNullOrWhiteSpace(qsFlds[f])
+                             select string.Format("{0}={1}", f, qsFlds[f]))
                             .ToArray<string>()
                         );
-            return string.IsNullOrEmpty(res) ? res : "?" + res; ;
+            return string.IsNullOrEmpty(res) ? "" : "?" + res;
+        }
+
+        /// <summary>
+        /// Adds a file or folder dependency to the current file's dependencies
+        /// </summary>
+        /// <param name="path">The path of the file or forlder that is this file depends on</param>
+        internal void AddFileDependency(string filePath)
+        {
+            //If is a valid file or folder and it's not already added to the dependencies, add it
+            if (
+                !this.Dependencies.Contains(filePath) &&
+                (File.Exists(filePath) || Directory.Exists(filePath))
+               )
+                this.Dependencies.Add(filePath);
+        }
+
+        /// <summary>
+        /// Adds a list of file or folder paths to the current file's dependencies
+        /// </summary>
+        /// <param name="filePaths">A List of paths</param>
+        internal void AddFileDependencies(List<string> filePaths)
+        {
+            filePaths.ForEach(delegate(string filePath) {
+                this.AddFileDependency(filePath);
+            });
+        }
+
+        /// <summary>
+        /// Adds an special cache dependency for the file (used by custom tags or FM sources)
+        /// </summary>
+        /// <param name="cd">The CacheDependency class to add as a dependency</param>
+        internal void AddCacheDependency(CacheDependency cd)
+        {
+            if (this.SpecialDependencies == null)
+            {
+                this.SpecialDependencies = new List<CacheDependency> { 
+                    cd
+                };
+            }
+            else
+            {
+                //CHeck if it's already added
+                bool alreadyPresent = this.SpecialDependencies.Any( 
+                        item => item.GetUniqueID() == cd.GetUniqueID() 
+                    );
+                if (!alreadyPresent)
+                    this.SpecialDependencies.Add(cd);
+            }
+        }
+
+        //Aux var to keep a unique reference to special dependencies and not reusing the same reference more than one
+        AggregateCacheDependency _aggregateCacheDependency = null;
+
+        //Get the appropriate dependencies to be used for the file cache
+        private CacheDependency GetCacheDependencies()
+        {
+            //Manage and reuse Cache dependencies
+
+            //File dependencies
+            CacheDependency deps = new CacheDependency(this.Dependencies.ToArray());
+
+            //If there are any additional special dependency...
+            if (this.SpecialDependencies != null)
+            {
+                //If a previous aggregate dependence exits, the special dependencies can't be added twice
+                //so create one just the first time (reuse it)
+                if (_aggregateCacheDependency == null)
+                {
+                    _aggregateCacheDependency = new AggregateCacheDependency();
+                    _aggregateCacheDependency.Add(this.SpecialDependencies.ToArray());
+                }
+                //Combine files and folders with the special dependencies
+                _aggregateCacheDependency.Add(deps);
+                deps = _aggregateCacheDependency;
+            }
+
+            return deps;
         }
 
         //Adds the specified value to the cache with the specified key, if it's enabled
-        private void AddToCache(string CacheID, string content)
+        private void AddToCache(string content, CachedContentType ccType)
         {
+            //and assign property depending on content type
+            switch (ccType)
+            {
+                case CachedContentType.FinalHtml:
+                    this.CachedContentItem.FinalHTML = content;
+                    break;
+                case CachedContentType.RawHtml:
+                    this.CachedContentItem.RawHTML = content;
+                    break;
+                case CachedContentType.FrontMatter:
+                    this.CachedContentItem.FrontMatter = content;
+                    break;
+            }
+        }
+
+        //Gets value from the cache if available
+        private string GetFromCache(CachedContentType ccType)
+        {
+            //NOTE to self: It doesn't check if caching is enabled because I want the setting to be available in the front-matter too
+            //and, at the point this method is called, the FM is not usually available yet, and I want to avoid reading the file 
+            //on each request (that's the main purpose of caching here).
+            //The original version of MIIS only allowed this setting to be global, in the web.config for the same reason.
+
+            switch (ccType)
+            {
+                case CachedContentType.FinalHtml:
+                    return this.CachedContentItem.FinalHTML;
+                case CachedContentType.RawHtml:
+                    return this.CachedContentItem.RawHTML;
+                case CachedContentType.FrontMatter:
+                    return this.CachedContentItem.FrontMatter;
+                default:
+                    return "";
+            }
+        }
+
+        //Persists the cached contents to Cache (in caching is enabled)
+        internal void PersistToCache()
+        {
+            //Can only be persisted once!
+            if (_isPersistedToCache) return;
+
             if (this.CachingEnabled)
             {
+                CacheDependency deps = GetCacheDependencies();
+
+                //Add to Cache
                 if (this.NumSecondsCacheIsValid > 0)
                 {
                     //Cache invalidation when files change or after a certain time
-                    HttpRuntime.Cache.Insert(CacheID, content, new CacheDependency(this.Dependencies.ToArray()),
+                    HttpRuntime.Cache.Insert(this.CachingId, this.CachedContentItem, deps,
                         DateTime.UtcNow.AddSeconds(this.NumSecondsCacheIsValid), Cache.NoSlidingExpiration);
                 }
                 else
                 {
                     //Cache invalidation just when files change
-                    HttpRuntime.Cache.Insert(CacheID, content, new CacheDependency(this.Dependencies.ToArray())); //Add result to cache with dependency on the file
+                    HttpRuntime.Cache.Insert(this.CachingId, this.CachedContentItem, deps); //Add result to cache with dependency on the needed files and folders
                 }
             }
-        }
-
-        //Adds the specified content to the FinalHtml cache (if enabled) using the correct id 
-        //depending on if the query string should be used or not
-        private void AddFinalHtmlToCache()
-        {
-            if (!CachingEnabled) return;
-
-            AddToCache(CachingIdHtml + GetQueryStringCachingSuffix(), _finalHtml);
-        }
-
-        //Adds the specified content to the RawHtml cache (if enabled) using the correct id 
-        //depending on if the query string should be used or not
-        private void AddRawHtmlToCache()
-        {
-            if (!CachingEnabled) return;
-
-            AddToCache(CachingIdRawHtml + GetQueryStringCachingSuffix(), _rawFinalHtml);
-        }
-
-        //Gets value from the cache if available
-        private string GetFromCache(string CacheID)
-        {
-            return HttpRuntime.Cache[CacheID] as string;
-            //NOTE to self: doesn't check if caching is enabled because I want the setting to be available in the front-matter too
-            //and, at the point this method is called, the FM is not usually available yet, and I want to avoid reading the file 
-            //on each request (that's the main purpose of caching here).
-            //The original version of MIIS only allowed this setting to be global, in the web.config for the same reason.
-        }
-
-        //Gets the rendered HTML from cache, if available, trying to get it with the query string
-        //or just from the default ID (no query string)
-        private string GetFinalHtmlFromCache()
-        {
-            return GetFromCache(this.CachingIdHtml + GetQueryStringCachingSuffix());
-        }
-
-        //Gets the rendered HTML from cache, if available, trying to get it with the query string
-        //or just from the default ID (no query string)
-        private string GetRawHtmlFromCache()
-        {
-            return GetFromCache(this.CachingIdRawHtml);
-        }
-
-        //Returns the internal identifier to be used as the key for the FinalHtml caching entry of this document
-        private string CachingIdHtml
-        {
-            get
-            {
-                return this.FilePath + "_HTML";
-            }
-        }
-
-        //Returns the internal identifier to be used as the key for the RawHtml caching entry of this document
-        private string CachingIdRawHtml
-        {
-            get
-            {
-                return this.FilePath + "_RawHTML";
-            }
-        }
-
-        //Returns the internal identifier to be used as the key for the caching entry of this document's Front Matter
-        private string CachingIDFrontMatter
-        {
-            get
-            {
-                return this.FilePath + "_FM";
-            }
+            
+            _isPersistedToCache = true;
         }
 
         #endregion
@@ -639,7 +750,7 @@ namespace MIISHandler
             //Non empty value, for caching
             string strFM = "---\r\n---";
 
-            strFM = GetFromCache(this.CachingIDFrontMatter);
+            strFM = GetFromCache(CachedContentType.FrontMatter);
             if (!string.IsNullOrEmpty(strFM)) //If it in the cache, just use it
             {
                 _FrontMatter = new SimpleYAMLParser(strFM);
@@ -664,7 +775,7 @@ namespace MIISHandler
             _FrontMatter = new SimpleYAMLParser(strFM);
 
             //Cache the final FM content (if caching is enabled)
-            AddToCache(this.CachingIDFrontMatter, strFM);
+            AddToCache(strFM, CachedContentType.FrontMatter);
         }
 
         //Removes the front matter, if any, from the actual content of the file
