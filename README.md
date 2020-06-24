@@ -4,11 +4,7 @@
 
 A Markdown and HTML file-based CMS system for IIS by [@jm_alarcon](https://twitter.com/jm_alarcon).
 
-> **IMPORTANT**: In order to be able to compile the source code of this project you first need to download the code of the complementary project [MIISDotLiquid](https://github.com/jmalarcon/MIISdotliquid). You must clone it in a `MIISDotLiquid` folder inside the same folder of the MIIS project:
->
-> ![project-folders](project-folders.png)
->
-> This is a related project for the Liquid tags processor and is referred by folder name in the project's file. I'm using a fork of the DotLiquid project that seems abandoned. Please, set the `Tests` project of the solution as the Starter Project in Visual Studio to run the tests and see how it works in detail.
+> **IMPORTANT**: This repository uses two Git Submodules [IISHelpers](https://github.com/jmalarcon/IISHelpers) and [MIISdotliquid](https://github.com/jmalarcon/MIISdotliquid) that are needed as dependencies. They are Git submodules so, when cloning the repo for the first time, you should use: `git clone --recursive https://github.com/jmalarcon/MIIS.git` so that the source code for these dependencies is cloned into the correspondent subfolders at the root level. You can later use `git submodule update --recursive --remote` to keep them updated with the latest changes.
 
 MIIS is a perfect blend between a traditional CMS (such as Wordpress) and a Static Site Generator (such as Jekyll). Get the best of both worlds:
 

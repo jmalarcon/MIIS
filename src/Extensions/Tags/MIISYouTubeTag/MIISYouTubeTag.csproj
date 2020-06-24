@@ -45,7 +45,7 @@
     <Compile Include="YouTube.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\..\MIISdotliquid\src\DotLiquid\MIISdotliquid.csproj">
+    <ProjectReference Include="..\..\..\..\MIISdotliquid\src\DotLiquid\MIISdotliquid.csproj">
       <Project>{48a66c97-a19f-422a-81b5-6831d17eff7c}</Project>
       <Name>MIISdotliquid</Name>
     </ProjectReference>

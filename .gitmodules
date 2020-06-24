@@ -1,0 +1,6 @@
+[submodule "IISHelpers"]
+	path = IISHelpers
+	url = https://github.com/jmalarcon/IISHelpers.git
+[submodule "MIISdotliquid"]
+	path = MIISdotliquid
+	url = https://github.com/jmalarcon/MIISdotliquid.git
