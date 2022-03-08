@@ -94,6 +94,9 @@ namespace MIISHandler
                 case "baseurl":
                     res = $"{_ctx.Request.Url.Scheme}{System.Uri.SchemeDelimiter}{_ctx.Request.Url.Authority}";
 					break;
+                case "clientip":
+                    res = WebHelper.GetIPAddress();
+                    break;
                 case "now":
                 case "today":
                     res = DateTime.Now;

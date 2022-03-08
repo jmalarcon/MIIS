@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("MIISHandler")]
-[assembly: AssemblyCopyright("JM Alarcón  2017-2020 - JMAlarcon - www.jasoft.org - Open Source")]
+[assembly: AssemblyCopyright("JM Alarcón  2017-2022 - JMAlarcon - www.jasoft.org - Open Source")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -31,5 +31,5 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("3.4.0")]
-[assembly: AssemblyFileVersion("3.4.0")]
+[assembly: AssemblyVersion("3.5.0")]
+[assembly: AssemblyFileVersion("3.5.0")]

@@ -20,6 +20,7 @@ Description: This file shows all the well-known fields and tests different space
 - User name: `{{username | default: "Anonymous" }}`
 - Domain: `{{DOMAIN}}`
 - Base URL: `{{baseurl}}`
+- User IP: `{{ClientIP}}`
 - Current date and time: `{{NOW}}`
 - Current time: `{{time}}`
 - Current URL: `{{url}}`
