@@ -4,7 +4,7 @@
 
 A Markdown and HTML file-based CMS system for IIS by [@jm_alarcon](https://twitter.com/jm_alarcon).
 
-> **IMPORTANT**: This repository uses two Git Submodules [IISHelpers](https://github.com/jmalarcon/IISHelpers) and [MIISdotliquid](https://github.com/jmalarcon/MIISdotliquid) that are needed as dependencies. They are Git submodules so, when cloning the repo for the first time, you should use: `git clone --recursive https://github.com/jmalarcon/MIIS.git` so that the source code for these dependencies is cloned into the correspondent subfolders at the root level. You can later use `git submodule update --recursive --remote` to keep them updated with the latest changes.
+> **IMPORTANT**: This repository uses two Git Submodules [IISHelpers](https://github.com/jmalarcon/IISHelpers) and [MIISdotliquid](https://github.com/jmalarcon/MIISdotliquid) that are needed as dependencies. They are Git submodules so, when cloning the repo for the first time, you should use: `git clone --recursive https://github.com/jmalarcon/MIIS.git` so that the source code for these dependencies is cloned into the correspondent subfolders at the root level. You can later use `git submodule update --recursive --remote` to keep them updated with the latest changes.
 
 MIIS is a perfect blend between a traditional CMS (such as Wordpress) and a Static Site Generator (such as Jekyll). Get the best of both worlds:
 
@@ -20,6 +20,7 @@ MIIS is a perfect blend between a traditional CMS (such as Wordpress) and a Stat
 
 - **Internet Information Server** on Windows Server, or an **Azure Web App**
 - **.NET Framework 4.5** or later (usually already installed on the server)
+- **[IIS URL Rewrite extension](https://www.iis.net/downloads/microsoft/url-rewrite)** (you can install it directly with the [Web Platform Installer](https://www.microsoft.com/web/downloads/platform.aspx) too)
 
 ## Features
 
