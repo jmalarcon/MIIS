@@ -37,7 +37,15 @@ MIIS is a perfect blend between a traditional CMS (such as Wordpress) and a Stat
 - Several documentation site templates included out of the box
 - **Great support for Markdown** and [Markdown extras](Markdown-Features) for the content
 
-Check the **[full documentation](http://miis.azurewebsites.net/)**.
+## Documentation
+
+In the following **video** you can see **how to install IIS** (Internet Information Server) and **the URL Rewrite extension**, and put your first MIIS site to work in a freshly installed Windows Server machine. It includes instructions on how to **install the samples in the source code** that explain all the features of MIIS. Make sure you check all the samples before creating a real site, so that you can take advantage of all the advanced features.
+
+<div class="video" style="position:relative;width:100%; max-width:1280px; height:0;padding-bottom:56%; border:1px solid black;margin:1.2em auto;">
+    <video style="position:absolute;left:0;top:0;width:100%;height:100%;" src="https://p157.p1.n0.cdn.getcloudapp.com/items/Z4u7glOR/3f261682-b5eb-4ba3-8f5d-223450294cd8.mp" poster="miis-winserver-install-explainer.png" controls>
+</div>
+
+>⚠ You can check a **basic documentation** (and old one, without all the advanced features, but interesting anyway, **[here](https://miis.azurewebsites.net/)**)
 
 ## Showcase
 
@@ -47,7 +55,6 @@ These are some sites that run with MIIS:
 - [campusMVP](https://www.campusmvp.es/): On-line training company. More than 300K unique users monthly. Windows Server.
 - [jmalarcon.es](https://jmalarcon.es/): My personal (non-technical) blog. Azure App.
 - [SELF LMS](https://www.plataformaself.com/): Site and blog for a Learning Management System software. Windows Server.
-- [IISMailer](https://iismailer.com/): Form processing software for ISS website and docs. Azure App.
 - [Krasis.com](https://www.krasis.com/): Basic corporate website. Windows Server.
 - [Alquiler Sanxenxo](https://www.alquilersanxenxo.com/): Seaside flat rental site. Azure App.
 - [Krasis Intranet](https://krasisintranet.azurewebsites.net/): private, OAuth 2.0 protected Intranet site. Azure App.
