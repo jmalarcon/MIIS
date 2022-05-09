@@ -41,9 +41,7 @@ MIIS is a perfect blend between a traditional CMS (such as Wordpress) and a Stat
 
 In the following **video** you can see **how to install IIS** (Internet Information Server) and **the URL Rewrite extension**, and put your first MIIS site to work in a freshly installed Windows Server machine. It includes instructions on how to **install the samples in the source code** that explain all the features of MIIS. Make sure you check all the samples before creating a real site, so that you can take advantage of all the advanced features.
 
-<div class="video" style="position:relative;width:100%; max-width:1280px; height:0;padding-bottom:56%; border:1px solid black;margin:1.2em auto;">
-    <video style="position:absolute;left:0;top:0;width:100%;height:100%;" src="https://p157.p1.n0.cdn.getcloudapp.com/items/Z4u7glOR/3f261682-b5eb-4ba3-8f5d-223450294cd8.mp" poster="miis-winserver-install-explainer.png" controls>
-</div>
+[![Explainer video - Click to play](miis-winserver-install-explainer-poster.png)](https://share.getcloudapp.com/Z4u7glOR)
 
 >⚠ You can check a **basic documentation** (and old one, without all the advanced features, but interesting anyway, **[here](https://miis.azurewebsites.net/)**)
 
