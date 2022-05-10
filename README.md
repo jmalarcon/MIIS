@@ -18,8 +18,8 @@ MIIS is a perfect blend between a traditional CMS (such as Wordpress) and a Stat
 
 ## System Requirements
 
-- **Internet Information Server** on Windows Server, or an **Azure Web App**
 - **.NET Framework 4.5** or later (usually already installed on the server)
+- **Internet Information Server** on Windows Server, or an **Azure Web App** with ASP.NET 4.5+ enabled.
 - **[IIS URL Rewrite extension](https://www.iis.net/downloads/microsoft/url-rewrite)** (you can install it directly with the [Web Platform Installer](https://www.microsoft.com/web/downloads/platform.aspx) too)
 
 ## Features
